@@ -15,7 +15,6 @@ export interface Property {
     is_deleted: boolean;
 }
 
-// Note: Using your string-based status preference
 export type MaintenanceStatus = 'PENDING' | 'IN_PROGRESS' | 'DONE';
 
 export interface MaintenanceTicket {
