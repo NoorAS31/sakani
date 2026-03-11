@@ -1,165 +1,138 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
+import {authService} from "./authService.ts";
 
-const LoginPage = () => {
+const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
     const [credentials, setCredentials] = useState({
         email: '',
         password: ''
     });
-    const [showPassword, setShowPassword] = useState(false);
+    const [error, setError] = useState <string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setCredentials(prev => ({ ...prev, [name]: value }));
+        const {name, value} = e.target;
+        setCredentials(prev => ({...prev, [name]: value}));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
-        console.log("Login credentials:", credentials);
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const data = await authService.login(credentials);
+            authService.handleLoginSuccess(data);
+            console.log("logged in successfully!");
+        onLogin();
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        }catch (err) {
+            setError("Invalid credentials");
+        } finally {
+            setIsLoading(false);
+        }  console.log("Authenticating...", credentials);
+
+        setTimeout(() => {
+            setIsLoading(false);
+            // This is where the redirect to dashboard happens later
+        }, 2000);
     };
-
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-600 via-gray-700 to-gray-600 px-4 relative overflow-hidden">
-            {/* Animated background blobs */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute -top-40 -right-40 w-80 h-80 bg-gray-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gray-700 rounded-full mix-blend-multiply filter blur-3xl opacity-20" style={{animationDelay: '2s'}}></div>
-                <div className="absolute top-1/2 left-1/3 w-72 h-72 bg-gray-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse" style={{animationDelay: '4s'}}></div>
-            </div>
+        <div
+            className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-500 to-gray-800 px-4  ">
 
-            {/* Main card */}
-            <div className="max-w-md w-full relative z-10">
-                <div className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20 hover:border-white/40 transition-all duration-300">
-                    
-                    {/* Logo and Title */}
-                    <div className="text-center mb-8">
-                        <div className="flex justify-center mb-4">
+            <div className="max-w-md  w-full space-y-8 bg-gray-200 p-10 rounded-xl shadow-lg border border-gray-100">
 
-                        </div>
-                        <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-200 via-gray-300 to-gray-400 bg-clip-text text-transparent mb-2">
-                            Rent Manager
-                        </h1>
-                        <p className="text-gray-300 text-sm">
-                            Sign in to manage your properties
-                        </p>
+                <a className="justify-center items-center mt-6 text-center text-3xl font-extrabold text-gray-900">
+                    Rent Manager
+                </a>
+                <p className="mt-2 text-center text-sm text-gray-600">
+                    Sign in to manage your properties
+                </p>
+                {error && (
+                    <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
+                        <p className="text-sm text-red-700">{error}</p>
                     </div>
+                )}
 
-                    {/* Form */}
-                    <form className="space-y-5" onSubmit={handleSubmit}>
-                        {/* Email Input */}
-                        <div className="relative group">
+                <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+                    <div className="rounded-md shadow-sm -space-y-px">
+                        <div>
                             <label className="sr-only">Email address</label>
-                            <div className="absolute left-4 top-3.5 text-gray-400 group-focus-within:text-gray-300 transition-colors pointer-events-none">
-                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
-                                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
-                                </svg>
-                            </div>
                             <input
                                 name="email"
                                 type="email"
-                                value={credentials.email}
-                                onChange={handleChange}
-                                className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-400/30 transition-all duration-200 hover:bg-white/10"
+
+                                className="rounded relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-gray-500 focus:border-gray-500 focus:z-10 sm:text-sm"
                                 placeholder="Email address"
-                                required
+                                onChange={handleChange}
                             />
                         </div>
-
-                        {/* Password Input */}
-                        <div className="relative group">
+                        <div>
                             <label className="sr-only">Password</label>
-                            <div className="absolute left-4 top-3.5 text-gray-500 group-focus-within:text-gray-300 transition-colors pointer-events-none">
-                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"></path>
-                                </svg>
-                            </div>
                             <input
                                 name="password"
-                                type={showPassword ? 'text' : 'password'}
-                                value={credentials.password}
-                                onChange={handleChange}
-                                className="w-full pl-12 pr-12 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-400/30 transition-all duration-200 hover:bg-white/10"
+                                type="password"
+
+                                className="rounded mt-3 relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-white focus:border-gray-600 focus:z-10 sm:text-sm"
                                 placeholder="Password"
-                                required
+                                onChange={handleChange}
                             />
-                            <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-4 top-3.5 text-gray-400 hover:text-gray-200 transition-colors focus:outline-none"
-                            >
-                                {showPassword ? (
-                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
-                                        <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"></path>
-                                    </svg>
-                                ) : (
-                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-14-14zM10 5a5 5 0 015 5 1 1 0 11-2 0 3 3 0 10-3 3 1 1 0 110 2 5 5 0 01-5-5V5z" clipRule="evenodd"></path>
-                                    </svg>
-                                )}
-                            </button>
+                        </div>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center">
+                            <input
+                                id="remember-me"
+                                name="remember-me"
+                                type="checkbox"
+                                className="h-4 w-4 text-gray-600 focus:ring-gray-500 border-gray-300 rounded"
+                            />
+                            <label htmlFor="remember-me" className="ml-2 block">
+                                Remember me
+                            </label>
                         </div>
 
-                        {/* Remember Me & Forgot Password */}
-                        <div className="flex items-center justify-between text-sm pt-2">
-                            <label className="flex items-center cursor-pointer group">
-                                <input
-                                    id="remember-me"
-                                    name="remember-me"
-                                    type="checkbox"
-                                    className="w-4 h-4 rounded border-white/30 bg-white/5 text-gray-500 cursor-pointer accent-gray-500"
-                                />
-                                <span className="ml-2 text-gray-300 group-hover:text-gray-200 transition-colors">
-                                    Remember me
-                                </span>
-                            </label>
-                            <a
-                                href="#"
-                                className="text-gray-300 hover:text-gray-200 transition-colors duration-200 font-medium"
-                            >
-                                Forgot?
+                        <div className="text-sm">
+                            <a href="https://github.com/xnucy/sakani"
+                               className="font-medium text-gray-600 hover:text-gray-500" target={"_blank"}>
+                                Forgot your password?
                             </a>
                         </div>
-
-                        {/* Sign In Button */}
+                    </div>
                         <button
                             type="submit"
-                            className="w-full py-3 px-4 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-gray-500/50 mt-6 shadow-lg"
-                        >
-                            Sign in
+                            disabled={isLoading}
+                            className={`group relative w-full flex justify-center bg-gradient-to-br from-gray-500 to-gray-400 hover:bg-black py-3 px-4 text-sm font-medium rounded-md text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 
+    ${isLoading} ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`} >
+
+                            {isLoading ? (
+                                <div className="flex items-center">
+                                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                                strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor"
+                                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Processing...
+                                </div>
+                            ) : (
+                                "Sign in"
+                            )}
                         </button>
 
-                        {/* Divider */}
-                        <div className="relative py-4">
-                            <div className="absolute flex items-center">
-                                <div className="w-full border-t border-white/10"></div>
-                            </div>
-                            <div className="relative flex justify-center text-sm">
-                                <span className="px-2 bg-white/10 text-gray-400">or</span>
-                            </div>
-                        </div>
 
-                        {/* Sign Up Link */}
-                        <div className="text-center">
-                            <p className="text-gray-400 text-sm">
-                                New to Rent Manager?{' '}
-                                <a
-                                    href="#"
-                                    className="text-gray-300 hover:text-gray-200 font-semibold transition-colors duration-200"
-                                >
-                                    Create account
-                                </a>
-                            </p>
-                        </div>
-                    </form>
-
-                    {/* Footer */}
-                    <div className="mt-8 pt-6 border-t border-white/10">
-                        <p className="text-xs text-gray-500 text-center">
-                            © 2024 Rent Manager. All rights reserved.
+                    <div className="text-center text-sm">
+                        <p className="text-gray-600">
+                            Don't have an account?{' '}
+                            <a href="#" className="font-medium text-gray-600 hover:text-gray-500">
+                                Create new user
+                            </a>
                         </p>
                     </div>
-                </div>
+
+                </form>
             </div>
         </div>
     );

@@ -1,14 +1,23 @@
-import type {UserToken} from "../../types";
+import axios from 'axios';
+
+const API_URL = 'https://localhost:7176/api/Auth';
+
+export interface LoginResponse {
+    token: string;
+    userId: string;
+    role: 'SuperAdmin' | 'Tenant' | 'Renter'; // Matches your ERD roles
+    tenantId: string;
+}
 
 export const authService = {
-    setToken: (token: string) => localStorage.setItem('token', token),
-    getToken: () => localStorage.getItem('token'),
-    logout: () => localStorage.removeItem('token'),
+    login: async (credentials: any): Promise<LoginResponse> => {
+        const response = await axios.post(`${API_URL}/login`, credentials);
+        return response.data;
+    },
 
-    getUserData: (): UserToken | null => {
-        const token = localStorage.getItem('token');
-        if (!token) return null;
-        // You would use jwt-decode here
-        return JSON.parse(atob(token.split('.')[1]));
+    handleLoginSuccess: (data: LoginResponse) => {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('role', data.role);
+        localStorage.setItem('tenantId', data.tenantId);
     }
 };
