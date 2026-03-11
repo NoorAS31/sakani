@@ -38,13 +38,13 @@ const DashboardPage = () => {
                         </div>
                         <div className="text-sm space-y-1">
                             <div className="flex items-center gap-2">
-                                <span className="w-3 h-3 rounded-full bg-red-500"></span> 1 Vacant
+                                <span className="w-3 h-3 rounded-full bg-red-500"></span> Vacant
                             </div>
                             <div className="flex items-center gap-2">
-                                <span className="w-3 h-3 rounded-full bg-orange-400"></span> 2 Listed
+                                <span className="w-3 h-3 rounded-full bg-orange-400"></span> Listed
                             </div>
                             <div className="flex items-center gap-2">
-                                <span className="w-3 h-3 rounded-full bg-purple-500"></span> 20 Occupied
+                                <span className="w-3 h-3 rounded-full bg-purple-500"></span>  Occupied
                             </div>
                         </div>
                     </div>

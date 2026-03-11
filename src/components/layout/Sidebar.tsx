@@ -5,23 +5,22 @@ import {
     Calculator,
     Wrench,
     CheckSquare,
-    LifeBuoy,
     Settings,
     UserCircle
 } from 'lucide-react';
+import {NavLink} from 'react-router-dom';
 
 const Sidebar = () => {
     const menuItems = [
-        { name: 'Dashboard', icon: <LayoutDashboard size={20} />, active: true },
-        { name: 'Rentals', icon: <Building2 size={20} /> },
-        { name: 'Contracts', icon: <FileText size={20} /> }, // Replaced Leasing
-        { name: 'Accounting', icon: <Calculator size={20} /> },
-        { name: 'Maintenance', icon: <Wrench size={20} /> },
-        { name: 'Tasks', icon: <CheckSquare size={20} /> },
+        { name: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/dashboard' },
+        { name: 'Rentals', icon: <Building2 size={20} />, path: '/rentals' },
+        { name: 'Contracts', icon: <FileText size={20} />, path: '/contracts' },
+        { name: 'Accounting', icon: <Calculator size={20} />, path: '/accounting' },
+        { name: 'Maintenance', icon: <Wrench size={20} />, path: '/maintenance' },
+        { name: 'Tasks', icon: <CheckSquare size={20} />, path: '/tasks' },
     ];
 
     const bottomItems = [
-        { name: 'Help & Support', icon: <LifeBuoy size={20} /> },
         { name: 'Settings', icon: <Settings size={20} /> },
         { name: 'Account', icon: <UserCircle size={20} /> },
     ];
@@ -43,16 +42,19 @@ const Sidebar = () => {
             {/* Main Navigation */}
             <nav className="flex-1 px-3 space-y-1">
                 {menuItems.map((item) => (
-                    <button
+                    <NavLink
                         key={item.name}
-                        className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-md transition-all
-              ${item.active
+                        to={item.path}
+                        className={({ isActive }) => `
+                w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-md transition-all
+                ${isActive
                             ? 'bg-slate-700/50 text-white border-l-4 border-gray-400'
-                            : 'hover:bg-slate-800 hover:text-white'}`}
+                            : 'hover:bg-slate-800 hover:text-white text-slate-400'}
+            `}
                     >
                         {item.icon}
                         {item.name}
-                    </button>
+                    </NavLink>
                 ))}
             </nav>
 
