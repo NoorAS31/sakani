@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {authService} from "./authService.ts";
+import { Eye, EyeOff} from "lucide-react";
 
 const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
     const [credentials, setCredentials] = useState({
@@ -8,7 +9,8 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
     });
     const [error, setError] = useState <string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-
+    const [rememberMe, setRememberMe] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const {name, value} = e.target;
@@ -22,7 +24,7 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
 
         try {
             const data = await authService.login(credentials);
-            authService.handleLoginSuccess(data);
+            authService.handleLoginSuccess(data, rememberMe);
             console.log("logged in successfully!");
         onLogin();
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -62,30 +64,45 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
                             <input
                                 name="email"
                                 type="email"
-
                                 className="rounded relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-gray-500 focus:border-gray-500 focus:z-10 sm:text-sm"
                                 placeholder="Email address"
                                 onChange={handleChange}
                             />
                         </div>
-                        <div>
-                            <label className="sr-only">Password</label>
-                            <input
-                                name="password"
-                                type="password"
+                        <div className="space-y-1 relative">
+                            <div className="relative">
+                                <input
+                                    type={showPassword ? "text" : "password"} // Dynamic type
+                                    name="password"
+                                    required
+                                    className="appearance-none block w-full my-3 px-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-gray-600 focus:border-gray-500 sm:text-sm pr-10"
+                                    placeholder="Password"
+                                    value={credentials.password}
+                                    onChange={handleChange}
+                                />
 
-                                className="rounded mt-3 relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-white focus:border-gray-600 focus:z-10 sm:text-sm"
-                                placeholder="Password"
-                                onChange={handleChange}
-                            />
+                                {/* The Toggle Button */}
+                                <button
+                                    type="button" // Important: set to button so it doesn't submit the form
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+                                >
+                                    {showPassword ? (
+                                        <EyeOff size={20} />
+                                    ) : (
+                                        <Eye size={20} />
+                                    )}
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div className="flex items-center justify-between text-sm">
                         <div className="flex items-center">
                             <input
                                 id="remember-me"
-                                name="remember-me"
                                 type="checkbox"
+                                checked={rememberMe}
+                                onChange={(e) => setRememberMe(e.target.checked)}
                                 className="h-4 w-4 text-gray-600 focus:ring-gray-500 border-gray-300 rounded"
                             />
                             <label htmlFor="remember-me" className="ml-2 block">

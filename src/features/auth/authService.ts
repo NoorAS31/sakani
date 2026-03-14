@@ -5,7 +5,7 @@ const API_URL = 'https://localhost:7176/api/Auth';
 export interface LoginResponse {
     token: string;
     userId: string;
-    role: 'SuperAdmin' | 'Tenant' | 'Renter'; // Matches your ERD roles
+    role: 'SuperAdmin' | 'Tenant' | 'Renter';
     tenantId: string;
 }
 
@@ -15,9 +15,12 @@ export const authService = {
         return response.data;
     },
 
-    handleLoginSuccess: (data: LoginResponse) => {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('role', data.role);
-        localStorage.setItem('tenantId', data.tenantId);
+    handleLoginSuccess: (data: LoginResponse, remember:boolean) => {
+
+        const storage = remember? localStorage : sessionStorage;
+
+        storage.setItem('token', data.token);
+        storage.setItem('role', data.role);
+        storage.setItem('tenantId', data.tenantId);
     }
 };

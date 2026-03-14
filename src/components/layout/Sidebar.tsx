@@ -1,18 +1,23 @@
 import {
     LayoutDashboard,
     Building2,
+    Building,
     FileText,
     Calculator,
     Wrench,
     CheckSquare,
     Settings,
-    UserCircle
+    UserCircle,
+    LogOut,
+    Users
 } from 'lucide-react';
 import {NavLink} from 'react-router-dom';
 
-const Sidebar = () => {
+const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
     const menuItems = [
         { name: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/dashboard' },
+        {name: 'Tenants', icon:<Users size={20}/>, path: '/tenants' },
+        { name: 'Units', icon: <Building size={20} />, path: '/units' },
         { name: 'Rentals', icon: <Building2 size={20} />, path: '/rentals' },
         { name: 'Contracts', icon: <FileText size={20} />, path: '/contracts' },
         { name: 'Accounting', icon: <Calculator size={20} />, path: '/accounting' },
@@ -66,6 +71,13 @@ const Sidebar = () => {
                         {item.name}
                     </button>
                 ))}
+                <button
+                    onClick={onLogout}
+                    className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded-md transition-colors mt-2"
+                >
+                    <LogOut size={20} />
+                    <span>Log out</span>
+                </button>
             </div>
         </div>
     );
