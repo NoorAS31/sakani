@@ -51,7 +51,7 @@ const TenantsPage = () => {
                         </thead>
                         <tbody className="divide-y divide-gray-100 cursor-pointer">
                         {tenants.map((t) => (
-                            <tr key={t.id} onClick={() => setSelectedTenant(t)} className="hover:bg-blue-50 transition-colors">
+                            <tr key={t.id} onClick={() => setSelectedTenant(t)} className="hover:bg-gray-50 transition-colors">
                                 <td className="px-6 py-4 text-xs font-mono text-gray-400">#{t.id}</td>
                                 <td className="px-6 py-4 font-semibold text-gray-800">{t.name}</td>
                                 <td className="px-6 py-4">

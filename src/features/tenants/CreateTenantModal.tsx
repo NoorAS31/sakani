@@ -102,7 +102,7 @@ const CreateTenantModal = ({ isOpen, onClose }: CreateTenantModalProps) => {
                                     type="email"
                                     onChange={handleChange}
                                     className={`w-full border rounded-lg px-3 py-2 outline-none transition-all ${
-                                        formData.email && !isEmailValid ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'
+                                        formData.email && !isEmailValid ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-gray-500'
                                     }`}
                                     placeholder="contact@company.com"
                                 />

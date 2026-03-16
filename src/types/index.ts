@@ -2,7 +2,7 @@
 export interface UserToken {
     user_id: string;
     tenant_id: string;
-    role: "superAdmin" |"tenant" | "rental";
+    role: "superAdmin" |"Tenant" | "Rental";
     exp: number;
 }
 

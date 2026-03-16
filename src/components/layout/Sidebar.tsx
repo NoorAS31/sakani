@@ -1,27 +1,33 @@
 import {
     LayoutDashboard,
     Building2,
-    Building,
     FileText,
     Calculator,
-    Wrench,
     CheckSquare,
     Settings,
     UserCircle,
     LogOut,
-    Users
+    Users,
+    MapPin
 } from 'lucide-react';
 import {NavLink} from 'react-router-dom';
+import {storage} from "../../utils/storage.ts";
+
 
 const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
+
+
     const menuItems = [
         { name: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/dashboard' },
-        {name: 'Tenants', icon:<Users size={20}/>, path: '/tenants' },
-        { name: 'Units', icon: <Building size={20} />, path: '/units' },
-        { name: 'Rentals', icon: <Building2 size={20} />, path: '/rentals' },
+        ...(storage.isSuperAdmin()
+            ? [{ name: 'Tenants', icon: <Users size={20} />, path: '/tenants' }]
+            : []),
+        ...( (storage.isSuperAdmin() || storage.isTenant()) ?
+            [{name: 'Property', icon: <Building2 size={20} />, path: '/property'}]
+        : []),
+        { name: 'Units', icon: <MapPin size={20} />, path: '/units' },
         { name: 'Contracts', icon: <FileText size={20} />, path: '/contracts' },
         { name: 'Accounting', icon: <Calculator size={20} />, path: '/accounting' },
-        { name: 'Maintenance', icon: <Wrench size={20} />, path: '/maintenance' },
         { name: 'Tasks', icon: <CheckSquare size={20} />, path: '/tasks' },
     ];
 

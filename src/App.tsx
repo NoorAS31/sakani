@@ -5,7 +5,9 @@ import DashboardLayout from './layouts/DashboardLayout';
 import DashboardPage from './features/dashboard/DashboardPage';
 import TenantsPage from "./features/tenants/tenantsPage.tsx";
 import UnitsPage from "./features/units/unitsPage.tsx";
-
+import PropertiesPage from "./features/properties/PropertiesPage.tsx";
+import {storage} from "./utils/storage.ts";
+import TasksPage from './features/tasks/TasksPage';
 
 function App() {
     const handleLogout = () => {
@@ -14,7 +16,7 @@ function App() {
         setIsAuthenticated(false); // This triggers the redirect to /login
     };
     const [isAuthenticated, setIsAuthenticated] = useState(() => {
-        return !!(localStorage.getItem('token')|| sessionStorage.getItem('token'));
+        return !!(storage.getToken());
     });
 
     return (
@@ -33,8 +35,9 @@ function App() {
                         <Route index element={<Navigate to="/dashboard" />} />
                         <Route path="dashboard" element={<DashboardPage />} />
                         <Route path="tenants" element={<TenantsPage />} />
+                        <Route path="property" element={<PropertiesPage />} />
                         <Route path="units" element={<UnitsPage />} />
-                        {/* Future routes like /rentals or /maintenance go here */}
+                        <Route path="tasks" element={<TasksPage />} />
                     </Route>
                 ) : (
                     // If not logged in, any path sends you to /login

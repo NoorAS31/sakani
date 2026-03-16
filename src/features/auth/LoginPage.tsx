@@ -17,27 +17,28 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
         setCredentials(prev => ({...prev, [name]: value}));
     };
 
-    const handleSubmit = async (e: React.SubmitEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => { // Changed to FormEvent
         e.preventDefault();
         setIsLoading(true);
         setError(null);
 
+        console.log("Authenticating...", credentials.email);
+
         try {
             const data = await authService.login(credentials);
+
             authService.handleLoginSuccess(data, rememberMe);
-            console.log("logged in successfully!");
-        onLogin();
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        }catch (err) {
-            setError("Invalid credentials");
+
+            console.log("Logged in successfully!");
+            onLogin();
+
+        } catch (err) {
+            setError("Invalid credentials. Please check your email and password.");
+            console.error("Login Error:", err);
         } finally {
             setIsLoading(false);
-        }  console.log("Authenticating...", credentials);
 
-        setTimeout(() => {
-            setIsLoading(false);
-            // This is where the redirect to dashboard happens later
-        }, 2000);
+        }
     };
     return (
         <div
@@ -120,8 +121,8 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className={`group relative w-full flex justify-center bg-gradient-to-br from-gray-500 to-gray-400 hover:bg-black py-3 px-4 text-sm font-medium rounded-md text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 
-    ${isLoading} ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`} >
+                            className={`group relative w-full flex justify-center bg-gradient-to-br from-gray-500 to-gray-400 hover:bg-black py-3 px-4 text-sm font-medium rounded-md text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 
+    ${isLoading} ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-600 hover:bg-gray-700'}`} >
 
                             {isLoading ? (
                                 <div className="flex items-center">

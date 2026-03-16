@@ -1,11 +1,12 @@
 import DashboardCard from '../../components/dashboard/DashboardCard';
+import {storage} from "../../utils/storage.ts";
 
 const DashboardPage = () => {
     return (
         <div className="space-y-6">
             {/* Welcome Message */}
             <header>
-                <h1 className="text-2xl font-bold text-gray-800">gj</h1>
+                <h1 className="text-2xl font-bold text-gray-800">Welcome {storage.getTenantName()}</h1>
             </header>
 
             {/* 3 Column Grid */}
@@ -19,7 +20,7 @@ const DashboardPage = () => {
                     </div>
                     <ul className="space-y-3">
                         {['Garden Row - $350.00', '100 Main Ave - $275.00', '150 East End - $175.00'].map((item, i) => (
-                            <li key={i} className="text-sm text-blue-600 hover:underline cursor-pointer truncate border-b border-gray-50 pb-1">
+                            <li key={i} className="text-sm text-gray-600 hover:underline cursor-pointer truncate border-b border-gray-50 pb-1">
                                 {item}
                             </li>
                         ))}
@@ -53,16 +54,16 @@ const DashboardPage = () => {
                 {/* Card 3: Maintenance Tickets (Using your string status types) */}
                 <DashboardCard title="Tasks" footerLink="View all">
                     <div className="flex gap-4 border-b border-gray-100 mb-4 text-xs font-bold uppercase pb-2">
-                        <span className="text-blue-600 border-b-2 border-blue-600 pb-2 cursor-pointer">Incoming requests</span>
+                        <span className="text-gray-600 border-b-2 border-gray-600 pb-2 cursor-pointer">Incoming requests</span>
                         <span className="text-gray-400 cursor-pointer">Assigned to me</span>
                     </div>
                     <div className="space-y-4">
                         <div>
-                            <p className="text-sm font-semibold text-blue-600">Hole in Bedroom Screen</p>
+                            <p className="text-sm font-semibold text-graye-600">Hole in Bedroom Screen</p>
                             <p className="text-[11px] text-gray-400">1 day ago | Resident request | Status: PENDING</p>
                         </div>
                         <div>
-                            <p className="text-sm font-semibold text-blue-600">Leaky faucet in kitchen</p>
+                            <p className="text-sm font-semibold text-gray-600">Leaky faucet in kitchen</p>
                             <p className="text-[11px] text-gray-400">3 days ago | Status: IN_PROGRESS</p>
                         </div>
                     </div>
