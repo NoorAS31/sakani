@@ -1,4 +1,3 @@
-// Detect which storage has our data, defaulting to localStorage
 const storageEngine = localStorage.getItem('token') ? localStorage : sessionStorage;
 
 const KEYS = {
@@ -10,14 +9,14 @@ const KEYS = {
 };
 
 export const storage = {
-    // Dynamic getter: uses whichever engine was set
     get: (key: string) => storageEngine.getItem(key),
 
     getToken: () => storageEngine.getItem(KEYS.TOKEN),
     getRole: () => storageEngine.getItem(KEYS.ROLE),
     getTenantName: () => storageEngine.getItem(KEYS.TENANT_NAME) || 'Authorized Tenant',
     getTenantID: () => storageEngine.getItem(KEYS.TENANT_ID),
-    // Checkers
+
+
     isSuperAdmin: () => storageEngine.getItem(KEYS.ROLE) === 'SuperAdmin',
     isTenant: () => storageEngine.getItem(KEYS.ROLE) === 'Tenant',
     isRental: () => storageEngine.getItem(KEYS.ROLE) === 'Rental',
@@ -32,5 +31,4 @@ export const storage = {
         if (data.tenantName) engine.setItem(KEYS.TENANT_NAME, data.tenantName);
     },
 
-    // clear already handled in app.tsx
 };

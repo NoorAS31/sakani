@@ -1,26 +1,18 @@
-// src/types/auth.ts
-export interface UserToken {
-    user_id: string;
-    tenant_id: string;
-    role: "superAdmin" |"Tenant" | "Rental";
-    exp: number;
-}
 
-// src/types/schema.ts
-export interface Property {
-    property_id: string;
-    property_name: string;
-    city: string;
-    tenant_id: string;
-    is_deleted: boolean;
-}
+export const MaintenanceStatus = {
+    Open : 1,
+    InProgress: 2,
+    Resolved :3,
+    Closed : 4
+} as const;
 
-export type MaintenanceStatus = 'PENDING' | 'IN_PROGRESS' | 'DONE';
+export type maintenanceStatus = (typeof MaintenanceStatus)[keyof typeof MaintenanceStatus];
+
 
 export interface MaintenanceTicket {
     ticket_id: string;
     subject: string;
     description: string;
-    tickets_status: MaintenanceStatus;
+    tickets_status: maintenanceStatus;
     unit_id: string;
 }
