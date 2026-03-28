@@ -1,4 +1,4 @@
-const storageEngine = localStorage.getItem('token') ? localStorage : sessionStorage;
+// utils/storage.ts
 
 const KEYS = {
     TOKEN: 'token',
@@ -8,19 +8,19 @@ const KEYS = {
     USER_ID: 'userId'
 };
 
+// Change this from a 'const' to a function
+const getStorage = () => localStorage.getItem(KEYS.TOKEN) ? localStorage : sessionStorage;
+
 export const storage = {
-    get: (key: string) => storageEngine.getItem(key),
+    get: (key: string) => getStorage().getItem(key),
+    getToken: () => getStorage().getItem(KEYS.TOKEN),
+    getRole: () => getStorage().getItem(KEYS.ROLE),
+    getTenantName: () => getStorage().getItem(KEYS.TENANT_NAME) || 'Authorized Tenant',
+    getTenantID: () => getStorage().getItem(KEYS.TENANT_ID),
+    getUserId: () => getStorage().getItem(KEYS.USER_ID),
 
-    getToken: () => storageEngine.getItem(KEYS.TOKEN),
-    getRole: () => storageEngine.getItem(KEYS.ROLE),
-    getTenantName: () => storageEngine.getItem(KEYS.TENANT_NAME) || 'Authorized Tenant',
-    getTenantID: () => storageEngine.getItem(KEYS.TENANT_ID),
-
-
-    isSuperAdmin: () => storageEngine.getItem(KEYS.ROLE) === 'SuperAdmin',
-    isTenant: () => storageEngine.getItem(KEYS.ROLE) === 'Tenant',
-    isRental: () => storageEngine.getItem(KEYS.ROLE) === 'Rental',
-    getUserId: () => storageEngine.getItem(KEYS.USER_ID),
+    isSuperAdmin: () => getStorage().getItem(KEYS.ROLE) === 'SuperAdmin',
+    isTenant: () => getStorage().getItem(KEYS.ROLE) === 'Tenant',
 
     setLoginData: (data: any, remember: boolean) => {
         const engine = remember ? localStorage : sessionStorage;
@@ -29,6 +29,5 @@ export const storage = {
         engine.setItem(KEYS.TENANT_ID, data.tenantId);
         engine.setItem(KEYS.USER_ID, data.userId);
         if (data.tenantName) engine.setItem(KEYS.TENANT_NAME, data.tenantName);
-    },
-
+    }
 };

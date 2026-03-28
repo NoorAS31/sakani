@@ -1,25 +1,30 @@
-import axios from 'axios';
+import apiClient from '../api/apiClient';
 import type { Unit } from '../types/unit';
-import {storage} from "../utils/storage.ts";
-
-const API_URL = 'https://localhost:7176/api/units';
 
 export const unitService = {
-    // For SuperAdmin: Get all units in the system
-    getAllUnits: async (): Promise<Unit[]> => {
-        const token = storage.getToken();
-        const response = await axios.get(API_URL, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
+    getAll: async (): Promise<Unit[]> => {
+        const response = await apiClient.get<Unit[]>('/units');
         return response.data;
     },
 
-    // For the logged-in Tenant: Get only their units
-    getUnitsByTenant: async (tenantId: string): Promise<Unit[]> => {
-        const token = localStorage.getItem('token');
-        const response = await axios.get(`${API_URL}/tenant/${tenantId}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
+    getByPropertyId: async (propertyId: string): Promise<Unit[]> => {
+        const response = await apiClient.get<Unit[]>(`/units/property/${propertyId}`);
         return response.data;
+    },
+
+
+    create: async (dto: any): Promise<string> => {
+        const response = await apiClient.post<string>('/units', dto);
+        return response.data;
+    },
+
+    // PUT api/Properties/{id}
+    update: async (id: string, dto: any): Promise<void> => {
+        await apiClient.put(`/Units/${id}`, dto);
+    },
+
+    // DELETE api/Properties/{id}
+    delete: async (id: string): Promise<void> => {
+        await apiClient.delete(`/units/${id}`);
     }
 };

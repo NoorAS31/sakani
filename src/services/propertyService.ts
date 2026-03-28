@@ -1,36 +1,26 @@
-import axios from 'axios';
-import type { Property } from '../types/property.ts';
-import { storage } from '../utils/storage';
-
-const API_URL = 'https://localhost:7176/api/properties';
-
-// Helper to get headers with the token
-const getAuthHeaders = () => ({
-    headers: { Authorization: `Bearer ${storage.getToken()}` }
-});
+import apiClient from '../api/apiClient';
+import type { Property } from '../types/property';
 
 export const propertyService = {
+
     getAll: async (): Promise<Property[]> => {
-        const response = await axios.get(API_URL, getAuthHeaders());
+        const response = await apiClient.get<Property[]>('/Properties');
         return response.data;
     },
 
-    getByTenant: async (tenantId: string): Promise<Property[]> => {
-        const response = await axios.get(`${API_URL}/tenant/${tenantId}`, getAuthHeaders());
+    // POST api/Properties
+    create: async (dto: any): Promise<string> => {
+        const response = await apiClient.post<string>('/Properties', dto);
         return response.data;
     },
 
-    create: async (property: Partial<Property>): Promise<Property> => {
-        const response = await axios.post(API_URL, property, getAuthHeaders());
-        return response.data;
+    // PUT api/Properties/{id}
+    update: async (id: string, dto: any): Promise<void> => {
+        await apiClient.put(`/Properties/${id}`, dto);
     },
 
-    update: async (id: string, property: Partial<Property>): Promise<Property> => {
-        const response = await axios.put(`${API_URL}/${id}`, property, getAuthHeaders());
-        return response.data;
-    },
-
+    // DELETE api/Properties/{id}
     delete: async (id: string): Promise<void> => {
-        await axios.delete(`${API_URL}/${id}`, getAuthHeaders());
+        await apiClient.delete(`/Properties/${id}`);
     }
 };

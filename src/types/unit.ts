@@ -14,14 +14,9 @@ export interface Unit {
     id: string;
     unitNo: string;
     floor: string;
-    area: number;
+    area: string;
     rentPrice: number;
     propertyId: string;
-    unitStatus:  unitStatus
-    createdAt: string;
-    createdBy: string;
-    updatedAt?: string;
-    updatedBy?: string;
-    isDeleted: boolean;
-    tenantId: string; // The "Read-Only" link we discussed
+    UnitStatus:  unitStatus;
+    tenantId: string;
 }

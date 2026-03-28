@@ -6,16 +6,18 @@ import {propertyService} from "../../services/propertyService.ts";
 interface CreatePropertyModalProps {
     isOpen: boolean;
     onClose: () => void;
+    onPropertyCreated: () => void;
 }
 
-const CreatePropertyModal = ({ isOpen, onClose }: CreatePropertyModalProps) => {
+const CreatePropertyModal = ({ isOpen, onClose, onPropertyCreated }: CreatePropertyModalProps) => {
     const [formData, setFormData] = useState({
         name: '',
         city: '',
         street: '',
         addressRegion: '',
         buildingNo: '',
-        propertyType: 'Residential',
+        propertyType: 1,
+
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -26,26 +28,28 @@ const CreatePropertyModal = ({ isOpen, onClose }: CreatePropertyModalProps) => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
         setIsSubmitting(true); // Optional: add a loading state to your button
 
         try {
             const propertyPayload = {
-                ...formData,
-                tenantId: storage.getTenantID()!,
-                isDeleted: false,
-                createdAt: new Date().toISOString(),
-                createdBy: storage.getUserId() ?? 'system' // Use the same logic here
+                name: formData.name,
+                city: formData.city,
+                street: formData.street,
+                addressRegion: formData.addressRegion,
+                buildingNo: formData.buildingNo,
+                propertyType: formData.propertyType,
+                tenantId: storage.getTenantID()
             };
 
-            await propertyService.create(propertyPayload);
-            console.log("Property saved to DB!");
-            onClose();
+            const newPropertyId = await propertyService.create(propertyPayload);
 
+            console.log("Property created with ID:", newPropertyId);
+            onPropertyCreated();
+            onClose();
         } catch (err) {
-            console.error("Failed to save property:", err);
-            alert("Check your .NET Console - something went wrong.");
+            console.error("Submission failed:", err);
         } finally {
             setIsSubmitting(false);
         }
@@ -141,10 +145,10 @@ const CreatePropertyModal = ({ isOpen, onClose }: CreatePropertyModalProps) => {
                                     value={formData.propertyType} onChange={handleChange}
                                     className="w-full border border-gray-300 rounded-xl pl-10 pr-3 py-2.5 focus:ring-2 focus:ring-gray-500 outline-none bg-white appearance-none"
                                 >
-                                    <option value="Residential">Residential</option>
-                                    <option value="Commercial">Commercial</option>
-                                    <option value="Industrial">Industrial</option>
-                                    <option value="Mixed-Use">Mixed-Use</option>
+                                    <option value="1">Residential</option>
+                                    <option value="2">Commercial</option>
+                                    <option value="3">Industrial</option>
+                                    <option value="4">Mixed-Use</option>
                                 </select>
                             </div>
                         </div>

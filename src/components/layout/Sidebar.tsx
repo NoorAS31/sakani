@@ -22,10 +22,13 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
         ...(storage.isSuperAdmin()
             ? [{ name: 'Tenants', icon: <Users size={20} />, path: '/tenants' }]
             : []),
-        ...( (storage.isSuperAdmin() || storage.isTenant()) ?
+        ...( storage.isTenant() ?
             [{name: 'Property', icon: <Building2 size={20} />, path: '/property'}]
         : []),
-        { name: 'Units', icon: <MapPin size={20} />, path: '/units' },
+
+        ...( storage.isTenant() ?
+            [{ name: 'Units', icon: <MapPin size={20} />, path: '/units' },]
+            : []),
         { name: 'Contracts', icon: <FileText size={20} />, path: '/contracts' },
         { name: 'Accounting', icon: <Calculator size={20} />, path: '/accounting' },
         { name: 'Tasks', icon: <CheckSquare size={20} />, path: '/tasks' },

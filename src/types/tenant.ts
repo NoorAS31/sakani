@@ -9,7 +9,7 @@ export const TenantStatus = {
 export type tenantStatus = (typeof TenantStatus)[keyof typeof TenantStatus];
 
 export interface Tenant {
-    id: string; // or number, based on your DB
+    id: string;
     name: string;
     addressCity: string;
     addressStreet: string;
@@ -17,10 +17,4 @@ export interface Tenant {
     email: string;
     phoneNumber: string;
     status: tenantStatus;
-    createdAt: string;
-    isDeleted: boolean;
-    // Hidden in the main view but available in the "Detail" view
-    createdBy?: string;
-    updatedAt?: string;
-    updatedBy?: string;
 }

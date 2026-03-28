@@ -113,7 +113,7 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
 
                         <div className="text-sm">
                             <a href="https://github.com/xnucy/sakani"
-                               className="font-medium text-gray-600 hover:text-gray-500" target={"_blank"}>
+                               className="font-medium text-gray-600 hover:text-gray-900" target={"_blank"}>
                                 Forgot your password?
                             </a>
                         </div>
@@ -121,7 +121,7 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className={`group relative w-full flex justify-center bg-gradient-to-br from-gray-500 to-gray-400 hover:bg-black py-3 px-4 text-sm font-medium rounded-md text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 
+                            className={`group relative w-full flex justify-center bg-gray-600 hover:bg-gray-900 py-3 px-4 text-sm font-medium rounded-md text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 
     ${isLoading} ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-600 hover:bg-gray-700'}`} >
 
                             {isLoading ? (

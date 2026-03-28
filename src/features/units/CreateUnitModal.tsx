@@ -1,165 +1,155 @@
-import React, { useState } from 'react'; // Added useState
-import { X, Save, Lock, Hash, Move, Layers } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Home, Layers, Maximize, DollarSign, Save } from 'lucide-react';
+import { unitService } from '../../services/unitService';
 
-const CreateUnitModal = ({ isOpen, onClose, tenantName }: { isOpen: boolean, onClose: () => void, tenantName: string | null }) => {
+interface CreateUnitModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    propertyId: string | null; // The ID from the clicked property row
+    onUnitCreated: () => void;
+    tenantName: string | null;
+}
 
-    // 1. ADD THIS: State initialization
+const CreateUnitModal = ({ isOpen, onClose, propertyId, onUnitCreated, tenantName }: CreateUnitModalProps) => {
+    // Initial state matching your Task interface logic
     const [formData, setFormData] = useState({
         unitNo: '',
-        propertyId: '',
         floor: '',
         area: '',
         rentPrice: '',
-        unitStatus: 'Available'
+        UnitStatus: 1,
     });
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-
-        // Guard for numbers: don't even update state if value is negative
-        if ((name === 'rentPrice' || name === 'area') && Number(value) < 0) {
-            return;
-        }
-
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     if (!isOpen) return null;
 
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!propertyId) return;
+
+        setIsSubmitting(true);
+        try {
+            const payload = {
+                unitNo: formData.unitNo,
+                floor: String(formData.floor),
+                area: String(formData.area),
+                rentPrice: Number(formData.rentPrice),
+                propertyId: propertyId,
+                UnitStatus: Number(formData.UnitStatus)
+            };
+
+            await unitService.create(payload);
+            onUnitCreated(); // Refresh the list in UnitsPage
+            onClose();
+            // Reset form
+            setFormData({ unitNo: '', floor: '', area: '', rentPrice: '', UnitStatus: 1 });
+        } catch (err) {
+            console.error("Failed to create unit:", err);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                {/* Header */}
-                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+                <div className="p-6 border-b bg-gray-50 flex justify-between items-center">
                     <div>
-                        <h2 className="text-xl font-bold text-gray-800">Create New Unit</h2>
-                        <p className="text-xs text-gray-500">Adding a physical unit to a tenant's portfolio.</p>
+                        <h2 className="text-xl font-bold text-gray-800">Add New Unit</h2>
+                        <p className="text-xs text-gray-500 font-medium">Adding to {tenantName || 'Portfolio'}</p>
                     </div>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
-                        <X size={24} />
+                    <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
+                        <X size={20} className="text-gray-500" />
                     </button>
                 </div>
 
-                <form className="p-6 space-y-5" onSubmit={(e) => { e.preventDefault(); console.log(formData); }}>
-                    {/* Read-Only Tenant Name */}
-                    <div className="bg-blue-50/50 p-3 rounded-lg border border-blue-100">
-                        <label className="text-[10px] font-bold text-gray-600 uppercase tracking-widest block mb-1">Account Owner (Tenant)</label>
-                        <div className="flex items-center gap-2 text-gray-700 font-semibold">
-                            <Lock size={14} className="text-gray-400" />
-                            <span>{tenantName || 'N/A'}</span>
+                <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                    <div>
+                        <label className="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Unit Number</label>
+                        <div className="relative">
+                            <Home className="absolute left-3 top-3 text-gray-400" size={18} />
+                            <input
+                                type="text" required placeholder="e.g. 101"
+                                className="w-full pl-10 pr-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-gray-900 outline-none transition-all"
+                                value={formData.unitNo}
+                                onChange={(e) => setFormData({...formData, unitNo: e.target.value})}
+                            />
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Unit Number */}
-                        <div className="space-y-1">
-                            <label className="text-sm font-medium text-gray-700">Unit Number (unit_no)</label>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Floor</label>
                             <div className="relative">
-                                <Hash size={16} className="absolute left-3 top-3 text-gray-400" />
+                                <Layers className="absolute left-3 top-3 text-gray-400" size={18} />
                                 <input
-                                    name="unitNo"
-                                    type="text"
-                                    required
-                                    value={formData.unitNo} // Added value binding
-                                    onChange={handleChange} // Added onChange
-                                    placeholder="e.g. 101-A"
-                                    className="w-full border border-gray-300 rounded-lg pl-10 pr-3 py-2 focus:ring-2 focus:ring-gray-500 outline-none"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Property / Building ID */}
-                        <div className="space-y-1">
-                            <label className="text-sm font-medium text-gray-700">Property / Building</label>
-                            <select
-                                name="propertyId"
-                                value={formData.propertyId} // Added value binding
-                                onChange={handleChange}
-                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-500 outline-none bg-white"
-                            >
-                                <option value="">Select Property...</option>
-                                <option value="prop_1">Garden Row Apartments</option>
-                                <option value="prop_2">Sunset View Plaza</option>
-                            </select>
-                        </div>
-
-                        {/* Floor */}
-                        <div className="space-y-1">
-                            <label className="text-sm font-medium text-gray-700">Floor</label>
-                            <div className="relative">
-                                <Layers size={16} className="absolute left-3 top-3 text-gray-400" />
-                                <input
-                                    name="floor"
-                                    type="text"
-                                    value={formData.floor} // Added value binding
-                                    onChange={handleChange}
-                                    placeholder="e.g. 2nd Floor"
-                                    className="w-full border border-gray-300 rounded-lg pl-10 pr-3 py-2 focus:ring-2 focus:ring-gray-500 outline-none"
+                                    type="number" required placeholder="0"
+                                    className="w-full pl-10 pr-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-gray-900 outline-none"
+                                    value={formData.floor}
+                                    onChange={(e) => setFormData({...formData, floor: e.target.value})}
                                 />
                             </div>
                         </div>
 
                         {/* Area */}
-                        <div className="space-y-1">
-                            <label className="text-sm font-medium text-gray-700">Area (sqm)</label>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Area (sqm)</label>
                             <div className="relative">
-                                <Move size={16} className="absolute left-3 top-3 text-gray-400" />
+                                <Maximize className="absolute left-3 top-3 text-gray-400" size={18} />
                                 <input
-                                    name="area"
-                                    type="number"
-                                    min={20}
-                                    value={formData.area} // Added value binding
-                                    placeholder="e.g. 85"
-                                    onKeyDown={(e) => ["e", "E", "-", "+"].includes(e.key) && e.preventDefault()}
-                                    onChange={handleChange}
-                                    className="w-full border border-gray-300 rounded-lg pl-10 pr-3 py-2 focus:ring-2 focus:ring-gray-500 outline-none"
+                                    type="number" required placeholder="120"
+                                    className="w-full pl-10 pr-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-gray-900 outline-none"
+                                    value={formData.area}
+                                    onChange={(e) => setFormData({...formData, area: e.target.value})}
                                 />
                             </div>
-                        </div>
-
-                        {/* Rent Price */}
-                        <div className="space-y-1">
-                            <label className="text-sm font-medium text-gray-700">Monthly Rent (rent_price)</label>
-                            <div className="relative">
-                                <span className="absolute left-3 top-2 text-gray-400">$</span>
-                                <input
-                                    name="rentPrice"
-                                    type="number"
-                                    placeholder="0.00"
-                                    min={30}
-                                    value={formData.rentPrice} // Added value binding
-                                    onKeyDown={(e) => ["e", "E", "-", "+"].includes(e.key) && e.preventDefault()}
-                                    onChange={handleChange}
-                                    className="w-full border border-gray-300 rounded-lg pl-8 pr-3 py-2 focus:ring-2 focus:ring-gray-500 outline-none"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Unit Status */}
-                        <div className="space-y-1">
-                            <label className="text-sm font-medium text-gray-700">Status (unit_status)</label>
-                            <select
-                                name="unitStatus"
-                                value={formData.unitStatus} // Added value binding
-                                onChange={handleChange}
-                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-500 outline-none bg-white"
-                            >
-                                <option value="Available">Available</option>
-                                <option value="Rented">Rented</option>
-                                <option value="UnderMaintenance">Under Maintenance</option>
-                                <option value="Reserved">Reserved</option>
-                            </select>
                         </div>
                     </div>
 
-                    {/* Footer */}
-                    <div className="pt-6 border-t border-gray-100 flex justify-end gap-3">
-                        <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors">
+                    {/* Price */}
+                    <div>
+                        <label className="block  text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Monthly Rent</label>
+                        <div className="relative">
+                            <DollarSign className="absolute left-3 top-3 text-gray-400" size={18} />
+                            <input
+                                type="number"
+                                min={50}
+                                required placeholder="100"
+                                className="w-full pl-10 pr-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-gray-900 outline-none"
+                                value={formData.rentPrice}
+                                onChange={(e) => setFormData({...formData, rentPrice: e.target.value})}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Status Selection */}
+                    <div>
+                        <label className="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Status</label>
+                        <select
+                            className="w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-gray-900 outline-none bg-white font-medium text-gray-700"
+                            value={formData.UnitStatus}
+                            onChange={(e) => setFormData({...formData, UnitStatus: Number(e.target.value)})}
+                        >
+                            <option value={1}>Available</option>
+                            <option value={2}>Rented</option>
+                            <option value={3}>Under Maintenance</option>
+                            <option value={4}>Reserved</option>
+                        </select>
+                    </div>
+
+                    <div className="flex gap-3 pt-4">
+                        <button
+                            type="button" onClick={onClose}
+                            className="flex-1 py-3 border rounded-xl font-bold text-gray-500 hover:bg-gray-50 transition-colors"
+                        >
                             Cancel
                         </button>
-                        <button type="submit" className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg text-sm font-bold flex items-center gap-2 shadow-lg transition-all active:scale-95">
-                            <Save size={18} />
-                            Create Unit
+                        <button
+                            type="submit" disabled={isSubmitting}
+                            className="flex-1 py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-black disabled:opacity-50 flex items-center justify-center gap-2 transition-all"
+                        >
+                            {isSubmitting ? "Saving..." : <><Save size={18}/> Create Unit</>}
                         </button>
                     </div>
                 </form>

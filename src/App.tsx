@@ -10,28 +10,29 @@ import {storage} from "./utils/storage.ts";
 import TasksPage from './features/tasks/TasksPage';
 
 function App() {
+    const [isAuthenticated, setIsAuthenticated] = useState(() => !!storage.getToken());
+
     const handleLogout = () => {
         localStorage.clear();
         sessionStorage.clear();
-        setIsAuthenticated(false); // This triggers the redirect to /login
+        setIsAuthenticated(false);
     };
-    const [isAuthenticated, setIsAuthenticated] = useState(() => {
-        return !!(storage.getToken());
-    });
+
+    // Use a unique key that changes when authentication status changes.
+    // This forces the entire DashboardLayout (and Sidebar) to unmount/remount
+    // ensuring they read the FRESH localStorage data.
+    const layoutKey = isAuthenticated ? `authenticated-${storage.getUserId()}` : 'guest';
 
     return (
         <BrowserRouter>
             <Routes>
-                {/* If logged in, redirect away from /login to /dashboard */}
                 <Route
                     path="/login"
                     element={isAuthenticated ? <Navigate to="/dashboard" /> : <LoginPage onLogin={() => setIsAuthenticated(true)} />}
                 />
 
-
-                {/* Protected Area: Only shows if isAuthenticated is true */}
                 {isAuthenticated ? (
-                    <Route path="/" element={<DashboardLayout onLogout={handleLogout} />}>
+                    <Route path="/" element={<DashboardLayout key={layoutKey} onLogout={handleLogout} />}>
                         <Route index element={<Navigate to="/dashboard" />} />
                         <Route path="dashboard" element={<DashboardPage />} />
                         <Route path="tenants" element={<TenantsPage />} />
@@ -40,13 +41,10 @@ function App() {
                         <Route path="tasks" element={<TasksPage />} />
                     </Route>
                 ) : (
-                    // If not logged in, any path sends you to /login
                     <Route path="*" element={<Navigate to="/login" />} />
                 )}
-
             </Routes>
         </BrowserRouter>
     );
 }
-
 export default App;

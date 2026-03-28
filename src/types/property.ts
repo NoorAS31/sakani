@@ -15,11 +15,6 @@ export interface Property {
     street: string;
     addressRegion: string;
     buildingNo: string;
-    Type: PropertyType;
-    createdAt: string;
-    createdBy: string;
-    updatedAt?: string;
-    updatedBy?: string;
-    isDeleted: boolean;
+    propertyType: string | number ;
     tenantId: string;
 }

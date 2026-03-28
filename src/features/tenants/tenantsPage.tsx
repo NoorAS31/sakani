@@ -55,12 +55,11 @@ const TenantsPage = () => {
                                 <td className="px-6 py-4 text-xs font-mono text-gray-400">#{t.id}</td>
                                 <td className="px-6 py-4 font-semibold text-gray-800">{t.name}</td>
                                 <td className="px-6 py-4">
-                                        <span className={`px-2 py-1 rounded text-[10px] font-bold ${t.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                        <span className={`px-2 py-1 rounded text-[10px] font-bold ${t.status === 1 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                                             {t.status}
                                         </span>
                                 </td>
-                                <td className="px-6 py-4 text-gray-500">{new Date(t.createdAt).toLocaleDateString()}</td>
-                                <td className="px-6 py-4 text-center">{t.isDeleted ? '✅ Yes' : '❌ No'}</td>
+
                             </tr>
                         ))}
                         </tbody>
@@ -91,8 +90,7 @@ const TenantsPage = () => {
                         <DetailItem label="Region" value={selectedTenant.addressRegion} />
                         <hr className="border-gray-100" />
                         <DetailItem label="Status" value={selectedTenant.status} />
-                        <DetailItem label="Created At" value={selectedTenant.createdAt} />
-                        <DetailItem label="Is Deleted" value={selectedTenant.isDeleted ? "Yes" : "No"} />
+
                     </div>
                 </div>
             )}

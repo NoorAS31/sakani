@@ -1,51 +1,144 @@
-import  { useState } from 'react';
-import { Plus, Building, MapPin, ExternalLink } from 'lucide-react';
-import CreatePropertyModal from './CreatePropertyModal.tsx';
+import { useEffect, useState } from 'react';
+import { Plus, MapPin, Edit3, Trash2, Eye } from 'lucide-react';
+import { propertyService } from '../../services/propertyService';
+import CreatePropertyModal from './CreatePropertyModal';
+import UpdatePropertyModal from './UpdatePropertyModal'; // Import the Edit Modal
+import type { Property } from '../../types/property';
+import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal.tsx"
+import { useNavigate } from 'react-router-dom';
+
 
 const PropertiesPage = () => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [properties, setProperties] = useState<Property[]>([]);
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
+    const [propertyToDelete, setPropertyToDelete] = useState<Property | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+
+    const confirmDelete = async () => {
+        if (!propertyToDelete) return;
+
+        try {
+            setIsDeleting(true);
+            await propertyService.delete(propertyToDelete.id);
+            await loadProperties(); // Refresh list
+            setPropertyToDelete(null); // Close modal
+        } catch (err) {
+            console.error("Delete failed:", err);
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    const loadProperties = async () => {
+        try {
+            setLoading(true);
+            const data = await propertyService.getAll();
+            setProperties(data);
+        } catch (err) {
+            console.error("Failed to load properties:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadProperties();
+    }, []);
+
 
     return (
         <div className="p-6 space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-800">Properties</h1>
-                    <p className="text-sm text-gray-500">Manage buildings and physical locations.</p>
+                    <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Real Estate Portfolio</h1>
+                    <p className="text-sm text-gray-500">Manage your buildings and properties</p>
                 </div>
                 <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition-all active:scale-95"
+                    onClick={() => setIsCreateModalOpen(true)}
+                    className="bg-gray-800 hover:bg-black text-white px-4 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-lg font-semibold"
                 >
                     <Plus size={18} /> Add Property
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* Property Card Template */}
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden group hover:border-gray-300 transition-all">
-                    <div className="h-3 bg-gray-600"></div>
-                    <div className="p-5">
-                        <div className="flex justify-between items-start mb-4">
-                            <div className="p-2 bg-gray-50 rounded-lg text-gray-600">
-                                <Building size={24} />
-                            </div>
-                            <span className="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded">RESIDENTIAL</span>
-                        </div>
-                        <h3 className="font-bold text-gray-900 text-lg">Al-Yasmeen Tower</h3>
-                        <div className="mt-2 space-y-1 text-sm text-gray-500">
-                            <div className="flex items-center gap-1">
-                                <MapPin size={14} /> <span>Amman, Abdali</span>
-                            </div>
-                            <p>Street: King Hussein St. | Bldg: 44</p>
-                        </div>
-                        <button className="mt-4 w-full flex items-center justify-center gap-2 py-2 bg-gray-50 hover:bg-blue-50 hover:text-gray-600 text-gray-700 text-xs font-bold rounded-lg transition-colors">
-                            <ExternalLink size={14} /> View Units
-                        </button>
-                    </div>
-                </div>
+            {/* Stats Card */}
+            <div className="bg-white p-4 w-48 rounded-2xl border border-gray-100 shadow-sm">
+                <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">Total Buildings</p>
+                <p className="text-2xl font-black text-gray-800">{properties.length}</p>
             </div>
 
-            <CreatePropertyModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+            {loading ? (
+                <div className="py-20 text-center text-gray-400 italic">Fetching your properties...</div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {properties.map((property) => (
+                        <div key={property.id} className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300">
+
+                            <div className="p-5">
+                                <h3 className="font-bold text-lg text-gray-800 mb-1">{property.name}</h3>
+                                <div className="flex flex-col gap-1 text-gray-500 text-sm mb-4">
+                                    <div className="flex items-center gap-1">
+                                        <MapPin size={14} />
+                                        <span>{property.city}, {property.street}</span>
+                                    </div>
+                                    <span className="text-xs font-semibold text-gray-500 ">{property.propertyType}</span>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <button
+                                        onClick={() => navigate(`/units?propertyId=${property.id}`)}
+                                        className="w-full py-2 bg-gray-900 text-white rounded-lg text-sm font-bold hover:bg-black transition-all flex items-center justify-center gap-2">
+                                        <Eye size={16} /> View Units
+                                    </button>
+
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => setSelectedProperty(property)} // Trigger Edit Modal
+                                            className="flex-1 py-2 bg-amber-50 text-amber-600 rounded-lg text-sm font-bold hover:bg-amber-500 hover:text-white transition-all flex items-center justify-center gap-1"
+                                        >
+                                            <Edit3 size={16} /> Edit
+                                        </button>
+                                        <button
+                                            onClick={()=>setPropertyToDelete(property)}
+                                            className="flex-1 py-2 bg-red-50 text-red-500 rounded-lg text-sm font-bold hover:bg-red-600 hover:text-white transition-all flex items-center justify-center gap-1"
+                                        >
+                                            <Trash2 size={16} /> Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* CREATE MODAL */}
+            <CreatePropertyModal
+                isOpen={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
+                onPropertyCreated={loadProperties}
+            />
+
+            {/* UPDATE MODAL */}
+            {selectedProperty && (
+                <UpdatePropertyModal
+                    property={selectedProperty}
+                    isOpen={!!selectedProperty}
+                    onClose={() => setSelectedProperty(null)}
+                    onPropertyUpdated={loadProperties}
+                />
+            )}
+            {/* DELETE MODAL */}
+            <DeleteConfirmationModal
+                isOpen={!!propertyToDelete}
+                onClose={() => setPropertyToDelete(null)}
+                onConfirm={confirmDelete}
+                title={propertyToDelete?.name || ""}
+                isSubmitting={isDeleting}
+            />
         </div>
     );
 };
