@@ -72,7 +72,7 @@ const TenantsPage = () => {
                 onClose={() => setIsModalOpen(false)}
             />
 
-            {/* Side Panel for Details */}
+
             {selectedTenant && (
                 <div className="w-4/12 ml-6 bg-white border border-gray-200 rounded-lg shadow-xl p-6 h-fit sticky top-6 animate-in slide-in-from-right">
                     <div className="flex justify-between items-center mb-6">

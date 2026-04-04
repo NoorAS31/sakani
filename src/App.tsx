@@ -8,6 +8,8 @@ import UnitsPage from "./features/units/unitsPage.tsx";
 import PropertiesPage from "./features/properties/PropertiesPage.tsx";
 import {storage} from "./utils/storage.ts";
 import TasksPage from './features/tasks/TasksPage';
+import RentersPage from "./features/renters/RenterPage.tsx";
+import ContractsPage from "./features/contracts/ContractsPage.tsx";
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(() => !!storage.getToken());
@@ -38,6 +40,8 @@ function App() {
                         <Route path="tenants" element={<TenantsPage />} />
                         <Route path="property" element={<PropertiesPage />} />
                         <Route path="units" element={<UnitsPage />} />
+                        <Route path="renters" element={<RentersPage />} />
+                        <Route path="contracts" element={<ContractsPage/>} />
                         <Route path="tasks" element={<TasksPage />} />
                     </Route>
                 ) : (

@@ -1,28 +1,43 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Building2, Home, ArrowRight, Loader2 } from 'lucide-react';
+import { Building2, Home, ArrowRight, Loader2, FileText } from 'lucide-react';
 import { propertyService } from '../../services/propertyService';
 import { unitService } from '../../services/unitService';
+import { contractService } from '../../services/contractService';
 import type { Property } from '../../types/property';
 import type { Unit } from '../../types/unit';
+import type { Contract } from '../../types/contract';
+import { storage } from "../../utils/storage.ts";
 
 const DashboardPage = () => {
     const navigate = useNavigate();
     const [properties, setProperties] = useState<Property[]>([]);
     const [allUnits, setAllUnits] = useState<Unit[]>([]);
+    const [contracts, setContracts] = useState<Contract[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
+            if (storage.isSuperAdmin()) {
+                setLoading(false);
+                return;
+            }
+
             try {
-                // 1. Fetch all properties
-                const props = await propertyService.getAll();
+                const [props, allContracts] = await Promise.all([
+                    propertyService.getAll(),
+                    contractService.getAll()
+                ]);
                 setProperties(props);
-
-
-                const unitPromises = props.map(p => unitService.getByPropertyId(p.id).catch(() => []));
-                const unitsResults = await Promise.all(unitPromises);
-                setAllUnits(unitsResults.flat());
+                setContracts(allContracts);
+                
+                // Fetch units for each property
+                const unitsPromises = props.map((p: Property) => 
+                    unitService.getByPropertyId(p.id).catch(() => [])
+                );
+                const unitsArrays = await Promise.all(unitsPromises);
+                const units = unitsArrays.flat();
+                setAllUnits(units);
             } catch (err) {
                 console.error("Dashboard fetch failed", err);
             } finally {
@@ -32,14 +47,22 @@ const DashboardPage = () => {
 
         fetchDashboardData();
     }, []);
-
-    // Logic for Card 2: Status Aggregation
-    const stats = {
-        available: allUnits.filter(u => (u as any).unitStatus === 1 || (u as any).UnitStatus === 1).length,
-        rented: allUnits.filter(u => (u as any).unitStatus === 2 || (u as any).UnitStatus === 2).length,
-        maintenance: allUnits.filter(u => (u as any).unitStatus === 3 || (u as any).UnitStatus === 3).length,
-        reserved: allUnits.filter(u => (u as any).unitStatus === 4 || (u as any).UnitStatus === 4).length,
+    // Unit Status Aggregation
+    const unitStats = {
+        available: allUnits.filter(u => (u as any).unitStatus === 1).length,
+        rented: allUnits.filter(u =>  (u as any).unitStatus === 2).length,
+        maintenance: allUnits.filter(u =>  (u as any).unitStatus === 3).length,
+        reserved: allUnits.filter(u => (u as any).unitStatus === 4).length,
         total: allUnits.length
+    };
+
+    // Contract Status Aggregation (priority: Active -> Draft -> Expired -> Terminated)
+    const contractStats = {
+        active: contracts.filter(c => c.contractStatus === 2).length,
+        draft: contracts.filter(c => c.contractStatus === 1).length,
+        expired: contracts.filter(c => c.contractStatus === 3).length,
+        terminated: contracts.filter(c => c.contractStatus === 4).length,
+        total: contracts.length
     };
 
     if (loading) return (
@@ -47,7 +70,6 @@ const DashboardPage = () => {
             <Loader2 className="animate-spin" size={32} />
         </div>
     );
-    console.log("Current Units in State:", allUnits);
     return (
         <div className="p-6 space-y-6">
             <header>
@@ -55,7 +77,7 @@ const DashboardPage = () => {
                 <p className="text-gray-500 text-sm">Portfolio Overview & Property Health</p>
             </header>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
                 {/* Card 1: My Properties (Anchors) */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -95,9 +117,8 @@ const DashboardPage = () => {
                     <div className="flex items-center justify-around h-32">
                         {/* The Visual Circle */}
                         <div className="relative w-28 h-28 rounded-full border-[12px] border-gray-50 flex items-center justify-center shadow-inner">
-                            {/* We could use a CSS conic-gradient here for a real chart later */}
                             <div className="text-center">
-                                <span className="block text-2xl font-black text-gray-800">{stats.total}</span>
+                                <span className="block text-2xl font-black text-gray-800">{unitStats.total}</span>
                                 <span className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Total Units</span>
                             </div>
                         </div>
@@ -107,22 +128,70 @@ const DashboardPage = () => {
                             <div className="flex items-center gap-3">
                                 <span className="w-3 h-3 rounded-full bg-green-500"></span>
                                 <span className="text-gray-600 w-20">Available</span>
-                                <span className="font-bold text-gray-900">{stats.available}</span>
+                                <span className="font-bold text-gray-900">{unitStats.available}</span>
                             </div>
                             <div className="flex items-center gap-3">
                                 <span className="w-3 h-3 rounded-full bg-blue-500"></span>
                                 <span className="text-gray-600 w-20">Rented</span>
-                                <span className="font-bold text-gray-900">{stats.rented}</span>
+                                <span className="font-bold text-gray-900">{unitStats.rented}</span>
                             </div>
                             <div className="flex items-center gap-3">
                                 <span className="w-3 h-3 rounded-full bg-red-500"></span>
                                 <span className="text-gray-600 w-20">Maintenance</span>
-                                <span className="font-bold text-gray-900">{stats.maintenance}</span>
+                                <span className="font-bold text-gray-900">{unitStats.maintenance}</span>
                             </div>
                             <div className="flex items-center gap-3">
                                 <span className="w-3 h-3 rounded-full bg-amber-400"></span>
                                 <span className="text-gray-600 w-20">Reserved</span>
-                                <span className="font-bold text-gray-900">{stats.reserved}</span>
+                                <span className="font-bold text-gray-900">{unitStats.reserved}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Card 3: Contracts Overview */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                    <div className="mb-6 flex justify-between items-center">
+                        <h2 className="font-bold text-gray-700 flex items-center gap-2">
+                            <FileText size={18} className="text-purple-500" /> Contracts
+                        </h2>
+                        <button 
+                            onClick={() => navigate('/contracts')}
+                            className="text-xs text-purple-600 hover:text-purple-800 font-bold"
+                        >
+                            View All →
+                        </button>
+                    </div>
+
+                    <div className="flex items-center justify-around h-32">
+                        <div className="relative w-28 h-28 rounded-full border-[12px] border-gray-50 flex items-center justify-center shadow-inner">
+                            <div className="text-center">
+                                <span className="block text-2xl font-black text-gray-800">{contractStats.total}</span>
+                                <span className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Total</span>
+                            </div>
+                        </div>
+
+                        {/* Legend ordered by priority: Active -> Draft -> Expired -> Terminated */}
+                        <div className="text-xs space-y-2 font-medium">
+                            <div className="flex items-center gap-3">
+                                <span className="w-3 h-3 rounded-full bg-green-500"></span>
+                                <span className="text-gray-600 w-20">Active</span>
+                                <span className="font-bold text-gray-900">{contractStats.active}</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <span className="w-3 h-3 rounded-full bg-blue-500"></span>
+                                <span className="text-gray-600 w-20">Draft</span>
+                                <span className="font-bold text-gray-900">{contractStats.draft}</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <span className="w-3 h-3 rounded-full bg-amber-500"></span>
+                                <span className="text-gray-600 w-20">Expired</span>
+                                <span className="font-bold text-gray-900">{contractStats.expired}</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <span className="w-3 h-3 rounded-full bg-red-500"></span>
+                                <span className="text-gray-600 w-20">Terminated</span>
+                                <span className="font-bold text-gray-900">{contractStats.terminated}</span>
                             </div>
                         </div>
                     </div>

@@ -115,14 +115,12 @@ const PropertiesPage = () => {
                 </div>
             )}
 
-            {/* CREATE MODAL */}
             <CreatePropertyModal
                 isOpen={isCreateModalOpen}
                 onClose={() => setIsCreateModalOpen(false)}
                 onPropertyCreated={loadProperties}
             />
 
-            {/* UPDATE MODAL */}
             {selectedProperty && (
                 <UpdatePropertyModal
                     property={selectedProperty}
@@ -131,7 +129,6 @@ const PropertiesPage = () => {
                     onPropertyUpdated={loadProperties}
                 />
             )}
-            {/* DELETE MODAL */}
             <DeleteConfirmationModal
                 isOpen={!!propertyToDelete}
                 onClose={() => setPropertyToDelete(null)}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, Home} from 'lucide-react';
+import { X, Save, Home, AlertTriangle } from 'lucide-react';
 import { unitService } from '../../services/unitService';
+import { contractService } from '../../services/contractService';
 import type { Unit } from '../../types/unit';
 
 interface UpdateUnitModalProps {
@@ -19,8 +20,34 @@ const UpdateUnitModal = ({ unit, isOpen, onClose, onUnitUpdated }: UpdateUnitMod
         UnitStatus: 1
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [hasActiveContract, setHasActiveContract] = useState(false);
+    const [checkingContract, setCheckingContract] = useState(true);
 
-    // FIX 1: Map the incoming data correctly
+    // Check if unit has an active or draft contract
+    useEffect(() => {
+        const checkContract = async () => {
+            if (!unit || !isOpen) return;
+            
+            setCheckingContract(true);
+            try {
+                const contracts = await contractService.getAll();
+                // Block editing if contract is Draft (1) or Active (2)
+                const unitHasContract = contracts.some((c: any) => 
+                    c.unitId === unit.id && (c.contractStatus === 1 || c.contractStatus === 2)
+                );
+                setHasActiveContract(unitHasContract);
+            } catch (error) {
+                console.error("Failed to check contracts:", error);
+                setHasActiveContract(false);
+            } finally {
+                setCheckingContract(false);
+            }
+        };
+        
+        checkContract();
+    }, [unit, isOpen]);
+
+    // Map the incoming data correctly
     useEffect(() => {
         if (unit) {
             setFormData({
@@ -28,15 +55,20 @@ const UpdateUnitModal = ({ unit, isOpen, onClose, onUnitUpdated }: UpdateUnitMod
                 floor: unit.floor,
                 area: String(unit.area),
                 rentPrice: unit.rentPrice,
-                UnitStatus: (unit as any).status ?? unit.unitStatus ?? 1
+                UnitStatus: (unit as any).status ?? unit.UnitStatus ?? 1
             });
         }
     }, [unit]);
 
     if (!isOpen) return null;
 
-    const handleSubmit = async (e: React.SubmitEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (hasActiveContract) {
+            return;
+        }
+        
         setIsSubmitting(true);
 
         try {
@@ -59,6 +91,7 @@ const UpdateUnitModal = ({ unit, isOpen, onClose, onUnitUpdated }: UpdateUnitMod
             setIsSubmitting(false);
         }
     };
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
             <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
@@ -69,6 +102,16 @@ const UpdateUnitModal = ({ unit, isOpen, onClose, onUnitUpdated }: UpdateUnitMod
                     </button>
                 </div>
 
+                {hasActiveContract && !checkingContract && (
+                    <div className="mx-6 mt-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
+                        <AlertTriangle size={20} className="text-amber-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                            <p className="text-sm font-bold text-amber-800">Unit has an active or pending contract</p>
+                            <p className="text-xs text-amber-600 mt-1">You cannot edit this unit while it has a draft or active contract. Please terminate or expire the contract first.</p>
+                        </div>
+                    </div>
+                )}
+
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
                     <div>
                         <label className="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Unit Number</label>
@@ -76,7 +119,8 @@ const UpdateUnitModal = ({ unit, isOpen, onClose, onUnitUpdated }: UpdateUnitMod
                             <Home className="absolute left-3 top-3 text-gray-400" size={18} />
                             <input
                                 type="text" required
-                                className="w-full pl-10 pr-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-gray-900 outline-none"
+                                disabled={hasActiveContract}
+                                className="w-full pl-10 pr-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-gray-900 outline-none disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
                                 value={formData.unitNo}
                                 onChange={(e) => setFormData({...formData, unitNo: e.target.value})}
                             />
@@ -88,7 +132,8 @@ const UpdateUnitModal = ({ unit, isOpen, onClose, onUnitUpdated }: UpdateUnitMod
                             <label className="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Floor</label>
                             <input
                                 type="text" required
-                                className="w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-gray-900 outline-none"
+                                disabled={hasActiveContract}
+                                className="w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-gray-900 outline-none disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
                                 value={formData.floor}
                                 onChange={(e) => setFormData({...formData, floor: e.target.value})}
                             />
@@ -97,7 +142,8 @@ const UpdateUnitModal = ({ unit, isOpen, onClose, onUnitUpdated }: UpdateUnitMod
                             <label className="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Area (sqm)</label>
                             <input
                                 type="number" required
-                                className="w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-gray-900 outline-none"
+                                disabled={hasActiveContract}
+                                className="w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-gray-900 outline-none disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
                                 value={formData.area}
                                 onChange={(e) => setFormData({...formData, area: e.target.value})}
                             />
@@ -108,7 +154,8 @@ const UpdateUnitModal = ({ unit, isOpen, onClose, onUnitUpdated }: UpdateUnitMod
                         <label className="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Monthly Rent</label>
                         <input
                             type="number" required
-                            className="w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-gray-900 outline-none"
+                            disabled={hasActiveContract}
+                            className="w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-gray-900 outline-none disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
                             value={formData.rentPrice}
                             onChange={(e) => setFormData({...formData, rentPrice: Number(e.target.value)})}
                         />
@@ -117,7 +164,8 @@ const UpdateUnitModal = ({ unit, isOpen, onClose, onUnitUpdated }: UpdateUnitMod
                     <div>
                         <label className="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Status</label>
                         <select
-                            className="w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-gray-900 outline-none bg-white"
+                            disabled={hasActiveContract}
+                            className="w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-gray-900 outline-none bg-white disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
                             value={formData.UnitStatus}
                             onChange={(e) => setFormData({...formData, UnitStatus: Number(e.target.value)})}
                         >
@@ -130,8 +178,12 @@ const UpdateUnitModal = ({ unit, isOpen, onClose, onUnitUpdated }: UpdateUnitMod
 
                     <div className="flex gap-3 pt-4">
                         <button type="button" onClick={onClose} className="flex-1 py-3 border rounded-xl font-bold text-gray-500 hover:bg-gray-50">Cancel</button>
-                        <button type="submit" disabled={isSubmitting} className="flex-1 py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-black flex items-center justify-center gap-2">
-                            {isSubmitting ? "Saving..." : <><Save size={18}/> Update Unit</>}
+                        <button 
+                            type="submit" 
+                            disabled={isSubmitting || hasActiveContract || checkingContract} 
+                            className="flex-1 py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-black flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {checkingContract ? "Checking..." : isSubmitting ? "Saving..." : <><Save size={18}/> Update Unit</>}
                         </button>
                     </div>
                 </form>

@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { storage } from "C:/Users/USER/WebstormProjects/sakani/src/utils/storage";
+import {storage} from "../../utils/storage.ts";
+
 
 const API_URL = 'https://localhost:7176/api/Auth';
 
@@ -16,8 +17,6 @@ export const authService = {
     },
 
     handleLoginSuccess: (data: LoginResponse, remember:boolean) => {
-
-
         storage.setLoginData(data, remember);
 
     }

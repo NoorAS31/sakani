@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { ChevronDown, ChevronRight, Home, Plus, Layers, Maximize2, Edit2, Trash2, Loader2 } from 'lucide-react';
+import { ChevronDown, ChevronRight, Home, Plus, Layers, Maximize2, Edit2, Trash2, Loader2, FileText } from 'lucide-react';
 import { propertyService } from '../../services/propertyService';
 import { unitService } from '../../services/unitService';
 import CreateUnitModal from './CreateUnitModal';
+import CreateContractModal from '../contracts/CreateContractModal';
 import { storage } from "../../utils/storage.ts";
 import type { Property } from '../../types/property';
 import type { Unit } from '../../types/unit';
@@ -96,6 +97,7 @@ const UnitsPage = () => {
         }
     };
     const [editingUnit, setEditingUnit] = useState<Unit | null>(null);
+    const [contractUnit, setContractUnit] = useState<Unit | null>(null);
 
     const handleRefreshPropertyUnits = async (propertyId: string) => {
         const updatedData = await unitService.getByPropertyId(propertyId);
@@ -158,7 +160,8 @@ const UnitsPage = () => {
                                     </button>
                                 </div>                            ) : (
                                 unitsByProperty[property.id]?.map(unit => {
-                                    const statusConfig = getStatusConfig(unit.unitStatus);
+                                    const currentStatus = (unit as any).unitStatus ?? (unit as any).UnitStatus;
+                                    const statusConfig = getStatusConfig(currentStatus);
 
                                     return (
                                         <div key={unit.id} className="flex items-center justify-between p-4 ml-8 hover:bg-blue-50/20 group transition-colors">
@@ -185,6 +188,15 @@ const UnitsPage = () => {
                                                 </span>
 
                                                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    {currentStatus === 1 && (
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); setContractUnit(unit); }}
+                                                            className="p-1.5 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-md transition-colors"
+                                                            title="Create Contract"
+                                                        >
+                                                            <FileText size={14} />
+                                                        </button>
+                                                    )}
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); setEditingUnit(unit); }}
                                                         className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">
@@ -206,7 +218,6 @@ const UnitsPage = () => {
                 </div>
             ))}
 
-            {/* Modals */}
             <CreateUnitModal
                 isOpen={isUnitModalOpen}
                 onClose={() => setIsUnitModalOpen(false)}
@@ -228,6 +239,21 @@ const UnitsPage = () => {
                     isOpen={!!editingUnit}
                     onClose={() => setEditingUnit(null)}
                     onUnitUpdated={(propId) => handleRefreshPropertyUnits(propId)}
+                />
+            )}
+
+            {contractUnit && (
+                <CreateContractModal
+                    isOpen={!!contractUnit}
+                    onClose={() => setContractUnit(null)}
+                    onContractCreated={() => {
+                        setContractUnit(null);
+                        // Refresh units to update status
+                        if (contractUnit.propertyId) {
+                            handleRefreshPropertyUnits(contractUnit.propertyId);
+                        }
+                    }}
+                    preselectedUnit={contractUnit}
                 />
             )}
         </div>
