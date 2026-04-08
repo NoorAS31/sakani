@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import type { Task } from '../../services/taskService';
 import { taskService } from "../../services/taskService";
 import { storage } from "../../utils/storage.ts";
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 const TasksPage = () => {
+    usePageTitle('Tasks');
     const [tasks, setTasks] = useState<Task[]>([]);
     const [loading, setLoading] = useState(true);
 

@@ -9,8 +9,10 @@ import type { Property } from '../../types/property';
 import type { Unit } from '../../types/unit';
 import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal.tsx";
 import UpdateUnitModal from "./UpdateUnitModal.tsx";
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 const UnitsPage = () => {
+    usePageTitle('Units');
     const [properties, setProperties] = useState<Property[]>([]);
     const [unitsByProperty, setUnitsByProperty] = useState<Record<string, Unit[]>>({});
     const [expandedProperties, setExpandedProperties] = useState<string[]>([]);
@@ -160,7 +162,7 @@ const UnitsPage = () => {
                                     </button>
                                 </div>                            ) : (
                                 unitsByProperty[property.id]?.map(unit => {
-                                    const currentStatus = (unit as any).unitStatus ?? (unit as any).UnitStatus;
+                                    const currentStatus = (unit as any).unitStatus;
                                     const statusConfig = getStatusConfig(currentStatus);
 
                                     return (

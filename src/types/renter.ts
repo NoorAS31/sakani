@@ -6,15 +6,15 @@ export interface Renter {
     phoneNumber: string;
     userId?: string;
     description?: string;
-    // These usually come flattened in a Response DTO
-    fullName?: string;
+    firstName: string;
+    lastName: string;
     email?: string;
-    // We'll leave contracts as an empty array for now
     contracts?: Contract[];
 }
 
 export interface CreateRenterDto {
-    fullName: string;
+    firstName: string;
+    lastName: string;
     email: string;
     phoneNumber: string;
     nationalId: string;

@@ -6,9 +6,11 @@ import UpdatePropertyModal from './UpdatePropertyModal'; // Import the Edit Moda
 import type { Property } from '../../types/property';
 import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal.tsx"
 import { useNavigate } from 'react-router-dom';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 
 const PropertiesPage = () => {
+    usePageTitle('Properties');
     const [properties, setProperties] = useState<Property[]>([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();

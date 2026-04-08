@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { FileText, Plus, Search, Calendar, DollarSign, User, Home, X, Loader2, Clock, Download, XCircle } from 'lucide-react';
+import { useEffect, useState, useMemo } from 'react';
+import { FileText, Plus, Search, Calendar, DollarSign, User, Home, X, Loader2, Clock, Download, XCircle, Filter, ChevronDown, ArrowRight } from 'lucide-react';
 import { contractService } from '../../services/contractService';
 import { unitService } from '../../services/unitService';
 import { renterService } from '../../services/renterService';
@@ -7,10 +7,22 @@ import type { Contract } from '../../types/contract';
 import type { Unit } from '../../types/unit';
 import type { Renter } from '../../types/renter';
 import CreateContractModal from './CreateContractModal';
+import { usePageTitle } from '../../hooks/usePageTitle';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface ContractDisplay extends Contract {
     unitNo?: string;
     renterName?: string;
+}
+
+interface Filters {
+    status: string;
+    renterId: string;
+    paymentFreq: string;
+    startDateFrom: string;
+    startDateTo: string;
+    endDateFrom: string;
+    endDateTo: string;
 }
 
 const getPaymentFreqLabel = (freq: number): string => {
@@ -24,11 +36,57 @@ const getPaymentFreqLabel = (freq: number): string => {
 };
 
 const ContractsPage = () => {
+    usePageTitle('Contracts');
+    const location = useLocation();
+    const navigate = useNavigate();
     const [contracts, setContracts] = useState<ContractDisplay[]>([]);
+    const [renters, setRenters] = useState<Renter[]>([]);
     const [selectedContract, setSelectedContract] = useState<ContractDisplay | null>(null);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchTerm, setSearchTerm] = useState(() => new URLSearchParams(location.search).get('search') ?? '');
+    const [isTerminating, setIsTerminating] = useState(false);
+    const [showFilters, setShowFilters] = useState(false);
+    const [filters, setFilters] = useState<Filters>({
+        status: '',
+        renterId: '',
+        paymentFreq: '',
+        startDateFrom: '',
+        startDateTo: '',
+        endDateFrom: '',
+        endDateTo: '',
+    });
+
+    const activeFilterCount = useMemo(() => {
+        return Object.values(filters).filter(v => v !== '').length;
+    }, [filters]);
+
+    const clearFilters = () => {
+        setFilters({
+            status: '',
+            renterId: '',
+            paymentFreq: '',
+            startDateFrom: '',
+            startDateTo: '',
+            endDateFrom: '',
+            endDateTo: '',
+        });
+    };
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const renterSearch = params.get('search') ?? '';
+        const renterNameFilter = params.get('renter')?.trim().toLowerCase() ?? '';
+        const matchedRenter = renterNameFilter
+            ? renters.find(r => `${r.firstName} ${r.lastName}`.trim().toLowerCase() === renterNameFilter)
+            : undefined;
+
+        setSearchTerm(renterSearch);
+        setFilters(prev => ({
+            ...prev,
+            renterId: matchedRenter?.id ?? ''
+        }));
+    }, [location.search, renters]);
 
     const handleDownloadPDF = (contract: ContractDisplay) => {
         // Generate a simple text-based contract document
@@ -70,7 +128,15 @@ Renter: ________________________ Date: __________
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
     };
-
+    const getStatusConfig = (statusNum: number) => {
+        switch (statusNum) {
+            case 1: return { label: 'DRAFT', color: 'bg-ember-100 text-ember-700' };
+            case 2: return { label: 'ACTIVE', color: 'bg-green-100 text-green-700' };
+            case 3: return { label: 'EXPIRED', color: 'bg-red-100 text-red-700' };
+            case 4: return { label: 'TERMINATED', color: 'bg-red-100 text-red-700' };
+            default: return { label: 'UNKNOWN', color: 'bg-gray-100 text-gray-700' };
+        }
+    };
     const fetchContracts = async () => {
         setLoading(true);
         try {
@@ -79,6 +145,8 @@ Renter: ________________________ Date: __________
                 unitService.getAll(),
                 renterService.getAll()
             ]);
+            
+            setRenters(rentersData);
             
             // Create lookup maps for units and renters
             const unitsMap = new Map<string, Unit>();
@@ -98,16 +166,10 @@ Renter: ________________________ Date: __________
                 const unit = unitsMap.get(c.unitId);
                 const renter = rentersMap.get(c.renterId);
                 return {
-                    id: c.id,
-                    startDate: c.startDate,
-                    endDate: c.endDate,
-                    rentAmount: c.rentAmount,
-                    contractStatus: c.contractStatus,
+                    ...c,
                     paymentFreq: c.paymentFreq ?? 1,
-                    unitId: c.unitId,
-                    renterId: c.renterId,
                     unitNo: unit?.unitNo || '',
-                    renterName: renter?.fullName || '',
+                    renterName: renter ? `${renter.firstName} ${renter.lastName}` : '',
                 };
             });
             
@@ -119,19 +181,84 @@ Renter: ________________________ Date: __________
         }
     };
 
+    const handleTerminateContract = async (contract: ContractDisplay) => {
+        if (!confirm('Are you sure you want to terminate this contract?')) return;
+        
+        setIsTerminating(true);
+        try {
+            await contractService.terminate(contract.id);
+            await fetchContracts();
+            setSelectedContract(null);
+        } catch (error) {
+            console.error("Failed to terminate contract", error);
+        } finally {
+            setIsTerminating(false);
+        }
+    };
+
+    const handleViewContract = () => {
+        if (!selectedContract) return;
+        navigate(`/accounting/payments?contractId=${encodeURIComponent(selectedContract.id)}`);
+    };
+
     useEffect(() => {
         fetchContracts();
     }, []);
 
-    const filteredContracts = contracts.filter(c => {
-        if (!searchTerm.trim()) return true;
-        const search = searchTerm.toLowerCase();
-        return (
-            c.renterName?.toLowerCase().includes(search) ||
-            c.unitNo?.toLowerCase().includes(search) ||
-            c.id.toLowerCase().includes(search)
-        );
-    });
+    const filteredContracts = useMemo(() => {
+        return contracts.filter(c => {
+            // Text search
+            if (searchTerm.trim()) {
+                const search = searchTerm.toLowerCase();
+                const matchesSearch = 
+                    c.renterName?.toLowerCase().includes(search) ||
+                    c.unitNo?.toLowerCase().includes(search) ||
+                    c.id.toLowerCase().includes(search);
+                if (!matchesSearch) return false;
+            }
+
+            // Status filter
+            if (filters.status && c.contractStatus !== Number(filters.status)) {
+                return false;
+            }
+
+            // Renter filter
+            if (filters.renterId && c.renterId !== filters.renterId) {
+                return false;
+            }
+
+            // Payment frequency filter
+            if (filters.paymentFreq && c.paymentFreq !== Number(filters.paymentFreq)) {
+                return false;
+            }
+
+            // Start date range
+            if (filters.startDateFrom) {
+                const contractStart = new Date(c.startDate);
+                const filterFrom = new Date(filters.startDateFrom);
+                if (contractStart < filterFrom) return false;
+            }
+            if (filters.startDateTo) {
+                const contractStart = new Date(c.startDate);
+                const filterTo = new Date(filters.startDateTo);
+                if (contractStart > filterTo) return false;
+            }
+
+            // End date range
+            if (filters.endDateFrom) {
+                const contractEnd = new Date(c.endDate);
+                const filterFrom = new Date(filters.endDateFrom);
+                if (contractEnd < filterFrom) return false;
+            }
+            if (filters.endDateTo) {
+                const contractEnd = new Date(c.endDate);
+                const filterTo = new Date(filters.endDateTo);
+                if (contractEnd > filterTo) return false;
+            }
+
+            return true;
+        });
+    }, [contracts, searchTerm, filters]);
 
     return (
         <div className="flex flex-row gap-6 relative min-h-[calc(100vh-100px)]">
@@ -150,16 +277,141 @@ Renter: ________________________ Date: __________
                     </button>
                 </div>
 
-                {/* Search Bar */}
-                <div className="relative group">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                    <input
-                        type="text"
-                        placeholder="Search by renter name or unit number..."
-                        className="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-gray-900 outline-none transition-all shadow-sm"
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+                {/* Search Bar and Filter Toggle */}
+                <div className="flex gap-3">
+                    <div className="relative group flex-1">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                        <input
+                            type="text"
+                            placeholder="Search by renter name or unit number..."
+                            className="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-gray-900 outline-none transition-all shadow-sm"
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                    <button
+                        onClick={() => setShowFilters(!showFilters)}
+                        className={`px-4 py-3 rounded-2xl border flex items-center gap-2 font-semibold transition-all ${
+                            showFilters || activeFilterCount > 0
+                                ? 'bg-gray-900 text-white border-gray-900'
+                                : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                        }`}
+                    >
+                        <Filter size={18} />
+                        Filters
+                        {activeFilterCount > 0 && (
+                            <span className="bg-white text-gray-900 text-xs font-bold px-2 py-0.5 rounded-full">
+                                {activeFilterCount}
+                            </span>
+                        )}
+                        <ChevronDown size={16} className={`transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+                    </button>
                 </div>
+
+                {/* Filter Panel */}
+                {showFilters && (
+                    <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="flex justify-between items-center">
+                            <h3 className="font-bold text-gray-800">Filter Contracts</h3>
+                            {activeFilterCount > 0 && (
+                                <button
+                                    onClick={clearFilters}
+                                    className="text-sm text-red-600 hover:text-red-700 font-medium"
+                                >
+                                    Clear all filters
+                                </button>
+                            )}
+                        </div>
+                        
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {/* Status Filter */}
+                            <div className="space-y-1">
+                                <label className="text-xs font-bold text-gray-500 uppercase">Status</label>
+                                <select
+                                    value={filters.status}
+                                    onChange={(e) => setFilters({...filters, status: e.target.value})}
+                                    className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 outline-none text-sm"
+                                >
+                                    <option value="">All Statuses</option>
+                                    <option value="1">Draft</option>
+                                    <option value="2">Active</option>
+                                    <option value="3">Expired</option>
+                                    <option value="4">Terminated</option>
+                                </select>
+                            </div>
+
+                            {/* Renter Filter */}
+                            <div className="space-y-1">
+                                <label className="text-xs font-bold text-gray-500 uppercase">Renter</label>
+                                <select
+                                    value={filters.renterId}
+                                    onChange={(e) => setFilters({...filters, renterId: e.target.value})}
+                                    className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 outline-none text-sm"
+                                >
+                                    <option value="">All Renters</option>
+                                    {renters.map(r => (
+                                        <option key={r.id} value={r.id}>{`${r.firstName} ${r.lastName}`}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Payment Frequency Filter */}
+                            <div className="space-y-1">
+                                <label className="text-xs font-bold text-gray-500 uppercase">Payment Freq</label>
+                                <select
+                                    value={filters.paymentFreq}
+                                    onChange={(e) => setFilters({...filters, paymentFreq: e.target.value})}
+                                    className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 outline-none text-sm"
+                                >
+                                    <option value="">All Frequencies</option>
+                                    <option value="1">Monthly</option>
+                                    <option value="3">Quarterly</option>
+                                    <option value="6">Semi-Annually</option>
+                                    <option value="12">Yearly</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Date Range Filters */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2">
+                            <div className="space-y-1">
+                                <label className="text-xs font-bold text-gray-500 uppercase">Start Date From</label>
+                                <input
+                                    type="date"
+                                    value={filters.startDateFrom}
+                                    onChange={(e) => setFilters({...filters, startDateFrom: e.target.value})}
+                                    className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 outline-none text-sm"
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-xs font-bold text-gray-500 uppercase">Start Date To</label>
+                                <input
+                                    type="date"
+                                    value={filters.startDateTo}
+                                    onChange={(e) => setFilters({...filters, startDateTo: e.target.value})}
+                                    className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 outline-none text-sm"
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-xs font-bold text-gray-500 uppercase">End Date From</label>
+                                <input
+                                    type="date"
+                                    value={filters.endDateFrom}
+                                    onChange={(e) => setFilters({...filters, endDateFrom: e.target.value})}
+                                    className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 outline-none text-sm"
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-xs font-bold text-gray-500 uppercase">End Date To</label>
+                                <input
+                                    type="date"
+                                    value={filters.endDateTo}
+                                    onChange={(e) => setFilters({...filters, endDateTo: e.target.value})}
+                                    className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 outline-none text-sm"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {loading ? (
                     <div className="flex justify-center py-20"><Loader2 className="animate-spin text-gray-400" size={40} /></div>
@@ -168,8 +420,18 @@ Renter: ________________________ Date: __________
                         <FileText size={48} className="mx-auto text-gray-300 mb-4" />
                         <h3 className="text-lg font-bold text-gray-600">No contracts found</h3>
                         <p className="text-sm text-gray-400 mt-1">
-                            {searchTerm ? `No results for "${searchTerm}"` : 'Create your first contract to get started'}
+                            {searchTerm || activeFilterCount > 0 
+                                ? 'No contracts match your search or filters' 
+                                : 'Create your first contract to get started'}
                         </p>
+                        {activeFilterCount > 0 && (
+                            <button
+                                onClick={clearFilters}
+                                className="mt-4 text-sm text-gray-900 font-semibold hover:underline"
+                            >
+                                Clear all filters
+                            </button>
+                        )}
                     </div>
                 ) : (
                     <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
@@ -185,8 +447,10 @@ Renter: ________________________ Date: __________
                             </thead>
                             <tbody className="divide-y divide-gray-50 cursor-pointer">
                             {filteredContracts.map((contract) => (
+
                                 <tr
                                     key={contract.id}
+                                    id={`contract-row-${contract.id}`}
                                     onClick={() => setSelectedContract(contract)}
                                     className={`hover:bg-gray-50 transition-colors ${selectedContract?.id === contract.id ? 'bg-gray-50' : ''}`}
                                 >
@@ -194,10 +458,8 @@ Renter: ________________________ Date: __________
                                     <td className="px-6 py-4 text-sm text-gray-600">{contract.renterName || 'Renter'}</td>
                                     <td className="px-6 py-4 font-semibold text-blue-600">${contract.rentAmount}</td>
                                     <td className="px-6 py-4">
-                                            <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase ${
-                                                contract.contractStatus === 1 ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
-                                            }`}>
-                                                {contract.contractStatus === 1 ? 'Active' : 'Pending'}
+                                            <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase ${getStatusConfig(contract.contractStatus).color} `}>
+                                                {getStatusConfig(contract.contractStatus).label}
                                             </span>
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-500">
@@ -238,6 +500,12 @@ Renter: ________________________ Date: __________
                         
                         {/* Action Buttons */}
                         <div className="pt-4 space-y-3">
+                            <button
+                                onClick={handleViewContract}
+                                className="w-full py-3 border border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+                            >
+                                <ArrowRight size={18} /> View Payments
+                            </button>
                             <button 
                                 onClick={() => handleDownloadPDF(selectedContract)}
                                 className="w-full py-3 bg-gray-900 text-white rounded-xl text-sm font-bold hover:bg-black transition-colors flex items-center justify-center gap-2"
@@ -246,9 +514,12 @@ Renter: ________________________ Date: __________
                             </button>
                             {(selectedContract.contractStatus === 1 || selectedContract.contractStatus === 2) && (
                                 <button 
-                                    className="w-full py-3 bg-red-50 text-red-600 rounded-xl text-sm font-bold hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
+                                    onClick={() => handleTerminateContract(selectedContract)}
+                                    disabled={isTerminating}
+                                    className="w-full py-3 bg-red-50 text-red-600 rounded-xl text-sm font-bold hover:bg-red-100 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    <XCircle size={18} /> Terminate Contract
+                                    {isTerminating ? <Loader2 size={18} className="animate-spin" /> : <XCircle size={18} />}
+                                    {isTerminating ? 'Terminating...' : 'Terminate Contract'}
                                 </button>
                             )}
                         </div>

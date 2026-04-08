@@ -8,8 +8,10 @@ import type { Property } from '../../types/property';
 import type { Unit } from '../../types/unit';
 import type { Contract } from '../../types/contract';
 import { storage } from "../../utils/storage.ts";
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 const DashboardPage = () => {
+    usePageTitle('Dashboard');
     const navigate = useNavigate();
     const [properties, setProperties] = useState<Property[]>([]);
     const [allUnits, setAllUnits] = useState<Unit[]>([]);
@@ -47,23 +49,52 @@ const DashboardPage = () => {
 
         fetchDashboardData();
     }, []);
-    // Unit Status Aggregation
+    // Unit Status Aggregation - handle both camelCase and PascalCase
+    const getUnitStatus = (u: any) => u.unitStatus ?? u.UnitStatus;
     const unitStats = {
-        available: allUnits.filter(u => (u as any).unitStatus === 1).length,
-        rented: allUnits.filter(u =>  (u as any).unitStatus === 2).length,
-        maintenance: allUnits.filter(u =>  (u as any).unitStatus === 3).length,
-        reserved: allUnits.filter(u => (u as any).unitStatus === 4).length,
+        available: allUnits.filter(u => getUnitStatus(u) === 1).length,
+        rented: allUnits.filter(u => getUnitStatus(u) === 2).length,
+        maintenance: allUnits.filter(u => getUnitStatus(u) === 3).length,
+        reserved: allUnits.filter(u => getUnitStatus(u) === 4).length,
         total: allUnits.length
     };
 
-    // Contract Status Aggregation (priority: Active -> Draft -> Expired -> Terminated)
+    // Contract Status Aggregation - handle both camelCase and PascalCase
+    const getContractStatus = (c: any) => c.contractStatus ?? c.ContractStatus;
     const contractStats = {
-        active: contracts.filter(c => c.contractStatus === 2).length,
-        draft: contracts.filter(c => c.contractStatus === 1).length,
-        expired: contracts.filter(c => c.contractStatus === 3).length,
-        terminated: contracts.filter(c => c.contractStatus === 4).length,
+        active: contracts.filter(c => getContractStatus(c) === 2).length,
+        pending: contracts.filter(c => getContractStatus(c) === 1).length,
+        expired: contracts.filter(c => getContractStatus(c) === 3).length,
+        terminated: contracts.filter(c => getContractStatus(c) === 4).length,
         total: contracts.length
     };
+
+    // Calculate ring segments for units
+    const unitRingSegments = () => {
+        if (unitStats.total === 0) return { available: 0, rented: 0, maintenance: 0, reserved: 0 };
+        const total = unitStats.total;
+        return {
+            available: (unitStats.available / total) * 100,
+            rented: (unitStats.rented / total) * 100,
+            maintenance: (unitStats.maintenance / total) * 100,
+            reserved: (unitStats.reserved / total) * 100
+        };
+    };
+
+    // Calculate ring segments for contracts
+    const contractRingSegments = () => {
+        if (contractStats.total === 0) return { active: 0, pending: 0, expired: 0, terminated: 0 };
+        const total = contractStats.total;
+        return {
+            active: (contractStats.active / total) * 100,
+            pending: (contractStats.pending / total) * 100,
+            expired: (contractStats.expired / total) * 100,
+            terminated: (contractStats.terminated / total) * 100
+        };
+    };
+
+    const unitSegs = unitRingSegments();
+    const contractSegs = contractRingSegments();
 
     if (loading) return (
         <div className="h-96 flex items-center justify-center text-gray-400">
@@ -115,11 +146,45 @@ const DashboardPage = () => {
                     </div>
 
                     <div className="flex items-center justify-around h-32">
-                        {/* The Visual Circle */}
-                        <div className="relative w-28 h-28 rounded-full border-[12px] border-gray-50 flex items-center justify-center shadow-inner">
-                            <div className="text-center">
-                                <span className="block text-2xl font-black text-gray-800">{unitStats.total}</span>
-                                <span className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Total Units</span>
+                        {/* The Visual Circle - SVG Donut Chart */}
+                        <div className="relative w-28 h-28">
+                            <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+                                {/* Background circle */}
+                                <circle cx="18" cy="18" r="15.915" fill="none" stroke="#f3f4f6" strokeWidth="3" />
+                                {/* Available - Green */}
+                                <circle 
+                                    cx="18" cy="18" r="15.915" fill="none" 
+                                    stroke="#22c55e" strokeWidth="3"
+                                    strokeDasharray={`${unitSegs.available} ${100 - unitSegs.available}`}
+                                    strokeDashoffset="0"
+                                />
+                                {/* Rented - Blue */}
+                                <circle 
+                                    cx="18" cy="18" r="15.915" fill="none" 
+                                    stroke="#3b82f6" strokeWidth="3"
+                                    strokeDasharray={`${unitSegs.rented} ${100 - unitSegs.rented}`}
+                                    strokeDashoffset={`${-unitSegs.available}`}
+                                />
+                                {/* Maintenance - Red */}
+                                <circle 
+                                    cx="18" cy="18" r="15.915" fill="none" 
+                                    stroke="#ef4444" strokeWidth="3"
+                                    strokeDasharray={`${unitSegs.maintenance} ${100 - unitSegs.maintenance}`}
+                                    strokeDashoffset={`${-(unitSegs.available + unitSegs.rented)}`}
+                                />
+                                {/* Reserved - Amber */}
+                                <circle 
+                                    cx="18" cy="18" r="15.915" fill="none" 
+                                    stroke="#f59e0b" strokeWidth="3"
+                                    strokeDasharray={`${unitSegs.reserved} ${100 - unitSegs.reserved}`}
+                                    strokeDashoffset={`${-(unitSegs.available + unitSegs.rented + unitSegs.maintenance)}`}
+                                />
+                            </svg>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="text-center">
+                                    <span className="block text-2xl font-black text-gray-800">{unitStats.total}</span>
+                                    <span className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Total Units</span>
+                                </div>
                             </div>
                         </div>
 
@@ -164,10 +229,44 @@ const DashboardPage = () => {
                     </div>
 
                     <div className="flex items-center justify-around h-32">
-                        <div className="relative w-28 h-28 rounded-full border-[12px] border-gray-50 flex items-center justify-center shadow-inner">
-                            <div className="text-center">
-                                <span className="block text-2xl font-black text-gray-800">{contractStats.total}</span>
-                                <span className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Total</span>
+                        <div className="relative w-28 h-28">
+                            <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+                                {/* Background circle */}
+                                <circle cx="18" cy="18" r="15.915" fill="none" stroke="#f3f4f6" strokeWidth="3" />
+                                {/* Active - Green */}
+                                <circle 
+                                    cx="18" cy="18" r="15.915" fill="none" 
+                                    stroke="#22c55e" strokeWidth="3"
+                                    strokeDasharray={`${contractSegs.active} ${100 - contractSegs.active}`}
+                                    strokeDashoffset="0"
+                                />
+                                {/* Pending - Blue */}
+                                <circle 
+                                    cx="18" cy="18" r="15.915" fill="none" 
+                                    stroke="#3b82f6" strokeWidth="3"
+                                    strokeDasharray={`${contractSegs.pending} ${100 - contractSegs.pending}`}
+                                    strokeDashoffset={`${-contractSegs.active}`}
+                                />
+                                {/* Expired - Amber */}
+                                <circle 
+                                    cx="18" cy="18" r="15.915" fill="none" 
+                                    stroke="#f59e0b" strokeWidth="3"
+                                    strokeDasharray={`${contractSegs.expired} ${100 - contractSegs.expired}`}
+                                    strokeDashoffset={`${-(contractSegs.active + contractSegs.pending)}`}
+                                />
+                                {/* Terminated - Red */}
+                                <circle 
+                                    cx="18" cy="18" r="15.915" fill="none" 
+                                    stroke="#ef4444" strokeWidth="3"
+                                    strokeDasharray={`${contractSegs.terminated} ${100 - contractSegs.terminated}`}
+                                    strokeDashoffset={`${-(contractSegs.active + contractSegs.pending + contractSegs.expired)}`}
+                                />
+                            </svg>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="text-center">
+                                    <span className="block text-2xl font-black text-gray-800">{contractStats.total}</span>
+                                    <span className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Total</span>
+                                </div>
                             </div>
                         </div>
 
@@ -180,8 +279,8 @@ const DashboardPage = () => {
                             </div>
                             <div className="flex items-center gap-3">
                                 <span className="w-3 h-3 rounded-full bg-blue-500"></span>
-                                <span className="text-gray-600 w-20">Draft</span>
-                                <span className="font-bold text-gray-900">{contractStats.draft}</span>
+                                <span className="text-gray-600 w-20">Pending</span>
+                                <span className="font-bold text-gray-900">{contractStats.pending}</span>
                             </div>
                             <div className="flex items-center gap-3">
                                 <span className="w-3 h-3 rounded-full bg-amber-500"></span>

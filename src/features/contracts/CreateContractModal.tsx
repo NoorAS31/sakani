@@ -75,7 +75,7 @@ const CreateContractModal = ({ isOpen, onClose, onContractCreated, preselectedRe
     useEffect(() => {
         if (isOpen && preselectedRenter) {
             const renterId = preselectedRenter.id || '';
-            const fullName = preselectedRenter.fullName ||  '';
+            const fullName = `${preselectedRenter.firstName} ${preselectedRenter.lastName}`;
             setFormData(prev => ({ ...prev, renterId }));
             setRenterSearch(fullName);
             setSelectedRenterDisplay(fullName);
@@ -152,7 +152,7 @@ const CreateContractModal = ({ isOpen, onClose, onContractCreated, preselectedRe
         if (!renterSearch.trim()) return renters;
         const searchLower = renterSearch.toLowerCase();
         return renters.filter((r: Renter) => {
-            const fullName = (r.fullName || '').toLowerCase();
+            const fullName = `${r.firstName} ${r.lastName}`.toLowerCase();
             const nationalId = (r.nationalId || '').toLowerCase();
             return fullName.includes(searchLower) || nationalId.includes(searchLower);
         });
@@ -310,7 +310,7 @@ const CreateContractModal = ({ isOpen, onClose, onContractCreated, preselectedRe
                                                         <div
                                                             key={r.id}
                                                             onClick={() => {
-                                                                const displayText = r.fullName || '';
+                                                                const displayText = `${r.firstName} ${r.lastName}`;
                                                                 setFormData({...formData, renterId: r.id});
                                                                 setRenterSearch(displayText);
                                                                 setSelectedRenterDisplay(displayText);
@@ -318,7 +318,7 @@ const CreateContractModal = ({ isOpen, onClose, onContractCreated, preselectedRe
                                                             }}
                                                             className={`p-3 hover:bg-blue-50 cursor-pointer text-sm font-medium border-b border-gray-50 last:border-0 transition-colors ${formData.renterId === r.id ? 'bg-blue-50' : ''}`}
                                                         >
-                                                            <div className="font-bold">{r.fullName}</div>
+                                                            <div className="font-bold">{`${r.firstName} ${r.lastName}`}</div>
                                                             <div className="text-xs text-gray-500 mt-1">ID: {r.nationalId}</div>
                                                         </div>
                                                     ))}

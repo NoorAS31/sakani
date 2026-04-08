@@ -1,8 +1,10 @@
 import React, {useState} from 'react';
 import {authService} from "./authService.ts";
 import { Eye, EyeOff} from "lucide-react";
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
+    usePageTitle('Login');
     const [credentials, setCredentials] = useState({
         email: '',
         password: ''

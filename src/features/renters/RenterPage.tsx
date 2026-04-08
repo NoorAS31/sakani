@@ -5,20 +5,24 @@ import {
     CreditCard,
     Plus,
     Search,
-    FileText,
     Loader2,
     MessageSquare,
     X,
     Mail,
     Info,
-    Pen
+    Pen,
+    ArrowRight
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { renterService } from '../../services/renterService';
 import type { Renter } from '../../types/renter';
 import CreateRenterModal from "./CreateRenterModal.tsx";
 import CreateContractModal from "../contracts/CreateContractModal.tsx";
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 const RentersPage = () => {
+    usePageTitle('Renters');
+    const navigate = useNavigate();
     const [renters, setRenters] = useState<Renter[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -41,10 +45,15 @@ const RentersPage = () => {
             .finally(() => setLoading(false));
     }, []);
 
-    const filteredRenters = renters.filter(r =>
-        r.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        r.nationalId.includes(searchTerm)
-    );
+    const filteredRenters = renters.filter(r => {
+        const fullName = `${r.firstName} ${r.lastName}`.toLowerCase();
+        return fullName.includes(searchTerm.toLowerCase()) ||
+            r.nationalId.includes(searchTerm);
+    });
+
+    const handleViewContracts = (renter: Renter) => {
+        navigate(`/contracts?renter=${encodeURIComponent(`${renter.firstName} ${renter.lastName}`)}`);
+    };
 
     return (
         /* FIX: Ensure this is a flex container so the Sidebar and Grid sit side-by-side */
@@ -97,7 +106,7 @@ const RentersPage = () => {
                                             <User size={24} />
                                         </div>
                                         <div>
-                                            <h3 className="font-bold text-gray-900">{renter.fullName || 'Unnamed Renter'}</h3>
+                                            <h3 className="font-bold text-gray-900">{`${renter.firstName} ${renter.lastName}`}</h3>
                                             <div className="flex items-center gap-1 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
                                                 <CreditCard size={10} /> {renter.nationalId}
                                             </div>
@@ -113,13 +122,15 @@ const RentersPage = () => {
                                 </div>
 
                                 <div className="mt-6 pt-4 border-t border-gray-50">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2 text-gray-400">
-                                            <FileText size={14} />
-                                            <span className="text-[10px] font-bold uppercase tracking-tight">No Active Contract</span>
-                                        </div>
-                                        <span className="text-xs font-bold text-gray-900">View details →</span>
-                                    </div>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleViewContracts(renter);
+                                        }}
+                                        className="w-full py-2.5 px-4 bg-gray-900 text-white rounded-xl text-sm font-bold hover:bg-black transition-colors flex items-center justify-center gap-2"
+                                    >
+                                        <ArrowRight size={16} /> View Contracts
+                                    </button>
                                 </div>
                             </div>
                         ))}
@@ -142,7 +153,7 @@ const RentersPage = () => {
                             <div className="w-20 h-20 bg-white/10 rounded-3xl flex items-center justify-center mb-4 backdrop-blur-sm border border-white/20">
                                 <User size={40} />
                             </div>
-                            <h2 className="text-xl font-bold">{selectedRenter.fullName}</h2>
+                            <h2 className="text-xl font-bold">{`${selectedRenter.firstName} ${selectedRenter.lastName}`}</h2>
                             <p className="text-xs text-gray-400 font-mono">#{selectedRenter.id.split('-')[0]}</p>
                         </div>
                     </div>
@@ -153,7 +164,8 @@ const RentersPage = () => {
                             <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
                                 <Info size={14} /> Personal Information
                             </h3>
-                            <DetailItem icon={<Pen size ={16}/>} label={"Full name"} value={selectedRenter.fullName}/>
+                            <DetailItem icon={<Pen size ={16}/>} label={"First Name"} value={selectedRenter.firstName}/>
+                            <DetailItem icon={<Pen size ={16}/>} label={"Last Name"} value={selectedRenter.lastName}/>
                             <DetailItem icon={<CreditCard size={16}/>} label="National ID" value={selectedRenter.nationalId} />
                             <DetailItem icon={<Mail size={16}/>} label="Email Address" value={selectedRenter.email} />
                             <DetailItem icon={<Phone size={16}/>} label="Phone Number" value={selectedRenter.phoneNumber} />

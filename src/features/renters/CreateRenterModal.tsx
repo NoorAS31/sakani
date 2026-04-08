@@ -11,7 +11,8 @@ interface CreateRenterModalProps {
 const CreateRenterModal = ({ isOpen, onClose, onRenterCreated }: CreateRenterModalProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({
-        fullName: '',
+        firstName: '',
+        lastName: '',
         email: '',
         phoneNumber: '',
         nationalId: '',
@@ -34,7 +35,7 @@ const CreateRenterModal = ({ isOpen, onClose, onRenterCreated }: CreateRenterMod
             onRenterCreated();
             onClose();
             // Reset form
-            setFormData({ fullName: '', email: '', phoneNumber: '', nationalId: '', description: '' });
+            setFormData({ firstName: '',lastName: '', email: '', phoneNumber: '', nationalId: '', description: '' });
         } catch (error) {
             console.error("Failed to create renter", error);
             alert("Error creating renter. Please check your data.");
@@ -63,19 +64,35 @@ const CreateRenterModal = ({ isOpen, onClose, onRenterCreated }: CreateRenterMod
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                    {/* Full Name */}
-                    <div className="space-y-1">
-                        <label className="text-xs font-bold text-gray-500 uppercase ml-1">Full Name</label>
-                        <div className="relative">
-                            <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                            <input
-                                required
-                                name="fullName"
-                                value={formData.fullName}
-                                onChange={handleChange}
-                                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 outline-none transition-all"
-                                placeholder="e.g. Ahmad Mansour"
-                            />
+                    {/* First Name & Last Name */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                            <label className="text-xs font-bold text-gray-500 uppercase ml-1">First Name</label>
+                            <div className="relative">
+                                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                                <input
+                                    required
+                                    name="firstName"
+                                    value={formData.firstName}
+                                    onChange={handleChange}
+                                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 outline-none transition-all"
+                                    placeholder="e.g. Ahmad"
+                                />
+                            </div>
+                        </div>
+                        <div className="space-y-1">
+                            <label className="text-xs font-bold text-gray-500 uppercase ml-1">Last Name</label>
+                            <div className="relative">
+                                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                                <input
+                                    required
+                                    name="lastName"
+                                    value={formData.lastName}
+                                    onChange={handleChange}
+                                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 outline-none transition-all"
+                                    placeholder="e.g. Al-Khalili"
+                                />
+                            </div>
                         </div>
                     </div>
 

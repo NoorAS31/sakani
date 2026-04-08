@@ -4,8 +4,10 @@ import { Plus, X } from 'lucide-react';
 import type { Tenant } from '../../types/tenant';
 import { tenantService } from '../../services/tenantService';
 import CreateTenantModal from './CreateTenantModal';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 const TenantsPage = () => {
+    usePageTitle('Tenants');
     const [tenants, setTenants] = useState<Tenant[]>([]);
     const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
 
