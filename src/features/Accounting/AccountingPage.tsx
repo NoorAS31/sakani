@@ -29,6 +29,8 @@ const timeRangeOptions: { value: TimeRange; label: string }[] = [
     { value: '60', label: '5Y' },
 ];
 
+const MAX_RANGE_MONTHS = 60;
+
 const getDateRangeFromFilter = (month: TimeRange) => {
     const months = Number(month);
     const now = new Date();
@@ -63,14 +65,18 @@ const AccountingPage = () => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const { overdueStart, todayStart, expectedEnd } = getDateRangeFromFilter(timeRange);
+                const { todayStart } = getDateRangeFromFilter('1');
+                const {
+                    overdueStart: maxOverdueStart,
+                    expectedEnd: maxExpectedEnd
+                } = getDateRangeFromFilter(String(MAX_RANGE_MONTHS) as TimeRange);
                 const now = new Date();
                 const month = now.getMonth() + 1;
                 const year = now.getFullYear();
-                const rangeMonths = Number(timeRange);
+                const rangeMonths = MAX_RANGE_MONTHS;
                 const expectedStartDate = todayStart.toISOString();
-                const expectedEndDate = expectedEnd.toISOString();
-                const overdueStartDate = overdueStart.toISOString();
+                const expectedEndDate = maxExpectedEnd.toISOString();
+                const overdueStartDate = maxOverdueStart.toISOString();
                 const overdueEndDate = todayStart.toISOString();
 
                 const [expected, overdue, statsData] = await Promise.all([
@@ -88,7 +94,7 @@ const AccountingPage = () => {
             }
         };
         fetchData();
-    }, [timeRange]);
+    }, []);
 
     const { filteredExpected, filteredOverdue } = useMemo(() => {
         const { overdueStart, todayStart, expectedEnd } = getDateRangeFromFilter(timeRange);
@@ -108,11 +114,21 @@ const AccountingPage = () => {
 
     // Generate chart data points - cumulative expected income over time
     const chartData = useMemo(() => {
+        const { overdueStart, expectedEnd } = getDateRangeFromFilter(timeRange);
         const allPayments = [
             ...filteredOverdue.map(payment => ({ ...payment, pointType: 'overdue' as const })),
             ...filteredExpected.map(payment => ({ ...payment, pointType: 'expected' as const }))
         ];
-        if (allPayments.length === 0) return { points: [], minY: 0, maxY: 100, dates: [] };
+        if (allPayments.length === 0) {
+            return {
+                points: [],
+                minY: 0,
+                maxY: 100,
+                dates: [],
+                rangeStart: overdueStart,
+                rangeEnd: expectedEnd
+            };
+        }
         
         // Sort by due date
         const sorted = allPayments.sort((a, b) => 
@@ -136,9 +152,16 @@ const AccountingPage = () => {
         const amounts = points.map(p => p.cumulative);
         const minY = 0;
         const maxY = Math.max(...amounts) * 1.1 || 100;
-        
-        return { points, minY, maxY, dates: points.map(p => p.date) };
-    }, [filteredExpected, filteredOverdue]);
+
+        return {
+            points,
+            minY,
+            maxY,
+            dates: points.map(p => p.date),
+            rangeStart: overdueStart,
+            rangeEnd: expectedEnd
+        };
+    }, [filteredExpected, filteredOverdue, timeRange]);
 
     const [hoveredPoint, setHoveredPoint] = useState<{ x: number; y: number; data: typeof chartData.points[0] } | null>(null);
 
@@ -299,26 +322,35 @@ const AccountingPage = () => {
                                 />
                             ))}
                             
+                            {(() => {
+                                const rangeMs = chartData.rangeEnd.getTime() - chartData.rangeStart.getTime() || 1;
+                                const getX = (date: Date) => ((date.getTime() - chartData.rangeStart.getTime()) / rangeMs) * 800;
+                                const getY = (cumulative: number) => 250 - ((cumulative - chartData.minY) / (chartData.maxY - chartData.minY || 1)) * 230;
+                                const pointsWithCoords = chartData.points.map((point) => ({
+                                    point,
+                                    x: Math.max(0, Math.min(800, getX(point.date))),
+                                    y: getY(point.cumulative),
+                                }));
+                                const lastPointX = pointsWithCoords[pointsWithCoords.length - 1]?.x ?? 0;
+
+                                return (
+                                    <>
                             {/* Area fill */}
                             <path
                                 d={`
                                     M 0 250
-                                    ${chartData.points.map((point, i) => {
-                                        const x = (i / (chartData.points.length - 1 || 1)) * 800;
-                                        const y = 250 - ((point.cumulative - chartData.minY) / (chartData.maxY - chartData.minY)) * 230;
+                                    ${pointsWithCoords.map(({ x, y }) => {
                                         return `L ${x} ${y}`;
                                     }).join(' ')}
-                                    L 800 250
+                                    L ${lastPointX} 250
                                     Z
                                 `}
                                 fill="url(#chartGradient)"
                             />
-                            
+                             
                             {/* Line */}
                             <path
-                                d={chartData.points.map((point, i) => {
-                                    const x = (i / (chartData.points.length - 1 || 1)) * 800;
-                                    const y = 250 - ((point.cumulative - chartData.minY) / (chartData.maxY - chartData.minY)) * 230;
+                                d={pointsWithCoords.map(({ x, y }, i) => {
                                     return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
                                 }).join(' ')}
                                 fill="none"
@@ -327,11 +359,33 @@ const AccountingPage = () => {
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                             />
-                            
+
+                            {/* No-payments future zone */}
+                            {lastPointX < 800 && (
+                                <>
+                                    <rect
+                                        x={lastPointX}
+                                        y="0"
+                                        width={800 - lastPointX}
+                                        height="250"
+                                        fill="#111827"
+                                        opacity="0.35"
+                                    />
+                                    <line
+                                        x1={lastPointX}
+                                        y1="0"
+                                        x2={lastPointX}
+                                        y2="250"
+                                        stroke="#6b7280"
+                                        strokeWidth="1"
+                                        strokeDasharray="4,4"
+                                        opacity="0.6"
+                                    />
+                                </>
+                            )}
+                             
                             {/* Data points */}
-                            {chartData.points.map((point, i) => {
-                                const x = (i / (chartData.points.length - 1 || 1)) * 800;
-                                const y = 250 - ((point.cumulative - chartData.minY) / (chartData.maxY - chartData.minY)) * 230;
+                            {pointsWithCoords.map(({ point, x, y }, i) => {
                                 return (
                                     <circle
                                         key={i}
@@ -347,6 +401,9 @@ const AccountingPage = () => {
                                     />
                                 );
                             })}
+                                    </>
+                                );
+                            })()}
                         </svg>
                     )}
                     
@@ -382,21 +439,22 @@ const AccountingPage = () => {
                 {chartData.points.length > 0 && (
                     <div className="flex justify-between text-xs text-gray-500 mt-2 px-8">
                         {(() => {
-                            const points = chartData.points;
-                            const labelsToShow = Math.min(6, points.length);
-                            const step = Math.floor(points.length / labelsToShow) || 1;
-                            return points
-                                .filter((_, i) => i % step === 0 || i === points.length - 1)
-                                .slice(0, 6)
-                                .map((point, i) => (
+                            const labelsToShow = 6;
+                            const startMs = chartData.rangeStart.getTime();
+                            const endMs = chartData.rangeEnd.getTime();
+                            const duration = endMs - startMs || 1;
+                            return Array.from({ length: labelsToShow }, (_, i) => {
+                                const date = new Date(startMs + (duration * i) / (labelsToShow - 1));
+                                return (
                                     <span key={i}>
-                                        {point.date.toLocaleDateString('en-US', { 
+                                        {date.toLocaleDateString('en-US', {
                                             month: 'short', 
                                             day: 'numeric',
                                             ...(timeRange === '12' || timeRange === '60' ? { year: '2-digit' } : {})
                                         })}
                                     </span>
-                                ));
+                                );
+                            });
                         })()}
                     </div>
                 )}
