@@ -151,7 +151,7 @@ const UpdateUnitModal = ({ unit, isOpen, onClose, onUnitUpdated }: UpdateUnitMod
                     </div>
 
                     <div>
-                        <label className="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Monthly Rent</label>
+                        <label className="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1"> Rent</label>
                         <input
                             type="number" required
                             disabled={hasActiveContract}

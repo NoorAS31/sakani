@@ -181,7 +181,7 @@ const UnitsPage = () => {
                                             <div className="flex items-center gap-6">
                                                 <div className="text-right">
                                                     <p className="text-xs font-bold text-gray-900">${unit.rentPrice}</p>
-                                                    <p className="text-[10px] text-gray-400">Monthly Rent</p>
+                                                    <p className="text-[10px] text-gray-400"> Rent</p>
                                                 </div>
 
 

@@ -12,6 +12,7 @@ import RentersPage from "./features/renters/RenterPage.tsx";
 import ContractsPage from "./features/contracts/ContractsPage.tsx";
 import AccountingPage from "./features/Accounting/AccountingPage.tsx";
 import PaymentsPage from "./features/Accounting/PaymentsPage.tsx";
+import ExpensesPage from './features/expenses/ExpensesPage.tsx';
 import SettingsPage from './features/settings/SettingsPage.tsx';
 import AccountPage from './features/account/AccountPage.tsx';
 
@@ -48,6 +49,7 @@ function App() {
                         <Route path="contracts" element={<ContractsPage/>} />
                         <Route path="accounting" element={<AccountingPage />} />
                         <Route path="accounting/payments" element={<PaymentsPage />} />
+                        <Route path="expenses" element={<ExpensesPage />} />
                         <Route path="tasks" element={<TasksPage />} />
                         <Route path="settings" element={<SettingsPage />} />
                         <Route path="account" element={<AccountPage />} />

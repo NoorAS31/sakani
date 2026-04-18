@@ -44,19 +44,19 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
     };
     return (
         <div
-            className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-500 to-gray-800 px-4  ">
+            className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 via-slate-200 to-slate-300 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 px-4">
 
-            <div className="max-w-md  w-full space-y-8 bg-gray-200 p-10 rounded-xl shadow-lg border border-gray-100">
+            <div className="max-w-md w-full space-y-8 bg-white/90 dark:bg-slate-900/90 backdrop-blur p-10 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700">
 
-                <a className="justify-center items-center mt-6 text-center text-3xl font-extrabold text-gray-900">
+                <a className="justify-center items-center mt-6 text-center text-3xl font-extrabold text-slate-900 dark:text-slate-100">
                     Rent Manager
                 </a>
-                <p className="mt-2 text-center text-sm text-gray-600">
+                <p className="mt-2 text-center text-sm text-slate-600 dark:text-slate-300">
                     Sign in to manage your properties
                 </p>
                 {error && (
-                    <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
-                        <p className="text-sm text-red-700">{error}</p>
+                    <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 mb-4 rounded-r-lg">
+                        <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
                     </div>
                 )}
 
@@ -67,7 +67,7 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
                             <input
                                 name="email"
                                 type="email"
-                                className="rounded relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-gray-500 focus:border-gray-500 focus:z-10 sm:text-sm"
+                                className="rounded relative block w-full px-3 py-3 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 placeholder-slate-400 text-slate-900 dark:text-slate-100 rounded-t-md focus:outline-none focus:ring-slate-500 focus:border-slate-500 focus:z-10 sm:text-sm"
                                 placeholder="Email address"
                                 onChange={handleChange}
                             />
@@ -78,7 +78,7 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
                                     type={showPassword ? "text" : "password"} // Dynamic type
                                     name="password"
                                     required
-                                    className="appearance-none block w-full my-3 px-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-gray-600 focus:border-gray-500 sm:text-sm pr-10"
+                                    className="appearance-none block w-full my-3 px-3 py-3 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-slate-600 focus:border-slate-500 sm:text-sm pr-10"
                                     placeholder="Password"
                                     value={credentials.password}
                                     onChange={handleChange}
@@ -88,7 +88,7 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
                                 <button
                                     type="button" // Important: set to button so it doesn't submit the form
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-200 dark:hover:text-slate-100 focus:outline-none"
                                 >
                                     {showPassword ? (
                                         <EyeOff size={20} />
@@ -106,16 +106,16 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
                                 type="checkbox"
                                 checked={rememberMe}
                                 onChange={(e) => setRememberMe(e.target.checked)}
-                                className="h-4 w-4 text-gray-600 focus:ring-gray-500 border-gray-300 rounded"
+                                className="h-4 w-4 text-slate-700 focus:ring-slate-500 border-slate-300 dark:border-slate-600 rounded"
                             />
-                            <label htmlFor="remember-me" className="ml-2 block">
+                            <label htmlFor="remember-me" className="ml-2 block text-slate-700 dark:text-slate-300">
                                 Remember me
                             </label>
                         </div>
 
                         <div className="text-sm">
                             <a href="https://github.com/xnucy/sakani"
-                               className="font-medium text-gray-600 hover:text-gray-900" target={"_blank"}>
+                               className="font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100" target={"_blank"}>
                                 Forgot your password?
                             </a>
                         </div>
@@ -123,8 +123,9 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className={`group relative w-full flex justify-center bg-gray-600 hover:bg-gray-900 py-3 px-4 text-sm font-medium rounded-md text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 
-    ${isLoading} ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-600 hover:bg-gray-700'}`} >
+                            className={`group relative w-full flex justify-center py-3 px-4 text-sm font-medium rounded-md text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 ${
+                                isLoading ? 'bg-slate-500 cursor-not-allowed' : 'bg-slate-700 hover:bg-slate-900'
+                            }`} >
 
                             {isLoading ? (
                                 <div className="flex items-center">
@@ -144,9 +145,9 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
 
 
                     <div className="text-center text-sm">
-                        <p className="text-gray-600">
+                        <p className="text-slate-600 dark:text-slate-300">
                             Don't have an account?{' '}
-                            <a href="#" className="font-medium text-gray-600 hover:text-gray-500">
+                            <a href="#" className="font-medium text-slate-700 dark:text-slate-200 hover:text-slate-500 dark:hover:text-slate-100">
                                 Create new user
                             </a>
                         </p>

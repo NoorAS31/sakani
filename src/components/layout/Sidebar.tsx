@@ -1,6 +1,8 @@
 import {
     LayoutDashboard,
     Building2,
+    Sun,
+    Moon,
 
     Calculator,
     CheckSquare,
@@ -9,13 +11,16 @@ import {
     LogOut,
     Users,
     MapPin,
-    FileChartColumn
+    FileChartColumn,
+    ReceiptText
 } from 'lucide-react';
 import {NavLink} from 'react-router-dom';
 import {storage} from "../../utils/storage.ts";
+import { useTheme } from '../../context/ThemeContext';
 
 
 const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
+    const { theme, toggleTheme } = useTheme();
 
 
     const menuItems = [
@@ -35,6 +40,7 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
 
 
         { name: 'Accounting', icon: <Calculator size={20} />, path: '/accounting' },
+        { name: 'Expenses', icon: <ReceiptText size={20} />, path: '/expenses' },
         { name: 'Tasks', icon: <CheckSquare size={20} />, path: '/tasks' },
     ];
 
@@ -73,6 +79,19 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
 
             {/* Bottom Actions */}
             <div className="px-3 pb-6 space-y-1 border-t border-slate-700 pt-4">
+                <button
+                    type="button"
+                    onClick={toggleTheme}
+                    className="w-full flex items-center justify-between gap-3 px-4 py-2 text-sm rounded-md transition-all hover:bg-slate-800 text-slate-300"
+                >
+                    <span className="flex items-center gap-3">
+                        {theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
+                        Theme
+                    </span>
+                    <span className="text-xs font-bold px-2 py-0.5 rounded bg-slate-700/50 text-slate-200 uppercase">
+                        {theme}
+                    </span>
+                </button>
                 <NavLink
                     to="/settings"
                     className={({ isActive }) => `
