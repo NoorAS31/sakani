@@ -6,7 +6,7 @@ export const ExpenseType = {
     Other: 5
 } as const;
 
-export type expenseType = (typeof ExpenseType)[keyof typeof ExpenseType];
+export type ExpenseCategory = (typeof ExpenseType)[keyof typeof ExpenseType];
 
 export interface Expense {
     expenseID: string;
@@ -14,7 +14,7 @@ export interface Expense {
     unitId: string | null;
     amount: number;
     description: string | null;
-    expenseType: expenseType | number;
+    expenseType: ExpenseCategory;
     expenseDate: string;
 }
 
@@ -23,5 +23,5 @@ export interface CreateExpenseDto {
     unitId?: string | null;
     amount: number;
     description?: string;
-    expenseType: expenseType | number;
+    expenseType: ExpenseCategory;
 }

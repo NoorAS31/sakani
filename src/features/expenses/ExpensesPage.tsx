@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Loader2, Plus, ReceiptText, Trash2 } from 'lucide-react';
+import { Loader2, Plus, ReceiptText, Trash2, X, Filter } from 'lucide-react';
 import { usePageTitle } from '../../hooks/usePageTitle.ts';
 import { expenseService } from '../../services/expenseService.ts';
 import { propertyService } from '../../services/propertyService.ts';
@@ -16,7 +16,12 @@ const ExpensesPage = () => {
     const [units, setUnits] = useState<Unit[]>([]);
     const [loading, setLoading] = useState(true);
     const [deletingId, setDeletingId] = useState<string | null>(null);
-    const [isCreateCardOpen, setIsCreateCardOpen] = useState(false);
+    const [isCreateCardOpen, setIsCreateCardOpen] = useState(true);
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [filterProperty, setFilterProperty] = useState<string>('');
+    const [filterExpenseType, setFilterExpenseType] = useState<string>('');
+    const [filterDateFrom, setFilterDateFrom] = useState<string>('');
+    const [filterDateTo, setFilterDateTo] = useState<string>('');
 
     const loadExpenses = async () => {
         setLoading(true);
@@ -69,32 +74,67 @@ const ExpensesPage = () => {
         return acc;
     }, {});
 
+    const filteredExpenses = useMemo(() => {
+        return expenses.filter(expense => {
+            if (filterProperty && expense.propertyId !== filterProperty) {
+                return false;
+            }
+            if (filterExpenseType && expense.expenseType !== Number(filterExpenseType)) {
+                return false;
+            }
+            const expenseDate = new Date(expense.expenseDate);
+            if (filterDateFrom) {
+                const fromDate = new Date(filterDateFrom);
+                if (expenseDate < fromDate) {
+                    return false;
+                }
+            }
+            if (filterDateTo) {
+                const toDate = new Date(filterDateTo);
+                toDate.setHours(23, 59, 59, 999);
+                if (expenseDate > toDate) {
+                    return false;
+                }
+            }
+            return true;
+        });
+    }, [expenses, filterProperty, filterExpenseType, filterDateFrom, filterDateTo]);
+
+    const hasActiveFilters = filterProperty || filterExpenseType || filterDateFrom || filterDateTo;
+
+    const resetFilters = () => {
+        setFilterProperty('');
+        setFilterExpenseType('');
+        setFilterDateFrom('');
+        setFilterDateTo('');
+    };
+
     const totalAmount = useMemo(
-        () => expenses.reduce((sum, expense) => sum + expense.amount, 0),
-        [expenses]
+        () => filteredExpenses.reduce((sum, expense) => sum + expense.amount, 0),
+        [filteredExpenses]
     );
 
     const latestExpense = useMemo(
         () =>
-            expenses.length
-                ? [...expenses].sort((a, b) => new Date(b.expenseDate).getTime() - new Date(a.expenseDate).getTime())[0]
+            filteredExpenses.length
+                ? [...filteredExpenses].sort((a, b) => new Date(b.expenseDate).getTime() - new Date(a.expenseDate).getTime())[0]
                 : null,
-        [expenses]
+        [filteredExpenses]
     );
 
     const topExpenseType = useMemo(() => {
-        if (expenses.length === 0) {
+        if (filteredExpenses.length === 0) {
             return '-';
         }
 
         const counts = new Map<string, number>();
-        expenses.forEach((expense) => {
+        filteredExpenses.forEach((expense) => {
             const label = getExpenseTypeConfig(expense.expenseType).label;
             counts.set(label, (counts.get(label) ?? 0) + 1);
         });
 
         return [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0];
-    }, [expenses]);
+    }, [filteredExpenses]);
 
     function getExpenseTypeConfig(typeNum: number) {
         switch (typeNum) {
@@ -122,14 +162,24 @@ const ExpensesPage = () => {
                         <p className="text-sm text-gray-500">Track and manage property expenses</p>
                     </div>
 
-                    <button
-                        type="button"
-                        onClick={() => setIsCreateCardOpen(true)}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm font-semibold hover:bg-gray-50"
-                    >
-                        <Plus size={16} />
-                        Create New Expense
-                    </button>
+                    <div className="flex gap-2">
+                        <button
+                            type="button"
+                            onClick={() => setIsFilterOpen(true)}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-300 bg-white text-gray-700 text-sm font-semibold hover:bg-gray-50"
+                        >
+                            <Filter size={16} />
+                            Filters
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setIsCreateCardOpen(true)}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm font-semibold hover:bg-gray-50"
+                        >
+                            <Plus size={16} />
+                            Create New Expense
+                        </button>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -157,10 +207,10 @@ const ExpensesPage = () => {
                         <div className="p-8 text-center text-gray-500 flex justify-center">
                             <Loader2 className="animate-spin" />
                         </div>
-                    ) : expenses.length === 0 ? (
+                    ) : filteredExpenses.length === 0 ? (
                         <div className="p-10 text-center text-gray-400">
                             <ReceiptText className="mx-auto mb-3" size={36} />
-                            No expenses found
+                            {hasActiveFilters ? 'No expenses match the selected filters' : 'No expenses found'}
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
@@ -177,7 +227,7 @@ const ExpensesPage = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {expenses.map(expense => (
+                                    {filteredExpenses.map(expense => (
                                         <tr key={expense.expenseID} className="border-t border-gray-100">
                                             <td className="px-4 py-3 text-gray-700">
                                                 {new Date(expense.expenseDate).toLocaleDateString()}
@@ -223,6 +273,99 @@ const ExpensesPage = () => {
                 properties={properties}
                 onExpenseCreated={loadExpenses}
             />
+
+            {isFilterOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl">
+                        <div className="flex items-center justify-between bg-gray-50 px-6 py-4 border-b border-gray-200">
+                            <h2 className="text-lg font-bold text-gray-900">Filters</h2>
+                            <button
+                                type="button"
+                                onClick={() => setIsFilterOpen(false)}
+                                className="text-gray-500 hover:text-gray-700"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className="p-6 space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Property</label>
+                                    <select
+                                        value={filterProperty}
+                                        onChange={(e) => setFilterProperty(e.target.value)}
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+                                    >
+                                        <option value="">All Properties</option>
+                                        {properties.map(property => (
+                                            <option key={property.id} value={property.id}>
+                                                {property.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Expense Type</label>
+                                    <select
+                                        value={filterExpenseType}
+                                        onChange={(e) => setFilterExpenseType(e.target.value)}
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+                                    >
+                                        <option value="">All Types</option>
+                                        <option value={ExpenseType.Maintenance}>Maintenance</option>
+                                        <option value={ExpenseType.Utility}>Utility</option>
+                                        <option value={ExpenseType.Tax}>Tax</option>
+                                        <option value={ExpenseType.Insurance}>Insurance</option>
+                                        <option value={ExpenseType.Other}>Other</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">From Date</label>
+                                    <input
+                                        type="date"
+                                        value={filterDateFrom}
+                                        onChange={(e) => setFilterDateFrom(e.target.value)}
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">To Date</label>
+                                    <input
+                                        type="date"
+                                        value={filterDateTo}
+                                        onChange={(e) => setFilterDateTo(e.target.value)}
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-2 px-6 py-4 border-t border-gray-200 bg-gray-50">
+                            {hasActiveFilters && (
+                                <button
+                                    type="button"
+                                    onClick={resetFilters}
+                                    className="inline-flex items-center gap-1 px-4 py-2 bg-gray-200 text-gray-700 hover:bg-gray-300 rounded-lg transition-colors font-semibold text-sm"
+                                >
+                                    <X size={16} />
+                                    Reset Filters
+                                </button>
+                            )}
+                            <button
+                                type="button"
+                                onClick={() => setIsFilterOpen(false)}
+                                className="ml-auto px-4 py-2 bg-gray-900 text-white hover:bg-black rounded-lg transition-colors font-semibold text-sm"
+                            >
+                                Done
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

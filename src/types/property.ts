@@ -15,6 +15,6 @@ export interface Property {
     street: string;
     addressRegion: string;
     buildingNo: string;
-    propertyType: string | number ;
+    propertyType: PropertyType ;
     tenantId: string;
 }

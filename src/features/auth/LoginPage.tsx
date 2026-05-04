@@ -1,10 +1,12 @@
 import React, {useState} from 'react';
 import {authService} from "./authService.ts";
-import { Eye, EyeOff} from "lucide-react";
+import { Eye, EyeOff, Moon, Sun } from "lucide-react";
 import { usePageTitle } from '../../hooks/usePageTitle';
+import { useTheme } from '../../context/ThemeContext.tsx';
 
 const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
     usePageTitle('Login');
+    const { theme, toggleTheme } = useTheme();
     const [credentials, setCredentials] = useState({
         email: '',
         password: ''
@@ -44,16 +46,23 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
     };
     return (
         <div
-            className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 via-slate-200 to-slate-300 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 px-4">
+            className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 via-slate-200 to-slate-300 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 px-4">
+            <button
+                type="button"
+                onClick={toggleTheme}
+                aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+                className="absolute top-4 right-4 inline-flex items-center gap-2 rounded-md border border-slate-300 dark:border-slate-600 bg-white/80 dark:bg-slate-900/80 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 shadow-sm hover:bg-white dark:hover:bg-slate-800 transition-colors"
+            >
+                {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+                {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+            </button>
 
             <div className="max-w-md w-full space-y-8 bg-white/90 dark:bg-slate-900/90 backdrop-blur p-10 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700">
 
-                <a className="justify-center items-center mt-6 text-center text-3xl font-extrabold text-slate-900 dark:text-slate-100">
-                    Rent Manager
-                </a>
-                <p className="mt-2 text-center text-sm text-slate-600 dark:text-slate-300">
-                    Sign in to manage your properties
+                <p className="justify-center items-center mt-6 text-center text-3xl text-slate-900 dark:text-slate-100">
+                   Sakani
                 </p>
+
                 {error && (
                     <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 mb-4 rounded-r-lg">
                         <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
@@ -143,15 +152,6 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
                             )}
                         </button>
 
-
-                    <div className="text-center text-sm">
-                        <p className="text-slate-600 dark:text-slate-300">
-                            Don't have an account?{' '}
-                            <a href="#" className="font-medium text-slate-700 dark:text-slate-200 hover:text-slate-500 dark:hover:text-slate-100">
-                                Create new user
-                            </a>
-                        </p>
-                    </div>
 
                 </form>
             </div>

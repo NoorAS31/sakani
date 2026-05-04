@@ -17,7 +17,6 @@ const CreatePropertyModal = ({ isOpen, onClose, onPropertyCreated }: CreatePrope
         addressRegion: '',
         buildingNo: '',
         propertyType: 1,
-
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -25,7 +24,10 @@ const CreatePropertyModal = ({ isOpen, onClose, onPropertyCreated }: CreatePrope
 
         if (name === 'buildingNo' && Number(value) < 0) return;
 
-        setFormData(prev => ({ ...prev, [name]: value }));
+        setFormData(prev => ({
+            ...prev,
+            [name]: name === 'propertyType' ? Number(value) : value
+        }));
     };
 
     const handleSubmit = async (e: React.SubmitEvent) => {

@@ -27,7 +27,7 @@ const getInitialFormState = () => ({
     unitId: '',
     amount: '',
     description: '',
-    expenseType: Number(ExpenseType.Maintenance)
+    expenseType: 1
 });
 
 const CreateExpenseModal = ({ isOpen, onClose, properties, onExpenseCreated }: CreateExpenseModalProps) => {
@@ -58,11 +58,6 @@ const CreateExpenseModal = ({ isOpen, onClose, properties, onExpenseCreated }: C
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const parsedType = Number(formData.expenseType);
-        const safeExpenseType = Number.isFinite(parsedType)
-            ? Math.min(5, Math.max(1, Math.trunc(parsedType)))
-            : ExpenseType.Maintenance;
-
         if (!formData.propertyId || !formData.amount || Number(formData.amount) <= 0) {
             return;
         }
@@ -74,8 +69,9 @@ const CreateExpenseModal = ({ isOpen, onClose, properties, onExpenseCreated }: C
                 unitId: formData.unitId || null,
                 amount: Number(formData.amount),
                 description: formData.description || '',
-                expenseType: safeExpenseType
+                expenseType: Number(formData.expenseType)
             });
+
             setFormData(getInitialFormState());
             onClose();
             await onExpenseCreated();
@@ -162,13 +158,10 @@ const CreateExpenseModal = ({ isOpen, onClose, properties, onExpenseCreated }: C
                         <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1">Expense Type</label>
                         <select
                             value={formData.expenseType}
-                            onChange={(e) => {
-                                const value = Number.parseInt(e.target.value, 10);
-                                setFormData(prev => ({
-                                    ...prev,
-                                    expenseType: Number.isNaN(value) ? ExpenseType.Maintenance : Math.min(5, Math.max(1, value))
-                                }));
-                            }}
+                            onChange={(e) => setFormData(prev => ({
+                                ...prev,
+                                expenseType: parseInt(e.target.value, 10)
+                            }))}
                             className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm"
                             required
                         >
