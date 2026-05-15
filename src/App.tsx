@@ -7,7 +7,6 @@ import TenantsPage from "./features/tenants/tenantsPage.tsx";
 import UnitsPage from "./features/units/unitsPage.tsx";
 import PropertiesPage from "./features/properties/PropertiesPage.tsx";
 import {storage} from "./utils/storage.ts";
-import TasksPage from './features/tasks/TasksPage';
 import RentersPage from "./features/renters/RenterPage.tsx";
 import ContractsPage from "./features/contracts/ContractsPage.tsx";
 import AccountingPage from "./features/Accounting/AccountingPage.tsx";
@@ -15,6 +14,10 @@ import PaymentsPage from "./features/Accounting/PaymentsPage.tsx";
 import ExpensesPage from './features/expenses/ExpensesPage.tsx';
 import SettingsPage from './features/settings/SettingsPage.tsx';
 import AccountPage from './features/account/AccountPage.tsx';
+import MaintenanceTicketsPage from './features/tickets/MaintenanceTicketsPage.tsx';
+import CreateMaintenanceTicketPage from './features/tickets/CreateMaintenanceTicketPage.tsx';
+import MaintenanceTicketDetailPage from './features/tickets/MaintenanceTicketDetailPage.tsx';
+import { ToastProvider } from './context/ToastContext';
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(() => !!storage.getToken());
@@ -31,34 +34,38 @@ function App() {
     const layoutKey = isAuthenticated ? `authenticated-${storage.getUserId()}` : 'guest';
 
     return (
-        <BrowserRouter>
-            <Routes>
-                <Route
-                    path="/login"
-                    element={isAuthenticated ? <Navigate to="/dashboard" /> : <LoginPage onLogin={() => setIsAuthenticated(true)} />}
-                />
+        <ToastProvider>
+            <BrowserRouter>
+                <Routes>
+                    <Route
+                        path="/login"
+                        element={isAuthenticated ? <Navigate to="/dashboard" /> : <LoginPage onLogin={() => setIsAuthenticated(true)} />}
+                    />
 
-                {isAuthenticated ? (
-                    <Route path="/" element={<DashboardLayout key={layoutKey} onLogout={handleLogout} />}>
-                        <Route index element={<Navigate to="/dashboard" />} />
-                        <Route path="dashboard" element={<DashboardPage />} />
-                        <Route path="tenants" element={<TenantsPage />} />
-                        <Route path="property" element={<PropertiesPage />} />
-                        <Route path="units" element={<UnitsPage />} />
-                        <Route path="renters" element={<RentersPage />} />
-                        <Route path="contracts" element={<ContractsPage/>} />
-                        <Route path="accounting" element={<AccountingPage />} />
-                        <Route path="accounting/payments" element={<PaymentsPage />} />
-                        <Route path="expenses" element={<ExpensesPage />} />
-                        <Route path="tasks" element={<TasksPage />} />
-                        <Route path="settings" element={<SettingsPage />} />
-                        <Route path="account" element={<AccountPage />} />
-                    </Route>
-                ) : (
-                    <Route path="*" element={<Navigate to="/login" />} />
-                )}
-            </Routes>
-        </BrowserRouter>
+                    {isAuthenticated ? (
+                        <Route path="/" element={<DashboardLayout key={layoutKey} onLogout={handleLogout} />}>
+                            <Route index element={<Navigate to="/dashboard" />} />
+                            <Route path="dashboard" element={<DashboardPage />} />
+                            <Route path="tenants" element={<TenantsPage />} />
+                            <Route path="property" element={<PropertiesPage />} />
+                            <Route path="units" element={<UnitsPage />} />
+                            <Route path="renters" element={<RentersPage />} />
+                            <Route path="contracts" element={<ContractsPage/>} />
+                            <Route path="accounting" element={<AccountingPage />} />
+                            <Route path="accounting/payments" element={<PaymentsPage />} />
+                            <Route path="expenses" element={<ExpensesPage />} />
+                            <Route path="maintenance-tickets" element={<MaintenanceTicketsPage />} />
+                            <Route path="maintenance-tickets/create" element={<CreateMaintenanceTicketPage />} />
+                            <Route path="maintenance-tickets/:id" element={<MaintenanceTicketDetailPage />} />
+                            <Route path="settings" element={<SettingsPage />} />
+                            <Route path="account" element={<AccountPage />} />
+                        </Route>
+                    ) : (
+                        <Route path="*" element={<Navigate to="/login" />} />
+                    )}
+                </Routes>
+            </BrowserRouter>
+        </ToastProvider>
     );
 }
 export default App;

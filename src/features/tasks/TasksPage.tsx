@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import type { Task } from '../../services/taskService';
-import { taskService } from "../../services/taskService";
+import type { Task } from '../../services/TicketService.ts';
+import { taskService } from "../../services/TicketService.ts";
 import { storage } from "../../utils/storage.ts";
 import { usePageTitle } from '../../hooks/usePageTitle';
 

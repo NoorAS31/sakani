@@ -1,26 +1,46 @@
 import apiClient from '../api/apiClient';
 import type { Property } from '../types/property';
 
+const handleApiError = (error: unknown): string => {
+    if (error instanceof Error) {
+        return error.message;
+    }
+    return 'An unexpected error occurred';
+};
+
 export const propertyService = {
 
     getAll: async (): Promise<Property[]> => {
-        const response = await apiClient.get<Property[]>('/Properties');
-        return response.data;
+        try {
+            const response = await apiClient.get<Property[]>('/Properties');
+            return response.data;
+        } catch (error) {
+            throw new Error(handleApiError(error));
+        }
     },
 
-    // POST api/Properties
-    create: async (dto: any): Promise<string> => {
-        const response = await apiClient.post<string>('/Properties', dto);
-        return response.data;
+    create: async (dto: unknown): Promise<string> => {
+        try {
+            const response = await apiClient.post<string>('/Properties', dto);
+            return response.data;
+        } catch (error) {
+            throw new Error(handleApiError(error));
+        }
     },
 
-    // PUT api/Properties/{id}
-    update: async (id: string, dto: any): Promise<void> => {
-        await apiClient.put(`/Properties/${id}`, dto);
+    update: async (id: string, dto: unknown): Promise<void> => {
+        try {
+            await apiClient.put(`/Properties/${id}`, dto);
+        } catch (error) {
+            throw new Error(handleApiError(error));
+        }
     },
 
-    // DELETE api/Properties/{id}
     delete: async (id: string): Promise<void> => {
-        await apiClient.delete(`/Properties/${id}`);
+        try {
+            await apiClient.delete(`/Properties/${id}`);
+        } catch (error) {
+            throw new Error(handleApiError(error));
+        }
     }
 };

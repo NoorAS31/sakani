@@ -2,14 +2,13 @@ import axios from 'axios';
 import { storage } from '../utils/storage';
 
 const apiClient = axios.create({
-    baseURL: 'https://localhost:7176/api', // Your .NET Backend URL
+    baseURL: 'https://localhost:7176/api',
     headers: {
         'Content-Type': 'application/json',
     },
 });
 
 apiClient.interceptors.request.use(
-
     (config) => {
         const token = storage.getToken();
         if (token) {
@@ -22,14 +21,10 @@ apiClient.interceptors.request.use(
     }
 );
 
-
 apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 403) {
-            console.error("Unauthorized! Logging out...");
-            window.location.href = '/dashboard';
-        }
+        // Don't auto-redirect on 403 - let components handle permission errors gracefully
         return Promise.reject(error);
     }
 );

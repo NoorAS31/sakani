@@ -11,13 +11,15 @@ import {
     Mail,
     Info,
     Pen,
-    ArrowRight
+    ArrowRight,
+    UserPlus
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { renterService } from '../../services/renterService';
 import type { Renter } from '../../types/renter';
 import CreateRenterModal from "./CreateRenterModal.tsx";
 import CreateContractModal from "../contracts/CreateContractModal.tsx";
+import AddRenterUserModal from "./AddRenterUserModal.tsx";
 import { usePageTitle } from '../../hooks/usePageTitle';
 
 const RentersPage = () => {
@@ -28,6 +30,7 @@ const RentersPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isContractModalOpen, setIsContractModalOpen] = useState(false);
+    const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
     const [selectedRenter, setSelectedRenter] = useState<Renter | null>(null);
 
     const handleRenterCreated = () => {
@@ -36,6 +39,11 @@ const RentersPage = () => {
     
     const handleContractCreated = () => {
         setIsContractModalOpen(false);
+    };
+
+    const handleRenterUserCreated = () => {
+        setIsAddUserModalOpen(false);
+        renterService.getAll().then(setRenters);
     };
 
     useEffect(() => {
@@ -66,11 +74,20 @@ const RentersPage = () => {
                         <h1 className="text-2xl font-bold text-gray-800">Renters Directory</h1>
                         <p className="text-sm text-gray-500">Manage resident profiles and contact information</p>
                     </div>
-                    <button
-                        onClick={() => setIsModalOpen(true)}
-                        className="bg-gray-900 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 hover:bg-black transition-all shadow-sm font-semibold">
-                        <Plus size={18} /> Add Renter
-                    </button>
+                    <div className="flex gap-3">
+                        <button
+                            onClick={() => setIsAddUserModalOpen(true)}
+                            disabled={!selectedRenter || !!selectedRenter?.userId}
+                            className="bg-blue-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 hover:bg-slate-700 transition-all shadow-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                            title={selectedRenter?.userId ? "User account already exists for this renter" : ""}>
+                            <UserPlus size={18} /> Add User
+                        </button>
+                        <button
+                            onClick={() => setIsModalOpen(true)}
+                            className="bg-gray-900 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 hover:bg-black transition-all shadow-sm font-semibold">
+                            <Plus size={18} /> Add Renter
+                        </button>
+                    </div>
                 </div>
 
                 {/* Search Bar */}
@@ -207,6 +224,13 @@ const RentersPage = () => {
                 onClose={() => setIsContractModalOpen(false)}
                 onContractCreated={handleContractCreated}
                 preselectedRenter={selectedRenter}
+            />
+
+            <AddRenterUserModal
+                isOpen={isAddUserModalOpen}
+                onClose={() => setIsAddUserModalOpen(false)}
+                onSuccess={handleRenterUserCreated}
+                renter={selectedRenter}
             />
 
         </div>

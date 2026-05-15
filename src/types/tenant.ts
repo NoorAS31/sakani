@@ -17,4 +17,5 @@ export interface Tenant {
     email: string;
     phoneNumber: string;
     status: tenantStatus;
+    userId?: string;
 }

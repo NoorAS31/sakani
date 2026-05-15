@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { X, Save } from 'lucide-react';
+import { tenantService } from '../../services/tenantService';
 
 interface CreateTenantModalProps {
     isOpen: boolean;
     onClose: () => void;
+    onTenantCreated: () => void;
 }
 
-const CreateTenantModal = ({ isOpen, onClose }: CreateTenantModalProps) => {
+const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantModalProps) => {
     // Initial state matches your DB fields
     const [formData, setFormData] = useState({
         name: '',
@@ -15,8 +17,10 @@ const CreateTenantModal = ({ isOpen, onClose }: CreateTenantModalProps) => {
         addressStreet: '',
         addressCity: '',
         addressRegion: '',
-        status: 'Active' // Default
+        status: 1 // Active = 1
     });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState('');
     const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
     // Validation Checks
@@ -32,6 +36,7 @@ const CreateTenantModal = ({ isOpen, onClose }: CreateTenantModalProps) => {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
+        setError('');
 
         // 1. Phone Number Restriction (Digits only)
         if (name === 'phoneNumber') {
@@ -42,12 +47,19 @@ const CreateTenantModal = ({ isOpen, onClose }: CreateTenantModalProps) => {
             return;
         }
 
-        // 2. Name Length Restriction
+        // 2. Status is sent as number
+        if (name === 'status') {
+            setFormData(prev => ({ ...prev, [name]: Number(value) }));
+            return;
+        }
+
+        // 3. Name Length Restriction
         if (name === 'name' && value.length > 100) return;
 
         setFormData(prev => ({ ...prev, [name]: value }));
     };
-    const handleSubmit = (e: React.FormEvent) => {
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         // Final check before sending to backend
@@ -56,9 +68,30 @@ const CreateTenantModal = ({ isOpen, onClose }: CreateTenantModalProps) => {
             return;
         }
 
-        console.log("Ready to send to .NET:", formData);
-        // When the backend is ready, we call tenantService.create(formData) here.
+        setIsSubmitting(true);
+        setError('');
+
+        try {
+            await tenantService.create(formData);
+            onTenantCreated();
+            setFormData({
+                name: '',
+                email: '',
+                phoneNumber: '',
+                addressStreet: '',
+                addressCity: '',
+                addressRegion: '',
+                status: 1
+            });
+            onClose();
+        } catch (err: any) {
+            console.error("Failed to create tenant", err);
+            setError(err.response?.data?.message || "Failed to create tenant. Please try again.");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200">
@@ -72,13 +105,19 @@ const CreateTenantModal = ({ isOpen, onClose }: CreateTenantModalProps) => {
 
                 {/* Form Content */}
                 <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                    {error && (
+                        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
+                            {error}
+                        </p>
+                    )}
+
                     {/* Section 1: Basic Information */}
                     <div>
                         <h3 className="underline text-xs font-bold text-red-600 uppercase tracking-wider mb-4">Basic Information</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-1">
                                 <label className="text-sm font-medium text-gray-700">Tenant Name</label>
-                                <input name="name" type="text" onChange={handleChange}
+                                <input name="name" type="text" onChange={handleChange} value={formData.name}
                                        className={`w-full border rounded-lg px-3 py-2 outline-none transition-all ${
                                            formData.name && !isNameValid ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-gray-500'
                                        }`}
@@ -89,10 +128,10 @@ const CreateTenantModal = ({ isOpen, onClose }: CreateTenantModalProps) => {
                             </div>
                             <div className="space-y-1">
                                 <label className="text-sm font-medium text-gray-700">Status</label>
-                                <select name="status" onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-600 outline-none bg-white">
-                                    <option value="Active">Active</option>
-                                    <option value="Inactive">Inactive</option>
-                                    <option value="Pending">Pending</option>
+                                <select name="status" value={formData.status} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-600 outline-none bg-white">
+                                    <option value={1}>Active</option>
+                                    <option value={2}>Suspended</option>
+                                    <option value={3}>Inactive</option>
                                 </select>
                             </div>
                             <div className="space-y-1">
@@ -100,6 +139,7 @@ const CreateTenantModal = ({ isOpen, onClose }: CreateTenantModalProps) => {
                                 <input
                                     name="email"
                                     type="email"
+                                    value={formData.email}
                                     onChange={handleChange}
                                     className={`w-full border rounded-lg px-3 py-2 outline-none transition-all ${
                                         formData.email && !isEmailValid ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-gray-500'
@@ -112,7 +152,7 @@ const CreateTenantModal = ({ isOpen, onClose }: CreateTenantModalProps) => {
                             </div>
                             <div className="space-y-1">
                                 <label className="text-sm font-medium text-gray-700">Phone Number</label>
-                                <input name="phoneNumber" type="text" onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-600 outline-none" placeholder="+962    7XXXXXXXX" />
+                                <input name="phoneNumber" type="text" onChange={handleChange} value={formData.phoneNumber} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-600 outline-none" placeholder="+962    7XXXXXXXX" />
                             </div>
                         </div>
                     </div>
@@ -123,15 +163,15 @@ const CreateTenantModal = ({ isOpen, onClose }: CreateTenantModalProps) => {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="md:col-span-3 space-y-1">
                                 <label className="text-sm font-medium text-gray-700">Street Address</label>
-                                <input name="addressStreet" type="text" onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-500 outline-none" placeholder="123 Property Lane" />
+                                <input name="addressStreet" type="text" onChange={handleChange} value={formData.addressStreet} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-500 outline-none" placeholder="123 Property Lane" />
                             </div>
                             <div className="space-y-1">
                                 <label className="text-sm font-medium text-gray-700">City</label>
-                                <input name="addressCity" type="text" onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-600-500 outline-none" />
+                                <input name="addressCity" type="text" onChange={handleChange} value={formData.addressCity} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-600-500 outline-none" />
                             </div>
                             <div className="space-y-1">
                                 <label className="text-sm font-medium text-gray-700">Region</label>
-                                <input name="addressRegion" type="text" onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-500 outline-none" placeholder="e.g. State/Province" />
+                                <input name="addressRegion" type="text" onChange={handleChange} value={formData.addressRegion} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-500 outline-none" placeholder="e.g. State/Province" />
                             </div>
                         </div>
                     </div>
@@ -143,15 +183,16 @@ const CreateTenantModal = ({ isOpen, onClose }: CreateTenantModalProps) => {
                         </button>
                         <button
                             type="submit"
-                            disabled={!isFormValid}
+                            disabled={!isFormValid || isSubmitting}
                             className={`px-6 py-2 rounded-lg text-sm font-bold flex items-center gap-2 shadow-lg transition-all ${
-                                isFormValid
+                                isFormValid && !isSubmitting
                                     ? 'bg-gray-600 hover:bg-gray-700 text-white active:scale-95'
                                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                             }`}
+
                         >
                             <Save size={18} />
-                            Save Tenant
+                            {isSubmitting ? 'Creating...' : 'Save Tenant'}
                         </button>
                     </div>
                 </form>

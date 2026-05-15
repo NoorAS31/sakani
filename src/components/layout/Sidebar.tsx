@@ -3,16 +3,15 @@ import {
     Building2,
     Sun,
     Moon,
-
     Calculator,
-    CheckSquare,
     Settings,
     UserCircle,
     LogOut,
     Users,
     MapPin,
     FileChartColumn,
-    ReceiptText
+    ReceiptText,
+    Wrench
 } from 'lucide-react';
 import {NavLink} from 'react-router-dom';
 import {storage} from "../../utils/storage.ts";
@@ -33,15 +32,15 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
                 {name: 'Property', icon: <Building2 size={20} />, path: '/property'},
                 {name: 'Units', icon: <MapPin size={20} />, path: '/units' },
                 {name: 'Renter', icon: <UserCircle size={20} />, path: '/renters'},
-                {name : 'Contracts', icon:<FileChartColumn size={20} />, path: '/contracts'}
+                {name : 'Contracts', icon:<FileChartColumn size={20} />, path: '/contracts'},
+                { name: 'Accounting', icon: <Calculator size={20} />, path: '/accounting' },
+                { name: 'Expenses', icon: <ReceiptText size={20} />, path: '/expenses' },
+                { name: 'Maintenance', icon: <Wrench size={20} />, path: '/maintenance-tickets' },
             ]
         : []),
 
 
 
-        { name: 'Accounting', icon: <Calculator size={20} />, path: '/accounting' },
-        { name: 'Expenses', icon: <ReceiptText size={20} />, path: '/expenses' },
-        { name: 'Tasks', icon: <CheckSquare size={20} />, path: '/tasks' },
     ];
 
     return (

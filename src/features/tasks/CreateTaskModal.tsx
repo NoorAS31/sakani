@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Wrench } from 'lucide-react';
 import { storage } from '../../utils/storage';
-import { taskService } from '../../services/taskService';
+import { taskService } from '../../services/TicketService.ts';
 
 interface CreateTaskModalProps {
     isOpen: boolean;

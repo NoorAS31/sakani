@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {authService} from "./authService.ts";
+import {authService} from "../../services/authService.ts";
 import { Eye, EyeOff, Moon, Sun } from "lucide-react";
 import { usePageTitle } from '../../hooks/usePageTitle';
 import { useTheme } from '../../context/ThemeContext.tsx';

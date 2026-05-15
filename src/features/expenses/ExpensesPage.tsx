@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Loader2, Plus, ReceiptText, Trash2, X, Filter } from 'lucide-react';
+import { Loader2, Plus, ReceiptText, Trash2, X, Filter, Edit3 } from 'lucide-react';
 import { usePageTitle } from '../../hooks/usePageTitle.ts';
 import { expenseService } from '../../services/expenseService.ts';
 import { propertyService } from '../../services/propertyService.ts';
@@ -8,6 +8,7 @@ import { ExpenseType, type Expense } from '../../types/expense.ts';
 import type { Property } from '../../types/property.ts';
 import type { Unit } from '../../types/unit.ts';
 import CreateExpenseModal from './CreateExpenseModal.tsx';
+import UpdateExpenseModal from './UpdateExpenseModal.tsx';
 
 const ExpensesPage = () => {
     usePageTitle('Expenses');
@@ -16,7 +17,8 @@ const ExpensesPage = () => {
     const [units, setUnits] = useState<Unit[]>([]);
     const [loading, setLoading] = useState(true);
     const [deletingId, setDeletingId] = useState<string | null>(null);
-    const [isCreateCardOpen, setIsCreateCardOpen] = useState(true);
+    const [isCreateCardOpen, setIsCreateCardOpen] = useState(false);
+    const [selectedExpenseForEdit, setSelectedExpenseForEdit] = useState<Expense | null>(null);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [filterProperty, setFilterProperty] = useState<string>('');
     const [filterExpenseType, setFilterExpenseType] = useState<string>('');
@@ -248,15 +250,25 @@ const ExpensesPage = () => {
                                                 ${expense.amount.toLocaleString()}
                                             </td>
                                             <td className="px-4 py-3 text-right">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleDeleteExpense(expense.expenseID)}
-                                                    disabled={deletingId === expense.expenseID}
-                                                    className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 disabled:opacity-50"
-                                                >
-                                                    <Trash2 size={14} />
-                                                    Delete
-                                                </button>
+                                                <div className="flex gap-2 justify-end">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setSelectedExpenseForEdit(expense)}
+                                                        className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700"
+                                                    >
+                                                        <Edit3 size={14} />
+                                                        Edit
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleDeleteExpense(expense.expenseID)}
+                                                        disabled={deletingId === expense.expenseID}
+                                                        className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 disabled:opacity-50"
+                                                    >
+                                                        <Trash2 size={14} />
+                                                        Delete
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
@@ -366,6 +378,13 @@ const ExpensesPage = () => {
                     </div>
                 </div>
             )}
+
+            <UpdateExpenseModal
+                isOpen={!!selectedExpenseForEdit}
+                onClose={() => setSelectedExpenseForEdit(null)}
+                expense={selectedExpenseForEdit}
+                onExpenseUpdated={loadExpenses}
+            />
         </div>
     );
 };
