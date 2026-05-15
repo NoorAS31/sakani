@@ -1,0 +1,39 @@
+export enum MaintenanceTicketStatus {
+    Open = 1,
+    InProgress = 2,
+    Resolved = 3,
+    Closed = 4
+}
+
+export interface MaintenanceImage {
+    id: string;
+    imageUrl: string;
+}
+
+export interface MaintenanceTicket {
+    id: string;
+    unitId: string;
+    unitNo: string;
+    subject: string;
+    description: string;
+    status: MaintenanceTicketStatus | string;
+    createdAt: string;
+    images: MaintenanceImage[];
+}
+
+export interface CreateMaintenanceTicketDto {
+    unitId: string;
+    subject: string;
+    description: string;
+}
+
+export interface UpdateMaintenanceTicketDto {
+    id: string;
+    subject: string;
+    description: string;
+}
+
+export interface UpdateMaintenanceTicketStatusDto {
+    ticketId: string;
+    newStatus: MaintenanceTicketStatus;
+}
