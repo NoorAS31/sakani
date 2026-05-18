@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../components/layout/Sidebar';
+import { NotificationCenter } from '../components/notifications/NotificationCenter';
 
 const darkThemeBridgeClasses = [
     'dark:bg-slate-950',
@@ -68,19 +69,22 @@ const darkThemeBridgeClasses = [
 
 const DashboardLayout = ({ onLogout }: { onLogout: () => void }) => {
     return (
-        <div className={`flex h-screen bg-gray-50 overflow-hidden ${darkThemeBridgeClasses}`}>
-            {/* Sidebar - fixed at the left */}
-            <Sidebar onLogout={onLogout}/>
+        <>
+            <NotificationCenter />
+            <div className={`flex h-screen bg-gray-50 overflow-hidden ${darkThemeBridgeClasses}`}>
+                {/* Sidebar - fixed at the left */}
+                <Sidebar onLogout={onLogout}/>
 
-            {/* Main Content Area */}
-            <div className="flex-1 h-full overflow-y-auto">
-                {/* Top Header can go here */}
-                <main className="p-8">
-                    {/* <Outlet /> is where DashboardPage will be injected */}
-                    <Outlet />
-                </main>
+                {/* Main Content Area */}
+                <div className="flex-1 h-full overflow-y-auto">
+                    {/* Top Header can go here */}
+                    <main className="p-8">
+                        {/* <Outlet /> is where DashboardPage will be injected */}
+                        <Outlet />
+                    </main>
+                </div>
             </div>
-        </div>
+        </>
     );
 };
 

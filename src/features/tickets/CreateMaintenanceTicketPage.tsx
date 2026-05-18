@@ -56,102 +56,110 @@ const CreateMaintenanceTicketPage = () => {
 
     if (loading) {
         return (
-            <div className="p-6 flex justify-center">
-                <Loader2 className="animate-spin text-gray-500" size={32} />
+            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-6 flex justify-center items-center">
+                <Loader2 className="animate-spin text-gray-600 dark:text-gray-400" size={40} />
             </div>
         );
     }
 
     return (
-        <div className="p-6">
-            <button
-                onClick={() => navigate('/maintenance-tickets')}
-                className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 font-semibold"
-            >
-                <ArrowLeft size={18} />
-                Back to Tickets
-            </button>
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-6">
+            <div className="max-w-2xl mx-auto space-y-6">
+                {/* Back Button */}
+                <button
+                    onClick={() => navigate('/maintenance-tickets')}
+                    className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-semibold transition-colors"
+                >
+                    <ArrowLeft size={20} />
+                    Back to Tickets
+                </button>
 
-            <div className="max-w-2xl mx-auto bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-                <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-8 text-white">
-                    <h1 className="text-3xl font-bold mb-2">Create Maintenance Ticket</h1>
-                    <p className="text-blue-100">Report a maintenance issue for a unit</p>
-                </div>
+                {/* Form Card */}
+                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                    {/* Header */}
+                    <div className="bg-gradient-to-r from-gray-900 to-gray-800 dark:from-gray-700 dark:to-gray-800 p-8 text-white">
+                        <h1 className="text-4xl font-bold mb-2">Create Ticket</h1>
+                        <p className="text-gray-300">Report a new maintenance issue</p>
+                    </div>
 
-                <form onSubmit={handleSubmit} className="p-8 space-y-6">
-                    {error && (
-                        <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
-                            <AlertCircle size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
-                            <div>
-                                <p className="text-sm font-semibold text-red-800">{error}</p>
+                    {/* Form */}
+                    <form onSubmit={handleSubmit} className="p-8 space-y-6">
+                        {error && (
+                            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl flex items-start gap-3">
+                                <AlertCircle size={20} className="text-red-600 dark:text-red-500 flex-shrink-0 mt-0.5" />
+                                <p className="text-sm font-semibold text-red-800 dark:text-red-300">{error}</p>
                             </div>
+                        )}
+
+                        {/* Unit Field */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                                Unit <span className="text-red-500">*</span>
+                            </label>
+                            <select
+                                value={formData.unitId}
+                                onChange={(e) => setFormData({ ...formData, unitId: e.target.value })}
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 dark:focus:ring-gray-500 transition-all"
+                                required
+                            >
+                                <option value="">Select a unit</option>
+                                {units.map(unit => (
+                                    <option key={unit.id} value={unit.id}>
+                                        Unit #{unit.unitNo} - Floor {unit.floor}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
-                    )}
 
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">
-                            Unit <span className="text-red-500">*</span>
-                        </label>
-                        <select
-                            value={formData.unitId}
-                            onChange={(e) => setFormData({ ...formData, unitId: e.target.value })}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 outline-none"
-                            required
-                        >
-                            <option value="">Select a unit</option>
-                            {units.map(unit => (
-                                <option key={unit.id} value={unit.id}>
-                                    Unit #{unit.unitNo} - Floor {unit.floor}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                        {/* Subject Field */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                                Subject <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                value={formData.subject}
+                                onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                                placeholder="Brief title of the maintenance issue"
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 dark:focus:ring-gray-500 placeholder-gray-500 dark:placeholder-gray-400 transition-all"
+                                required
+                            />
+                        </div>
 
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">
-                            Subject <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            value={formData.subject}
-                            onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                            placeholder="Brief title of the maintenance issue"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 outline-none"
-                            required
-                        />
-                    </div>
+                        {/* Description Field */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                                Description <span className="text-red-500">*</span>
+                            </label>
+                            <textarea
+                                value={formData.description}
+                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                placeholder="Provide detailed description of the issue"
+                                rows={6}
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 dark:focus:ring-gray-500 placeholder-gray-500 dark:placeholder-gray-400 resize-none transition-all"
+                                required
+                            />
+                        </div>
 
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">
-                            Description <span className="text-red-500">*</span>
-                        </label>
-                        <textarea
-                            value={formData.description}
-                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                            placeholder="Provide detailed description of the issue"
-                            rows={6}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 outline-none resize-none"
-                            required
-                        />
-                    </div>
-
-                    <div className="flex gap-3 pt-4">
-                        <button
-                            type="button"
-                            onClick={() => navigate('/maintenance-tickets')}
-                            className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={submitting}
-                            className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {submitting ? 'Creating...' : 'Create Ticket'}
-                        </button>
-                    </div>
-                </form>
+                        {/* Buttons */}
+                        <div className="flex gap-4 pt-4">
+                            <button
+                                type="button"
+                                onClick={() => navigate('/maintenance-tickets')}
+                                className="flex-1 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={submitting}
+                                className="flex-1 py-3 bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 dark:from-gray-700 dark:to-gray-600 dark:hover:from-gray-600 dark:hover:to-gray-500 text-white rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {submitting ? 'Creating...' : 'Create Ticket'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     );

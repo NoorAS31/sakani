@@ -73,7 +73,6 @@ const DashboardPage = () => {
 
         fetchDashboardData();
     }, []);
-    // Unit Status Aggregation - handle both camelCase and PascalCase
     const getUnitStatus = (u: any) => u.unitStatus ?? u.UnitStatus;
     const unitStats = {
         available: allUnits.filter(u => getUnitStatus(u) === 1).length,
@@ -83,7 +82,6 @@ const DashboardPage = () => {
         total: allUnits.length
     };
 
-    // Contract Status Aggregation - handle both camelCase and PascalCase
     const getContractStatus = (c: any) => c.contractStatus ?? c.ContractStatus;
     const contractStats = {
         active: contracts.filter(c => getContractStatus(c) === 2).length,
@@ -114,13 +112,11 @@ const DashboardPage = () => {
     );
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-8">
-            {/* Header Section */}
             <div className="mb-8">
                 <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
                 <p className="text-gray-600 dark:text-gray-400 mt-2">Real-time portfolio and financial overview</p>
             </div>
 
-            {/* Financial KPI Section - Only show if user has access */}
             {hasAccountingAccess ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
                     {/* Expected Revenue */}
@@ -136,7 +132,6 @@ const DashboardPage = () => {
                         <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">Revenue to be collected</p>
                     </div>
 
-                    {/* Collected Revenue */}
                     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm dark:shadow-lg border border-green-100 dark:border-green-900 p-6 hover:shadow-md dark:hover:shadow-xl transition-shadow">
                         <div className="flex items-start justify-between mb-4">
                             <div className="p-3 bg-green-50 dark:bg-green-900/30 rounded-lg">
@@ -149,7 +144,6 @@ const DashboardPage = () => {
                         <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">{accountingStats ? ((accountingStats.totalCollectedMonth / (accountingStats.totalExpectedMonth || 1)) * 100).toFixed(1) : '0'}% collected</p>
                     </div>
 
-                    {/* Expenses */}
                     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm dark:shadow-lg border border-red-100 dark:border-red-900 p-6 hover:shadow-md dark:hover:shadow-xl transition-shadow">
                         <div className="flex items-start justify-between mb-4">
                             <div className="p-3 bg-red-50 dark:bg-red-900/30 rounded-lg">
@@ -233,10 +227,8 @@ const DashboardPage = () => {
                 </div>
             )}
 
-            {/* Portfolio & Properties Section - Only show for non-SuperAdmin roles */}
             {userRole !== 'SuperAdmin' && (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Unit Status */}
                 <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700 p-6">
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">

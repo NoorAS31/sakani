@@ -23,12 +23,13 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
 
 
     const menuItems = [
-        {name: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/dashboard' },
+
         ...(storage.isSuperAdmin()
             ? [{ name: 'Tenants', icon: <Users size={20} />, path: '/tenants' }]
             : []),
         ...( storage.isTenant()?
             [
+                {name: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/dashboard' },
                 {name: 'Property', icon: <Building2 size={20} />, path: '/property'},
                 {name: 'Units', icon: <MapPin size={20} />, path: '/units' },
                 {name: 'Renter', icon: <UserCircle size={20} />, path: '/renters'},

@@ -361,8 +361,8 @@ const CreateContractModal = ({ isOpen, onClose, onContractCreated, preselectedRe
                             {/* Financial Summary */}
                             <div className="p-6 bg-gray-500 rounded-lg text-white space-y-4">
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-300 text-xl font-bold uppercase tracking-wider"> Rent</span>
-                                    <div className="flex items-center gap-2">
+                                    <span className="text-gray-300 text-xl font-bold uppercase tracking-wider"> Total Amount</span>
+                                    <div className="flex font-xl items-center gap-2">
                                         <span className="text-gray-400">$</span>
                                         <input
                                             type="number"

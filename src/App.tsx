@@ -39,12 +39,12 @@ function App() {
                 <Routes>
                     <Route
                         path="/login"
-                        element={isAuthenticated ? <Navigate to="/dashboard" /> : <LoginPage onLogin={() => setIsAuthenticated(true)} />}
+                        element={isAuthenticated ? <Navigate to={storage.isSuperAdmin() ? "/tenants" : "/dashboard"} /> : <LoginPage onLogin={() => setIsAuthenticated(true)} />}
                     />
 
                     {isAuthenticated ? (
                         <Route path="/" element={<DashboardLayout key={layoutKey} onLogout={handleLogout} />}>
-                            <Route index element={<Navigate to="/dashboard" />} />
+                            <Route index element={<Navigate to={storage.isSuperAdmin() ? "/tenants" : "/dashboard"} />} />
                             <Route path="dashboard" element={<DashboardPage />} />
                             <Route path="tenants" element={<TenantsPage />} />
                             <Route path="property" element={<PropertiesPage />} />
