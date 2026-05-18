@@ -21,12 +21,20 @@ const PaymentsPage = () => {
         () => new URLSearchParams(location.search).get('contractId') ?? '',
         [location.search]
     );
+    const renterIdFromQuery = useMemo(
+        () => new URLSearchParams(location.search).get('renterId') ?? '',
+        [location.search]
+    );
     const [contracts, setContracts] = useState<Contract[]>([]);
     const [contractDetails, setContractDetails] = useState<Record<string, ContractDetails>>({});
     const [expandedContracts, setExpandedContracts] = useState<string[]>([]);
     const [loadingContracts, setLoadingContracts] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
     const [autoFocusedContractId, setAutoFocusedContractId] = useState('');
+    const filteredContracts = useMemo(() => {
+        if (!renterIdFromQuery) return contracts;
+        return contracts.filter(contract => contract.renterId === renterIdFromQuery);
+    }, [contracts, renterIdFromQuery]);
 
     useEffect(() => {
         contractService.getAll()
@@ -136,13 +144,15 @@ const PaymentsPage = () => {
             <h1 className="text-2xl font-bold text-gray-800">Contract Payments</h1>
             <p className="text-sm text-gray-500 mb-6">View and manage payment schedules for all contracts</p>
 
-            {contracts.length === 0 ? (
+            {filteredContracts.length === 0 ? (
                 <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
                     <FileText size={48} className="text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500">No contracts found</p>
+                    <p className="text-gray-500">
+                        {renterIdFromQuery ? 'No contracts found for this renter' : 'No contracts found'}
+                    </p>
                 </div>
             ) : (
-                contracts.map(contract => {
+                filteredContracts.map(contract => {
                     const statusConfig = getContractStatusConfig(contract.contractStatus);
                     const details = contractDetails[contract.id];
                     const isExpanded = expandedContracts.includes(contract.id);

@@ -1,8 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { X, CheckCheck } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { X, CheckCheck, Check, ChevronDown } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import type { Notification } from '../../types/notification';
+import { NotificationType, NotificationTypeLabel } from '../../types/notification';
 import { notificationService } from '../../services/notificationService';
 import { useToast } from '../../hooks/useToast';
+
+type FilterType = 'all' | 'unread' | 'read';
 
 interface NotificationPanelProps {
   isOpen: boolean;
@@ -19,23 +23,56 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
 }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [filter, setFilter] = useState<FilterType>('all');
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
   const { showToast } = useToast();
+  const navigate = useNavigate();
+
+  const loadNotifications = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const unreadOnly = filter === 'unread' ? true : filter === 'read' ? false : undefined;
+      const data = await notificationService.getNotifications(unreadOnly ?? false);
+      const filtered = unreadOnly !== undefined 
+        ? data 
+        : filter === 'unread' 
+          ? data.filter(n => !n.isRead) 
+          : filter === 'read' 
+            ? data.filter(n => n.isRead) 
+            : data;
+      setNotifications(filtered);
+      const unread = data.filter((n) => !n.isRead).length;
+      onUnreadCountChange(unread);
+    } catch {
+      showToast('Failed to load notifications', 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [filter, onUnreadCountChange, showToast]);
 
   useEffect(() => {
     if (isOpen) {
       loadNotifications();
     }
-  }, [isOpen]);
+  }, [isOpen, loadNotifications]);
 
-  const loadNotifications = async () => {
+  const handleFilterChange = async (newFilter: FilterType) => {
+    setFilter(newFilter);
+    setShowFilterMenu(false);
     setIsLoading(true);
     try {
-      const data = await notificationService.getNotifications(false);
-      setNotifications(data);
+      const unreadOnly = newFilter === 'unread' ? true : newFilter === 'read' ? false : false;
+      const data = await notificationService.getNotifications(newFilter === 'all' ? false : unreadOnly);
+      const filtered = newFilter === 'unread' 
+        ? data.filter(n => !n.isRead) 
+        : newFilter === 'read' 
+          ? data.filter(n => n.isRead) 
+          : data;
+      setNotifications(filtered);
       const unread = data.filter((n) => !n.isRead).length;
       onUnreadCountChange(unread);
-    } catch (error) {
-      showToast('Failed to load notifications', 'error');
+    } catch {
+      showToast('Failed to filter notifications', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -51,7 +88,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
           )
         );
         onUnreadCountChange(unreadCount - 1);
-      } catch (error) {
+      } catch {
         showToast('Failed to mark notification as read', 'error');
       }
     }
@@ -68,9 +105,33 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
         }))
       );
       onUnreadCountChange(0);
-    } catch (error) {
+    } catch {
       showToast('Failed to mark all as read', 'error');
     }
+  };
+
+  const getNavigationPath = (notification: Notification): string => {
+    const encodedReferenceId = encodeURIComponent(notification.referenceId);
+
+    switch (notification.type) {
+      case NotificationType.PaymentOverdue:
+        return `/accounting/payments?contractId=${encodedReferenceId}`;
+      case NotificationType.MaintenanceEscalation:
+        return notification.referenceId
+          ? `/maintenance-tickets/${encodedReferenceId}`
+          : '/maintenance-tickets';
+      case NotificationType.ContractRenewalReminder:
+      case NotificationType.ContractOverstayAlert:
+        return `/contracts?contractId=${encodedReferenceId}`;
+      default:
+        return '/dashboard';
+    }
+  };
+
+  const handleNotificationClick = async (notification: Notification) => {
+    await handleMarkAsRead(notification.id, notification.isRead);
+    navigate(getNavigationPath(notification));
+    onClose();
   };
 
   const formatDate = (dateString: string) => {
@@ -91,46 +152,55 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
 
   const getNotificationIcon = (type: number) => {
     switch (type) {
-      case 0:
-        return '📘';
-      case 1:
-        return '⚠️';
-      case 2:
-        return '❌';
-      case 3:
-        return '📋';
-      case 4:
-        return '🔧';
-      case 5:
+      case NotificationType.PaymentOverdue:
         return '💳';
+      case NotificationType.MaintenanceEscalation:
+        return '🔧';
+      case NotificationType.ContractRenewalReminder:
+        return '📋';
+      case NotificationType.ContractOverstayAlert:
+        return '⚠️';
       default:
         return '📢';
     }
   };
 
+  const getPriorityColor = (type: number): string => {
+    // Red dot for high priority (PaymentOverdue, MaintenanceEscalation)
+    if (type === NotificationType.PaymentOverdue || type === NotificationType.MaintenanceEscalation) {
+      return 'bg-red-500';
+    }
+    // Yellow dot for medium priority (others)
+    return 'bg-yellow-500';
+  };
+
+  const getNotificationLabel = (type: number): string => {
+    return NotificationTypeLabel[type as keyof typeof NotificationTypeLabel] || 'Notification';
+  };
+
   return (
     <>
-      {/* Overlay */}
+      {/* Click-away area */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/20 dark:bg-black/40 z-40 transition-opacity duration-300"
+          className="fixed inset-0 z-40"
           onClick={onClose}
         />
       )}
 
       {/* Notification Panel */}
       <div
-        className={`fixed right-0 top-0 h-full w-96 bg-white dark:bg-slate-800 shadow-2xl z-50 transform transition-all duration-300 ease-out ${
+        className={`fixed bottom-24 right-8 z-50 flex h-[721px] w-[407px] max-h-[calc(100vh-6rem)] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl transition-all duration-300 ease-out dark:border-slate-700 dark:bg-slate-800 ${
           isOpen
             ? 'scale-100 opacity-100'
             : 'scale-95 opacity-0 pointer-events-none'
         }`}
         style={{
-          transformOrigin: 'top right',
+          transformOrigin: 'bottom right',
         }}
       >
         {/* Header */}
-        <div className="border-b border-gray-200 dark:border-slate-700 p-6 flex items-center justify-between bg-gray-50 dark:bg-slate-900">
+        <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 p-5 dark:border-slate-700 dark:bg-slate-900">
           <div>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">
               Notifications
@@ -141,16 +211,64 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
               </p>
             )}
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
-          >
-            <X size={20} className="text-gray-600 dark:text-gray-400" />
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Filter Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setShowFilterMenu(!showFilterMenu)}
+                className="p-2 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-lg transition-colors flex items-center gap-1"
+              >
+                <span className="text-sm text-gray-700 dark:text-gray-300">
+                  {filter === 'all' ? 'All' : filter === 'unread' ? 'Unread' : 'Read'}
+                </span>
+                <ChevronDown size={16} className="text-gray-600 dark:text-gray-400" />
+              </button>
+              {showFilterMenu && (
+                <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-slate-700 rounded-lg shadow-lg z-50 border border-gray-200 dark:border-slate-600">
+                  <button
+                    onClick={() => handleFilterChange('all')}
+                    className={`w-full text-left px-4 py-2 text-sm transition-colors ${
+                      filter === 'all'
+                        ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 font-semibold'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-600'
+                    }`}
+                  >
+                    All Notifications
+                  </button>
+                  <button
+                    onClick={() => handleFilterChange('unread')}
+                    className={`w-full text-left px-4 py-2 text-sm transition-colors border-t border-gray-200 dark:border-slate-600 ${
+                      filter === 'unread'
+                        ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 font-semibold'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-600'
+                    }`}
+                  >
+                    Unread Only
+                  </button>
+                  <button
+                    onClick={() => handleFilterChange('read')}
+                    className={`w-full text-left px-4 py-2 text-sm transition-colors border-t border-gray-200 dark:border-slate-600 ${
+                      filter === 'read'
+                        ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 font-semibold'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-600'
+                    }`}
+                  >
+                    Read Only
+                  </button>
+                </div>
+              )}
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
+            >
+              <X size={20} className="text-gray-600 dark:text-gray-400" />
+            </button>
+          </div>
         </div>
 
         {/* Notifications List */}
-        <div className="h-[calc(100vh-120px)] overflow-y-auto">
+        <div className="min-h-0 flex-1 overflow-y-auto">
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
               <div className="flex flex-col items-center gap-2">
@@ -171,17 +289,14 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  onClick={() =>
-                    handleMarkAsRead(
-                      notification.id,
-                      notification.isRead
-                    )
-                  }
-                  className={`p-4 cursor-pointer transition-colors ${
+                  onClick={() => {
+                    void handleNotificationClick(notification);
+                  }}
+                  className={`p-4 transition-colors ${
                     notification.isRead
                       ? 'bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700/50'
                       : 'bg-blue-50 dark:bg-blue-950/20 hover:bg-blue-100 dark:hover:bg-blue-900/30'
-                  }`}
+                  } cursor-pointer`}
                 >
                   <div className="flex gap-3">
                     <span className="text-xl flex-shrink-0">
@@ -189,14 +304,35 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
                     </span>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <h3 className="font-semibold text-gray-900 dark:text-white text-sm truncate">
-                          {notification.title}
-                        </h3>
-                        {!notification.isRead && (
-                          <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-1.5" />
-                        )}
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-900 dark:text-white text-sm truncate">
+                            {notification.title}
+                          </h3>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                            {getNotificationLabel(notification.type)}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          {!notification.isRead && (
+                            <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${getPriorityColor(notification.type)}`} />
+                          )}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleMarkAsRead(notification.id, notification.isRead);
+                            }}
+                            title={notification.isRead ? 'Already read' : 'Mark as read'}
+                            className={`p-1.5 rounded transition-colors ${
+                              notification.isRead
+                                ? 'text-gray-400 dark:text-gray-600 hover:bg-gray-100 dark:hover:bg-slate-700'
+                                : 'text-blue-500 hover:bg-blue-100 dark:hover:bg-blue-900/30'
+                            }`}
+                          >
+                            <Check size={30} />
+                          </button>
+                        </div>
                       </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 line-clamp-2">
                         {notification.message}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">

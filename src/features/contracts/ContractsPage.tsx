@@ -39,6 +39,10 @@ const ContractsPage = () => {
     usePageTitle('Contracts');
     const location = useLocation();
     const navigate = useNavigate();
+    const contractIdFromQuery = useMemo(
+        () => new URLSearchParams(location.search).get('contractId')?.trim() ?? '',
+        [location.search]
+    );
     const [contracts, setContracts] = useState<ContractDisplay[]>([]);
     const [renters, setRenters] = useState<Renter[]>([]);
     const [selectedContract, setSelectedContract] = useState<ContractDisplay | null>(null);
@@ -206,6 +210,10 @@ Renter: ________________________ Date: __________
     }, []);
 
     const filteredContracts = useMemo(() => {
+        if (contractIdFromQuery) {
+            return contracts.filter(c => c.id === contractIdFromQuery);
+        }
+
         return contracts.filter(c => {
             // Text search
             if (searchTerm.trim()) {
@@ -258,7 +266,22 @@ Renter: ________________________ Date: __________
 
             return true;
         });
-    }, [contracts, searchTerm, filters]);
+    }, [contracts, contractIdFromQuery, searchTerm, filters]);
+
+    useEffect(() => {
+        if (!contractIdFromQuery || contracts.length === 0) return;
+
+        const exactContract = contracts.find(c => c.id === contractIdFromQuery);
+        if (!exactContract) return;
+
+        setSelectedContract(exactContract);
+        window.setTimeout(() => {
+            document.getElementById(`contract-row-${contractIdFromQuery}`)?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }, 100);
+    }, [contractIdFromQuery, contracts]);
 
     return (
         <div className="flex flex-row gap-6 relative min-h-[calc(100vh-100px)]">

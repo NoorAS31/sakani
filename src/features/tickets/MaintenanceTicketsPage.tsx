@@ -2,7 +2,6 @@ import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, AlertCircle, Clock, CheckCircle2, AlertTriangle, ImageIcon, ArrowRight, Filter, Search } from 'lucide-react';
 import { usePageTitle } from '../../hooks/usePageTitle';
-import { useToast } from '../../hooks/useToast';
 import { maintenanceTicketService } from '../../services/maintenanceTicketService';
 import { unitService } from '../../services/unitService';
 import { storage } from '../../utils/storage';
@@ -15,7 +14,6 @@ import ImageGalleryModal from '../../components/common/ImageGalleryModal';
 const MaintenanceTicketsPage = () => {
     usePageTitle('Maintenance Tickets');
     const navigate = useNavigate();
-    const { showToast } = useToast();
     const [tickets, setTickets] = useState<MaintenanceTicket[]>([]);
     const [units, setUnits] = useState<Unit[]>([]);
     const [loading, setLoading] = useState(true);
@@ -36,11 +34,10 @@ const MaintenanceTicketsPage = () => {
             setTickets(ticketData);
         } catch (err) {
             console.error('Failed to load tickets:', err);
-            showToast('Failed to load maintenance tickets', 'error', 5000);
         } finally {
             setLoading(false);
         }
-    }, [showToast]);
+    }, []);
 
     useEffect(() => {
         loadTickets();

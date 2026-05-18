@@ -12,13 +12,18 @@ export interface Notification {
 }
 
 export const NotificationType = {
-  Info: 0,
-  Warning: 1,
-  Error: 2,
-  ContractExpiry: 3,
-  MaintenanceUpdate: 4,
-  PaymentReminder: 5,
+  PaymentOverdue: 1,
+  MaintenanceEscalation: 2,
+  ContractRenewalReminder: 3,
+  ContractOverstayAlert: 4,
 } as const;
 
 export type NotificationTypeValue = (typeof NotificationType)[keyof typeof NotificationType];
+
+export const NotificationTypeLabel: Record<NotificationTypeValue, string> = {
+  1: 'Payment Overdue',
+  2: 'Maintenance Escalation',
+  3: 'Contract Renewal Reminder',
+  4: 'Contract Overstay Alert',
+};
 

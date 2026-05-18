@@ -237,49 +237,53 @@ const DashboardPage = () => {
                         </h2>
                     </div>
 
-                    <div className="flex items-center justify-between">
-                        <div className="relative w-24 h-24">
-                            <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
-                                <circle cx="18" cy="18" r="15.915" fill="none" stroke="#e2e8f0" strokeWidth="3" className="dark:stroke-gray-700" />
-                                <circle 
-                                    cx="18" cy="18" r="15.915" fill="none" 
-                                    stroke="#22c55e" strokeWidth="3"
-                                    strokeDasharray={`${unitSegs.available} ${100 - unitSegs.available}`}
-                                    strokeDashoffset="0"
-                                />
-                                <circle 
-                                    cx="18" cy="18" r="15.915" fill="none" 
-                                    stroke="#3b82f6" strokeWidth="3"
-                                    strokeDasharray={`${unitSegs.rented} ${100 - unitSegs.rented}`}
-                                    strokeDashoffset={`${-unitSegs.available}`}
-                                />
-                                <circle 
-                                    cx="18" cy="18" r="15.915" fill="none" 
-                                    stroke="#ef4444" strokeWidth="3"
-                                    strokeDasharray={`${unitSegs.maintenance} ${100 - unitSegs.maintenance}`}
-                                    strokeDashoffset={`${-(unitSegs.available + unitSegs.rented)}`}
-                                />
-                            </svg>
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <span className="text-2xl font-bold text-gray-900 dark:text-white">{unitStats.total}</span>
+                    <div className="flex flex-col lg:flex-row gap-6">
+                        {/* Circle - responsive layout */}
+                        <div className="flex flex-col xl:flex-col lg:flex-row items-center gap-6 w-full lg:w-auto">
+                            <div className="relative w-40 h-40 lg:w-32 lg:h-32 xl:w-64 xl:h-64 flex-shrink-0">
+                                <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+                                    <circle cx="18" cy="18" r="15.915" fill="none" stroke="#e2e8f0" strokeWidth="3" className="dark:stroke-gray-700" />
+                                    <circle 
+                                        cx="18" cy="18" r="15.915" fill="none" 
+                                        stroke="#22c55e" strokeWidth="3"
+                                        strokeDasharray={`${unitSegs.available} ${100 - unitSegs.available}`}
+                                        strokeDashoffset="0"
+                                    />
+                                    <circle 
+                                        cx="18" cy="18" r="15.915" fill="none" 
+                                        stroke="#3b82f6" strokeWidth="3"
+                                        strokeDasharray={`${unitSegs.rented} ${100 - unitSegs.rented}`}
+                                        strokeDashoffset={`${-unitSegs.available}`}
+                                    />
+                                    <circle 
+                                        cx="18" cy="18" r="15.915" fill="none" 
+                                        stroke="#ef4444" strokeWidth="3"
+                                        strokeDasharray={`${unitSegs.maintenance} ${100 - unitSegs.maintenance}`}
+                                        strokeDashoffset={`${-(unitSegs.available + unitSegs.rented)}`}
+                                    />
+                                </svg>
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <span className="text-3xl lg:text-2xl xl:text-5xl font-bold text-gray-900 dark:text-white">{unitStats.total}</span>
+                                </div>
                             </div>
-                        </div>
 
-                        <div className="text-sm space-y-2 flex-1 ml-6">
-                            <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                                <span className="text-gray-600 dark:text-gray-400">Available</span>
-                                <span className="font-bold text-gray-900 dark:text-white ml-auto">{unitStats.available}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                                <span className="text-gray-600 dark:text-gray-400">Rented</span>
-                                <span className="font-bold text-gray-900 dark:text-white ml-auto">{unitStats.rented}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                                <span className="text-gray-600 dark:text-gray-400">Maintenance</span>
-                                <span className="font-bold text-gray-900 dark:text-white ml-auto">{unitStats.maintenance}</span>
+                            {/* Legend - below circle on XL, beside on LG */}
+                            <div className="text-sm space-y-2 w-full lg:w-auto xl:space-y-0 xl:flex xl:gap-8">
+                                <div className="flex items-center gap-2 lg:flex-col lg:items-start xl:flex-col xl:items-start">
+                                    <div className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></div>
+                                    <span className="text-gray-600 dark:text-gray-400">Available</span>
+                                    <span className="font-bold text-gray-900 dark:text-white ml-auto lg:ml-0 xl:ml-0">{unitStats.available}</span>
+                                </div>
+                                <div className="flex items-center gap-2 lg:flex-col lg:items-start xl:flex-col xl:items-start">
+                                    <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></div>
+                                    <span className="text-gray-600 dark:text-gray-400">Rented</span>
+                                    <span className="font-bold text-gray-900 dark:text-white ml-auto lg:ml-0 xl:ml-0">{unitStats.rented}</span>
+                                </div>
+                                <div className="flex items-center gap-2 lg:flex-col lg:items-start xl:flex-col xl:items-start">
+                                    <div className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></div>
+                                    <span className="text-gray-600 dark:text-gray-400">Maintenance</span>
+                                    <span className="font-bold text-gray-900 dark:text-white ml-auto lg:ml-0 xl:ml-0">{unitStats.maintenance}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -325,7 +329,7 @@ const DashboardPage = () => {
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Quick Actions</h2>
                     <div className="space-y-3">
                         <button
-                            onClick={() => navigate('/properties')}
+                            onClick={() => navigate('/property')}
                             className="w-full p-3 text-left rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
                         >
                             <p className="font-bold text-gray-900 dark:text-white">Properties</p>
