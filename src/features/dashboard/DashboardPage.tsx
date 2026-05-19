@@ -73,7 +73,7 @@ const DashboardPage = () => {
 
         fetchDashboardData();
     }, []);
-    const getUnitStatus = (u: any) => u.unitStatus ?? u.UnitStatus;
+    const getUnitStatus = (u: Unit) => u.unitStatus;
     const unitStats = {
         available: allUnits.filter(u => getUnitStatus(u) === 1).length,
         rented: allUnits.filter(u => getUnitStatus(u) === 2).length,
@@ -82,7 +82,7 @@ const DashboardPage = () => {
         total: allUnits.length
     };
 
-    const getContractStatus = (c: any) => c.contractStatus ?? c.ContractStatus;
+    const getContractStatus = (c: Contract) => c.contractStatus;
     const contractStats = {
         active: contracts.filter(c => getContractStatus(c) === 2).length,
         pending: contracts.filter(c => getContractStatus(c) === 1).length,

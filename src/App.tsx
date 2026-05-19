@@ -17,7 +17,10 @@ import AccountPage from './features/account/AccountPage.tsx';
 import MaintenanceTicketsPage from './features/tickets/MaintenanceTicketsPage.tsx';
 import CreateMaintenanceTicketPage from './features/tickets/CreateMaintenanceTicketPage.tsx';
 import MaintenanceTicketDetailPage from './features/tickets/MaintenanceTicketDetailPage.tsx';
-import { ToastProvider } from './context/ToastContext';
+import FadeRoutes from './components/common/FadeRoutes';
+import Sidebar from './components/layout/Sidebar';
+import { NotificationCenter } from './components/notifications/NotificationCenter.tsx';
+import { DARK_THEME_BRIDGE_CLASSES } from './utils/theme';
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(() => !!storage.getToken());
@@ -34,38 +37,55 @@ function App() {
     const layoutKey = isAuthenticated ? `authenticated-${storage.getUserId()}` : 'guest';
 
     return (
-        <ToastProvider>
             <BrowserRouter>
-                <Routes>
-                    <Route
-                        path="/login"
-                        element={isAuthenticated ? <Navigate to={storage.isSuperAdmin() ? "/tenants" : "/dashboard"} /> : <LoginPage onLogin={() => setIsAuthenticated(true)} />}
-                    />
-
-                    {isAuthenticated ? (
-                        <Route path="/" element={<DashboardLayout key={layoutKey} onLogout={handleLogout} />}>
-                            <Route index element={<Navigate to={storage.isSuperAdmin() ? "/tenants" : "/dashboard"} />} />
-                            <Route path="dashboard" element={<DashboardPage />} />
-                            <Route path="tenants" element={<TenantsPage />} />
-                            <Route path="property" element={<PropertiesPage />} />
-                            <Route path="units" element={<UnitsPage />} />
-                            <Route path="renters" element={<RentersPage />} />
-                            <Route path="contracts" element={<ContractsPage/>} />
-                            <Route path="accounting" element={<AccountingPage />} />
-                            <Route path="accounting/payments" element={<PaymentsPage />} />
-                            <Route path="expenses" element={<ExpensesPage />} />
-                            <Route path="maintenance-tickets" element={<MaintenanceTicketsPage />} />
-                            <Route path="maintenance-tickets/create" element={<CreateMaintenanceTicketPage />} />
-                            <Route path="maintenance-tickets/:id" element={<MaintenanceTicketDetailPage />} />
-                            <Route path="settings" element={<SettingsPage />} />
-                            <Route path="account" element={<AccountPage />} />
-                        </Route>
-                    ) : (
-                        <Route path="*" element={<Navigate to="/login" />} />
-                    )}
-                </Routes>
+                {isAuthenticated && (
+                    <>
+                        <NotificationCenter />
+                        <div className={`flex h-screen bg-gray-50 overflow-hidden ${DARK_THEME_BRIDGE_CLASSES}`}>
+                            <Sidebar key={layoutKey} onLogout={handleLogout}/>
+                            <div className="flex-1 h-full overflow-y-auto">
+                                <FadeRoutes>
+                                    {(location) => (
+                                        <Routes location={location}>
+                                            <Route path="/" element={<DashboardLayout />}>
+                                                <Route index element={<Navigate to={storage.isSuperAdmin() ? "/tenants" : "/dashboard"} />} />
+                                                <Route path="dashboard" element={<DashboardPage />} />
+                                                <Route path="tenants" element={<TenantsPage />} />
+                                                <Route path="property" element={<PropertiesPage />} />
+                                                <Route path="units" element={<UnitsPage />} />
+                                                <Route path="renters" element={<RentersPage />} />
+                                                <Route path="contracts" element={<ContractsPage/>} />
+                                                <Route path="accounting" element={<AccountingPage />} />
+                                                <Route path="accounting/payments" element={<PaymentsPage />} />
+                                                <Route path="expenses" element={<ExpensesPage />} />
+                                                <Route path="maintenance-tickets" element={<MaintenanceTicketsPage />} />
+                                                <Route path="maintenance-tickets/create" element={<CreateMaintenanceTicketPage />} />
+                                                <Route path="maintenance-tickets/:id" element={<MaintenanceTicketDetailPage />} />
+                                                <Route path="settings" element={<SettingsPage />} />
+                                                <Route path="account" element={<AccountPage />} />
+                                            </Route>
+                                        </Routes>
+                                    )}
+                                </FadeRoutes>
+                            </div>
+                        </div>
+                    </>
+                )}
+                {!isAuthenticated && (
+                    <FadeRoutes>
+                        {(location) => (
+                            <Routes location={location}>
+                                <Route
+                                    path="/login"
+                                    element={<LoginPage onLogin={() => setIsAuthenticated(true)} />}
+                                />
+                                <Route path="*" element={<Navigate to="/login" />} />
+                            </Routes>
+                        )}
+                    </FadeRoutes>
+                )}
             </BrowserRouter>
-        </ToastProvider>
+
     );
 }
 export default App;

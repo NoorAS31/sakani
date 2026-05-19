@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import type { Notification } from '../../types/notification';
 import { NotificationType, NotificationTypeLabel } from '../../types/notification';
 import { notificationService } from '../../services/notificationService';
-import { useToast } from '../../hooks/useToast';
 
 type FilterType = 'all' | 'unread' | 'read';
 
@@ -25,7 +24,6 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [filter, setFilter] = useState<FilterType>('all');
   const [showFilterMenu, setShowFilterMenu] = useState(false);
-  const { showToast } = useToast();
   const navigate = useNavigate();
 
   const loadNotifications = useCallback(async () => {
@@ -43,12 +41,12 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
       setNotifications(filtered);
       const unread = data.filter((n) => !n.isRead).length;
       onUnreadCountChange(unread);
-    } catch {
-      showToast('Failed to load notifications', 'error');
+    } catch (err : unknown) {
+      console.error(err);
     } finally {
       setIsLoading(false);
     }
-  }, [filter, onUnreadCountChange, showToast]);
+  }, [filter, onUnreadCountChange]);
 
   useEffect(() => {
     if (isOpen) {
@@ -71,8 +69,8 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
       setNotifications(filtered);
       const unread = data.filter((n) => !n.isRead).length;
       onUnreadCountChange(unread);
-    } catch {
-      showToast('Failed to filter notifications', 'error');
+    } catch (err :unknown){
+      console.error(err);
     } finally {
       setIsLoading(false);
     }
@@ -88,8 +86,8 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
           )
         );
         onUnreadCountChange(unreadCount - 1);
-      } catch {
-        showToast('Failed to mark notification as read', 'error');
+      } catch (err : unknown) {
+        console.error(err);
       }
     }
   };
@@ -105,8 +103,8 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
         }))
       );
       onUnreadCountChange(0);
-    } catch {
-      showToast('Failed to mark all as read', 'error');
+    } catch (err : unknown) {
+      console.error(err);
     }
   };
 

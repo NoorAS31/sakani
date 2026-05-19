@@ -1,8 +1,29 @@
 import React, {useState} from 'react';
 import {authService} from "../../services/authService.ts";
+import {tenantService} from "../../services/tenantService.ts";
+import {storage} from "../../utils/storage.ts";
 import { Eye, EyeOff, Moon, Sun, Lock, Mail } from "lucide-react";
 import { usePageTitle } from '../../hooks/usePageTitle';
 import { useTheme } from '../../context/ThemeContext.tsx';
+
+const LOADING_BARRIER_MS = 1000;
+
+const isTenantRole = (role: string): boolean => (role ?? '').toLowerCase() === 'tenant';
+
+const isTenantStatusActive = (status: string | undefined): boolean => {
+    if (typeof status !== 'string') return false;
+    return status.trim().toLowerCase() === 'active';
+};
+
+const formatTenantStatus = (status: string | undefined): string => {
+    if (typeof status === 'string') {
+        const value = status.trim();
+        if (!value) return 'Unknown';
+        return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+    }
+
+    return 'Unknown';
+};
 
 const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
     usePageTitle('Login');
@@ -30,14 +51,31 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
 
         try {
             const data = await authService.login(credentials);
-
             authService.handleLoginSuccess(data, rememberMe);
+            const authenticatedRole = data.role ?? storage.getRole();
+
+            if (isTenantRole(authenticatedRole)) {
+                const tenant = await tenantService.getMe();
+                if (!isTenantStatusActive(tenant.status)) {
+                    const tenantName = tenant.name || storage.getTenantName() || 'Tenant';
+                    const tenantStatus = formatTenantStatus(tenant.status);
+                    throw new Error(`TENANT_STATUS:${tenantName} is ${tenantStatus}`);
+                }
+            }
+
+            await new Promise((resolve) => setTimeout(resolve, LOADING_BARRIER_MS));
 
             console.log("Logged in successfully!");
             onLogin();
 
         } catch (err) {
-            setError("Invalid credentials. Please check your email and password.");
+            storage.clearLoginData();
+            const message = err instanceof Error ? err.message : '';
+            if (message.startsWith('TENANT_STATUS:')) {
+                setError(message.replace('TENANT_STATUS:', ''));
+            } else {
+                setError("Invalid credentials. Please check your email and password.");
+            }
             console.error("Login Error:", err);
         } finally {
             setIsLoading(false);
@@ -202,7 +240,6 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
                 </div>
             </div>
 
-            {/* Styles for animations */}
             <style>{`
                 @keyframes blob {
                     0%, 100% {

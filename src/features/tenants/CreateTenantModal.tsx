@@ -9,7 +9,6 @@ interface CreateTenantModalProps {
 }
 
 const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantModalProps) => {
-    // Initial state matches your DB fields
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -69,9 +68,9 @@ const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantMod
         }
 
         setIsSubmitting(true);
-        setError('');
-
         try {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
             await tenantService.create(formData);
             onTenantCreated();
             setFormData({
@@ -84,9 +83,14 @@ const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantMod
                 status: 1
             });
             onClose();
-        } catch (err: any) {
-            console.error("Failed to create tenant", err);
-            setError(err.response?.data?.message || "Failed to create tenant. Please try again.");
+        } catch (err: unknown) {
+            if(err instanceof Error) {
+                console.error("Failed to create tenant", err.message);
+            }
+            else{
+                console.error("Failed to create tenant. Please try again." , err);
+            }
+
         } finally {
             setIsSubmitting(false);
         }

@@ -25,7 +25,7 @@ export const notificationService = {
 
   async markAllAsRead(): Promise<void> {
     try {
-      await apiClient.put('/notifications/read-all');
+      await apiClient.put('/Notifications/read-all');
     } catch (error) {
       console.error('Failed to mark all notifications as read:', error);
       throw error;

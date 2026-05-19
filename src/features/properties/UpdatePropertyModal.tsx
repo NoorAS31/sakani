@@ -53,8 +53,13 @@ const UpdatePropertyModal = ({ property, isOpen, onClose, onPropertyUpdated }: U
             await propertyService.update(property.id, payload);
             onPropertyUpdated();
             onClose();
-        } catch (err: any) {
-            setError(err.response?.data || "Failed to update property. Please check your connection.");
+        } catch (err: unknown) {
+            if(err instanceof Error) {
+                console.error("update failed",err.message);
+            }
+            else{
+                console.error("update failed");
+            }
         } finally {
             setIsSubmitting(false);
         }

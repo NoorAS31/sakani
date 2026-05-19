@@ -49,7 +49,6 @@ export const NotificationCenter: React.FC = () => {
         </div>
       </button>
 
-      {/* Notification Panel */}
       <NotificationPanel
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}

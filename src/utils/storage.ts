@@ -1,4 +1,4 @@
-// utils/storage.ts
+
 
 const KEYS = {
     TOKEN: 'token',
@@ -29,5 +29,12 @@ export const storage = {
         engine.setItem(KEYS.TENANT_ID, data.tenantId);
         engine.setItem(KEYS.USER_ID, data.userId);
         if (data.tenantName) engine.setItem(KEYS.TENANT_NAME, data.tenantName);
+    },
+
+    clearLoginData: () => {
+        Object.values(KEYS).forEach((key) => {
+            localStorage.removeItem(key);
+            sessionStorage.removeItem(key);
+        });
     }
 };

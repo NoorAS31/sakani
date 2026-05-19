@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from 'react';
 import { Plus, X, Mail, Phone, MapPin, Info, UserPlus, Edit2, Trash2 } from 'lucide-react';
 import type { Tenant } from '../../types/tenant';
@@ -260,7 +259,7 @@ const TenantsPage = () => {
     );
 };
 
-const DetailItem = ({ label, value, icon }: { label: string, value: any, icon?: React.ReactNode }) => (
+const DetailItem = ({ label, value, icon }: { label: string, value: string, icon?: React.ReactNode }) => (
     <div className="group flex items-start gap-3">
         {icon && <div className="mt-0.5 text-gray-400">{icon}</div>}
         <div>

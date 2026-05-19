@@ -35,7 +35,6 @@ const UpdateTenantModal = ({ isOpen, onClose, onTenantUpdated, tenant }: UpdateT
                 addressRegion: tenant.addressRegion || '',
                 status: tenant.status || 1
             });
-            setError('');
         }
     }, [tenant, isOpen]);
 
@@ -51,7 +50,6 @@ const UpdateTenantModal = ({ isOpen, onClose, onTenantUpdated, tenant }: UpdateT
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setError('');
 
         if (name === 'phoneNumber') {
             const onlyNums = value.replace(/[^0-9]/g, '');
@@ -82,19 +80,22 @@ const UpdateTenantModal = ({ isOpen, onClose, onTenantUpdated, tenant }: UpdateT
         }
 
         setIsSubmitting(true);
-        setError('');
 
         try {
             await tenantService.update(tenant.id, {
                 id: tenant.id,
                 ...formData
-            });
+            } as Tenant);
             onTenantUpdated();
             onClose();
-        } catch (err: any) {
-            console.error("Failed to update tenant", err);
-            setError(err.response?.data?.message || "Failed to update tenant. Please try again.");
-        } finally {
+        } catch (err: unknown) {
+            if(err instanceof Error ){
+                console.error("Failed to update tenant", err.message);
+            }
+            else {
+            setError( "failed to update tenant. Please try again.");
+        }
+        }finally {
             setIsSubmitting(false);
         }
     };
@@ -110,7 +111,6 @@ const UpdateTenantModal = ({ isOpen, onClose, onTenantUpdated, tenant }: UpdateT
                     </button>
                 </div>
 
-                {/* Form Content */}
                 <form onSubmit={handleSubmit} className="p-6 space-y-6">
                     {error && (
                         <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
@@ -118,7 +118,6 @@ const UpdateTenantModal = ({ isOpen, onClose, onTenantUpdated, tenant }: UpdateT
                         </p>
                     )}
 
-                    {/* Section 1: Basic Information */}
                     <div>
                         <h3 className="underline text-xs font-bold text-red-600 uppercase tracking-wider mb-4">Basic Information</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

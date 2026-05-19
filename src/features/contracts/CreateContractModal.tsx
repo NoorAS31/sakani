@@ -55,8 +55,8 @@ const CreateContractModal = ({ isOpen, onClose, onContractCreated, preselectedRe
                         renterService.getAll()
                     ]);
                     // Only Vacant units (status 1) - handle both casing from API
-                    const vacantUnits = allUnits.filter((u: any) => {
-                        const status = u.unitStatus ?? u.UnitStatus;
+                    const vacantUnits = allUnits.filter((u: Unit) => {
+                        const status = u.unitStatus;
                         return status === 1;
                     });
                     setUnits(vacantUnits);
@@ -85,9 +85,9 @@ const CreateContractModal = ({ isOpen, onClose, onContractCreated, preselectedRe
     // 1a2. Prefill unit when preselectedUnit is provided
     useEffect(() => {
         if (isOpen && preselectedUnit) {
-            const unitId = preselectedUnit.id || (preselectedUnit as any).Id || '';
-            const unitNo = preselectedUnit.unitNo || (preselectedUnit as any).UnitNo || '';
-            const rentPrice = preselectedUnit.rentPrice ?? (preselectedUnit as any).RentPrice ?? 0;
+            const unitId = preselectedUnit.id || '';
+            const unitNo = preselectedUnit.unitNo || '';
+            const rentPrice = preselectedUnit.rentPrice ?? 0;
             const displayText = `#${unitNo}`;
             setFormData(prev => ({ ...prev, unitId, rentAmount: rentPrice }));
             setUnitSearch(displayText);

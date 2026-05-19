@@ -238,7 +238,7 @@ const RentersPage = () => {
 };
 
 /* Improved DetailItem with optional Icon */
-const DetailItem = ({ label, value, icon }: { label: string, value: any, icon?: React.ReactNode }) => (
+const DetailItem = ({ label, value, icon }: { label: string, value: string | undefined, icon?: React.ReactNode }) => (
     <div className="group flex items-start gap-3">
         {icon && <div className="mt-0.5 text-gray-400">{icon}</div>}
         <div>

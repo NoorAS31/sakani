@@ -3,6 +3,7 @@ import { X, Save, Home, AlertTriangle } from 'lucide-react';
 import { unitService } from '../../services/unitService';
 import { contractService } from '../../services/contractService';
 import type { Unit } from '../../types/unit';
+import type {Contract} from "../../types/contract.ts";
 
 interface UpdateUnitModalProps {
     unit: Unit;
@@ -17,7 +18,7 @@ const UpdateUnitModal = ({ unit, isOpen, onClose, onUnitUpdated }: UpdateUnitMod
         floor: '',
         area: '',
         rentPrice: 0,
-        UnitStatus: 1
+        unitStatus: 1
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [hasActiveContract, setHasActiveContract] = useState(false);
@@ -31,8 +32,7 @@ const UpdateUnitModal = ({ unit, isOpen, onClose, onUnitUpdated }: UpdateUnitMod
             setCheckingContract(true);
             try {
                 const contracts = await contractService.getAll();
-                // Block editing if contract is Draft (1) or Active (2)
-                const unitHasContract = contracts.some((c: any) => 
+                const unitHasContract = contracts.some((c: Contract) =>
                     c.unitId === unit.id && (c.contractStatus === 1 || c.contractStatus === 2)
                 );
                 setHasActiveContract(unitHasContract);
@@ -55,7 +55,7 @@ const UpdateUnitModal = ({ unit, isOpen, onClose, onUnitUpdated }: UpdateUnitMod
                 floor: unit.floor,
                 area: String(unit.area),
                 rentPrice: unit.rentPrice,
-                UnitStatus: (unit as any).status ?? unit.UnitStatus ?? 1
+                unitStatus: unit.unitStatus ?? 1
             });
         }
     }, [unit]);
@@ -79,14 +79,19 @@ const UpdateUnitModal = ({ unit, isOpen, onClose, onUnitUpdated }: UpdateUnitMod
                 area: String(formData.area),
                 rentPrice: Number(formData.rentPrice),
                 propertyId: unit.propertyId,
-                UnitStatus: Number(formData.UnitStatus)
+                UnitStatus: Number(formData.unitStatus)
             };
 
             await unitService.update(unit.id, payload);
             onUnitUpdated(unit.propertyId);
             onClose();
-        } catch (err: any) {
-            console.error("Update failed:", err.response?.data || err.message);
+        } catch (err: unknown) {
+            if(err instanceof Error) {
+                console.error("Update failed:", err.message);
+            }
+         else {
+            console.error("Update failed:", err);
+        }
         } finally {
             setIsSubmitting(false);
         }
@@ -166,8 +171,8 @@ const UpdateUnitModal = ({ unit, isOpen, onClose, onUnitUpdated }: UpdateUnitMod
                         <select
                             disabled={hasActiveContract}
                             className="w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-gray-900 outline-none bg-white disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
-                            value={formData.UnitStatus}
-                            onChange={(e) => setFormData({...formData, UnitStatus: Number(e.target.value)})}
+                            value={formData.unitStatus}
+                            onChange={(e) => setFormData({...formData, unitStatus: Number(e.target.value)})}
                         >
                             <option value={1}>Available</option>
                             <option value={2}>Rented</option>
