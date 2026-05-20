@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DashboardCard from '../../components/dashboard/DashboardCard';
-import { accountingService } from '../../services/accountingService';
-import { contractService } from '../../services/contractService';
-import { maintenanceService } from '../../services/maintenanceService';
-import { usePageTitle } from '../../hooks/usePageTitle';
-import type { PaymentHistoryResponseDto } from '../../types/accounting';
-import type { MyContractDetailsDto } from '../../types/contract';
-import type { TicketResponseDto } from '../../types/maintenance';
+import DashboardCard from '../../components/dashboard/DashboardCard.tsx';
+import { accountingService } from '../../services/accountingService.ts';
+import { contractService } from '../../services/contractService.ts';
+import { maintenanceService } from '../../services/maintenanceService.ts';
+import { usePageTitle } from '../../hooks/usePageTitle.ts';
+import type { PaymentHistoryResponseDto } from '../../types/accounting.ts';
+import type { MyContractDetailsDto } from '../../types/contract.ts';
+import type { TicketResponseDto } from '../../types/maintenance.ts';
 
 const RenterDashboard = () => {
     usePageTitle('Dashboard');

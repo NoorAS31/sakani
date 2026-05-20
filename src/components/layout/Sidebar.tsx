@@ -43,7 +43,6 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
                     { name: 'Contracts', icon: <FileChartColumn size={20} />, path: '/contracts' },
                     { name: 'Accounting', icon: <Calculator size={20} />, path: '/accounting' },
                     { name: 'Expenses', icon: <ReceiptText size={20} />, path: '/expenses' },
-                    { name: 'Tasks', icon: <CheckSquare size={20} />, path: '/tasks' },
                     { name: 'Maintenance', icon: <Wrench size={20} />, path: '/maintenance-tickets' },
                 ]
                 : []),

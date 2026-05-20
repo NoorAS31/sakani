@@ -15,19 +15,12 @@ import PaymentsPageForRenter from "./features/Accounting/PaymentPageforRenter.ts
 import ExpensesPage from './features/expenses/ExpensesPage.tsx';
 import SettingsPage from './features/settings/SettingsPage.tsx';
 import AccountPage from './features/account/AccountPage.tsx';
-
-// استيرادات المستأجر (Renter)
-import RenterDashboard from './features/maintenance/RenterDashboard';
-import TicketDetailsPage from './features/maintenance/TicketDetailsPage';
+import RenterDashboard from './features/dashboard/RenterDashboard.tsx';
 import MyContractPage from './features/contracts/MyContractPage';
-import MaintenancePage from './features/maintenance/MaintenancePage';
-
-// استيرادات المالك/المدير (Landlord/Admin)
+import MaintenancePage from './features/tickets/renter/MaintenancePage.tsx';
 import MaintenanceTicketsPage from './features/tickets/MaintenanceTicketsPage.tsx';
 import CreateMaintenanceTicketPage from './features/tickets/CreateMaintenanceTicketPage.tsx';
 import MaintenanceTicketDetailPage from './features/tickets/MaintenanceTicketDetailPage.tsx';
-
-// استيرادات النظام والتصميم (System/Layout)
 import FadeRoutes from './components/common/FadeRoutes';
 import Sidebar from './components/layout/Sidebar';
 import { NotificationCenter } from './components/notifications/NotificationCenter.tsx';
@@ -43,9 +36,6 @@ function App() {
         setIsAuthenticated(false);
     };
 
-    // Use a unique key that changes when authentication status changes.
-    // This forces the entire DashboardLayout (and Sidebar) to unmount/remount
-    // ensuring they read the FRESH localStorage data.
     const layoutKey = isAuthenticated ? `authenticated-${storage.getUserId()}` : 'guest';
 
     return (
@@ -60,41 +50,22 @@ function App() {
                                 {(location) => (
                                     <Routes location={location}>
                                         <Route path="/" element={<DashboardLayout />}>
-                                            <Route
-                                                index
-                                                element={<Navigate to={isRenter ? "/dashboard" : (storage.isSuperAdmin() ? "/tenants" : "/dashboard")} />}
-                                            />
-
-                                            {/* لوحة التحكم */}
+                                            <Route index element={<Navigate to="/dashboard" />} />
                                             <Route path="dashboard" element={isRenter ? <RenterDashboard /> : <DashboardPage />} />
-
-                                            {/* مسارات المالك / المدير - محمية من المستأجر */}
                                             <Route path="tenants" element={isRenter ? <Navigate to="/dashboard" /> : <TenantsPage />} />
                                             <Route path="property" element={isRenter ? <Navigate to="/dashboard" /> : <PropertiesPage />} />
                                             <Route path="units" element={isRenter ? <Navigate to="/dashboard" /> : <UnitsPage />} />
                                             <Route path="renters" element={isRenter ? <Navigate to="/dashboard" /> : <RentersPage />} />
-
-                                            {/* العقود */}
                                             <Route path="contracts" element={isRenter ? <MyContractPage /> : <ContractsPage />} />
-
-                                            {/* الحسابات والمصاريف */}
                                             <Route path="accounting" element={isRenter ? <Navigate to="/dashboard" /> : <AccountingPage />} />
-
-                                            {/* الدفعات - مقسمة حسب الصلاحية */}
                                             <Route path="accounting/payments" element={isRenter ? <PaymentsPageForRenter /> : <PaymentsPage />} />
-
                                             <Route path="expenses" element={isRenter ? <Navigate to="/dashboard" /> : <ExpensesPage />} />
-
-                                            {/* الصيانة للمستأجر */}
                                             <Route path="maintenance" element={isRenter ? <MaintenancePage /> : <Navigate to="/dashboard" />} />
-                                            <Route path="maintenance/:id" element={isRenter ? <TicketDetailsPage /> : <Navigate to="/dashboard" />} />
-
-                                            {/* الصيانة للمالك / الإدارة */}
+                                            <Route path="maintenance/:id" element={isRenter ? <MaintenanceTicketDetailPage canEdit={false} isRenter={true} /> : <Navigate to="/dashboard" />} />
+                                            <Route path="maintenance-ticket/:id" element={isRenter ? <MaintenanceTicketDetailPage canEdit={false} isRenter={true} /> : <Navigate to="/dashboard" />} />
                                             <Route path="maintenance-tickets" element={isRenter ? <Navigate to="/dashboard" /> : <MaintenanceTicketsPage />} />
                                             <Route path="maintenance-tickets/create" element={isRenter ? <Navigate to="/dashboard" /> : <CreateMaintenanceTicketPage />} />
-                                            <Route path="maintenance-tickets/:id" element={isRenter ? <Navigate to="/dashboard" /> : <MaintenanceTicketDetailPage />} />
-
-                                            {/* الإعدادات والحساب - مشتركة */}
+                                            <Route path="maintenance-tickets/:id" element={isRenter ? <Navigate to="/dashboard" /> : <MaintenanceTicketDetailPage canEdit={false} />} />
                                             <Route path="settings" element={<SettingsPage />} />
                                             <Route path="account" element={<AccountPage />} />
                                         </Route>

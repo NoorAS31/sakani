@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Loader2, X } from 'lucide-react';
-import { maintenanceService } from '../../services/maintenanceService';
+import { maintenanceService } from '../../../services/maintenanceService.ts';
 
 interface CreateTicketModalProps {
     isOpen: boolean;

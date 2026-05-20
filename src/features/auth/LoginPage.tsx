@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import { useNavigate } from 'react-router-dom';
 import {authService} from "../../services/authService.ts";
 import {tenantService} from "../../services/tenantService.ts";
 import {storage} from "../../utils/storage.ts";
@@ -27,6 +28,7 @@ const formatTenantStatus = (status: string | undefined): string => {
 
 const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
     usePageTitle('Login');
+    const navigate = useNavigate();
     const { theme, toggleTheme } = useTheme();
     const [credentials, setCredentials] = useState({
         email: '',
@@ -66,6 +68,7 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
             await new Promise((resolve) => setTimeout(resolve, LOADING_BARRIER_MS));
 
             console.log("Logged in successfully!");
+            navigate('/dashboard', { replace: true });
             onLogin();
 
         } catch (err) {

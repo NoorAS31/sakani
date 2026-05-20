@@ -58,6 +58,16 @@ export const maintenanceTicketService = {
         }
     },
 
+    // Get a single renter maintenance ticket by ID
+    getRenterTicketById: async (id: string): Promise<MaintenanceTicket> => {
+        try {
+            const response = await apiClient.get<MaintenanceTicket>(`/maintenance-tickets/renter/${id}`);
+            return response.data;
+        } catch (error) {
+            throw new Error(handleApiError(error));
+        }
+    },
+
     // Update a maintenance ticket
     update: async (id: string, dto: UpdateMaintenanceTicketDto): Promise<void> => {
         try {
