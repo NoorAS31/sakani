@@ -21,6 +21,7 @@ export const storage = {
 
     isSuperAdmin: () => getStorage().getItem(KEYS.ROLE) === 'SuperAdmin',
     isTenant: () => getStorage().getItem(KEYS.ROLE) === 'Tenant',
+    isRenter: () => getStorage().getItem(KEYS.ROLE) === 'Renter',
 
     setLoginData: (data: any, remember: boolean) => {
         const engine = remember ? localStorage : sessionStorage;

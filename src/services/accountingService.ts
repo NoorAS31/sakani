@@ -1,5 +1,12 @@
 import apiClient from '../api/apiClient';
-import type { ExpectedPayment, OverduePayment, AccountingStats } from '../types/accounting';
+import type { AxiosRequestConfig } from 'axios';
+import type {
+    ExpectedPayment,
+    OverduePayment,
+    AccountingStats,
+    PaymentHistoryResponseDto,
+    PaymentFilterType
+} from '../types/accounting';
 
 export const accountingService = {
     getExpected: async (startDate?: string, endDate?: string): Promise<ExpectedPayment[]> => {
@@ -38,6 +45,16 @@ export const accountingService = {
                 ...(endDate ? { endDate } : {}),
                 ...(rangeMonths ? { rangeMonths } : {}),
             }
+        });
+        return response.data;
+    },
+    getMyPaymentHistory: async (
+        filter: PaymentFilterType,
+        config?: AxiosRequestConfig
+    ): Promise<PaymentHistoryResponseDto[]> => {
+        const response = await apiClient.get<PaymentHistoryResponseDto[]>('/Accounting/history', {
+            ...config,
+            params: { filter, ...(config?.params ? config.params : {}) }
         });
         return response.data;
     }

@@ -29,3 +29,13 @@ export interface AccountingStats {
     totalCollectedMonth: number;
     occupancyRate: number;
 }
+
+export interface PaymentHistoryResponseDto {
+    id: string;
+    amount: number;
+    dueDate: string;
+    paymentDate: string | null;
+    paymentStatus: number;
+}
+
+export type PaymentFilterType = 'Upcoming' | 'All';

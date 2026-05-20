@@ -12,7 +12,9 @@ import {
     Users,
     MapPin,
     FileChartColumn,
-    ReceiptText
+    ReceiptText,
+    Wrench,
+    FileText
 } from 'lucide-react';
 import {NavLink} from 'react-router-dom';
 import {storage} from "../../utils/storage.ts";
@@ -21,28 +23,35 @@ import { useTheme } from '../../context/ThemeContext';
 
 const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
     const { theme, toggleTheme } = useTheme();
+    const isRenter = storage.isRenter();
 
-
-    const menuItems = [
-        {name: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/dashboard' },
-        ...(storage.isSuperAdmin()
-            ? [{ name: 'Tenants', icon: <Users size={20} />, path: '/tenants' }]
+    const menuItems = isRenter
+        ? [
+            { name: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/dashboard' },
+            { name: 'My Contract', icon: <FileText size={20} />, path: '/contracts' },
+            { name: 'Payments', icon: <ReceiptText size={20} />, path: '/accounting/payments' },
+            { name: 'Maintenance', icon: <Wrench size={20} />, path: '/maintenance' }
+        ]
+        : [
+            {name: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/dashboard' },
+            ...(storage.isSuperAdmin()
+                ? [{ name: 'Tenants', icon: <Users size={20} />, path: '/tenants' }]
+                : []),
+            ...( storage.isTenant()?
+                [
+                    {name: 'Property', icon: <Building2 size={20} />, path: '/property'},
+                    {name: 'Units', icon: <MapPin size={20} />, path: '/units' },
+                    {name: 'Renter', icon: <UserCircle size={20} />, path: '/renters'},
+                    {name : 'Contracts', icon:<FileChartColumn size={20} />, path: '/contracts'}
+                ]
             : []),
-        ...( storage.isTenant()?
-            [
-                {name: 'Property', icon: <Building2 size={20} />, path: '/property'},
-                {name: 'Units', icon: <MapPin size={20} />, path: '/units' },
-                {name: 'Renter', icon: <UserCircle size={20} />, path: '/renters'},
-                {name : 'Contracts', icon:<FileChartColumn size={20} />, path: '/contracts'}
-            ]
-        : []),
 
 
 
-        { name: 'Accounting', icon: <Calculator size={20} />, path: '/accounting' },
-        { name: 'Expenses', icon: <ReceiptText size={20} />, path: '/expenses' },
-        { name: 'Tasks', icon: <CheckSquare size={20} />, path: '/tasks' },
-    ];
+            { name: 'Accounting', icon: <Calculator size={20} />, path: '/accounting' },
+            { name: 'Expenses', icon: <ReceiptText size={20} />, path: '/expenses' },
+            { name: 'Tasks', icon: <CheckSquare size={20} />, path: '/tasks' },
+        ];
 
     return (
         <div className="w-2/12 bg-gray-800 h-screen flex-shrink-0 sticky top-0 flex flex-col text-slate-300 shadow-xl">

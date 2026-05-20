@@ -69,3 +69,13 @@ export interface ContractDetails {
     renterId: string;
     payments: Payment[];
 }
+
+export interface MyContractDetailsDto {
+    contractId: string;
+    startDate: string;
+    endDate: string;
+    rentAmount: number;
+    contractStatus: contractStatus;
+    unitNo: string;
+    propertyName: string;
+}

@@ -1,5 +1,6 @@
 import apiClient from '../api/apiClient';
-import type { Contract, CreateContractDto, ContractDetails } from '../types/contract';
+import type { AxiosRequestConfig } from 'axios';
+import type { Contract, CreateContractDto, ContractDetails, MyContractDetailsDto } from '../types/contract';
 
 export const contractService = {
     getAll: async (): Promise<Contract[]> => {
@@ -16,5 +17,9 @@ export const contractService = {
     },
     terminate: async (id: string): Promise<void> => {
         await apiClient.delete(`/Contract/${id}`);
+    },
+    getMyActiveContract: async (config?: AxiosRequestConfig): Promise<MyContractDetailsDto> => {
+        const response = await apiClient.get<MyContractDetailsDto>('/Contract/my-active', config);
+        return response.data;
     }
 };

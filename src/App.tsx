@@ -15,9 +15,13 @@ import PaymentsPage from "./features/Accounting/PaymentsPage.tsx";
 import ExpensesPage from './features/expenses/ExpensesPage.tsx';
 import SettingsPage from './features/settings/SettingsPage.tsx';
 import AccountPage from './features/account/AccountPage.tsx';
-
+import RenterDashboard from './features/maintenance/RenterDashboard';
+import TicketDetailsPage from './features/maintenance/TicketDetailsPage';
+import MyContractPage from './features/contracts/MyContractPage';
+import MaintenancePage from './features/maintenance/MaintenancePage';
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(() => !!storage.getToken());
+    const isRenter = storage.isRenter();
 
     const handleLogout = () => {
         localStorage.clear();
@@ -41,16 +45,30 @@ function App() {
                 {isAuthenticated ? (
                     <Route path="/" element={<DashboardLayout key={layoutKey} onLogout={handleLogout} />}>
                         <Route index element={<Navigate to="/dashboard" />} />
-                        <Route path="dashboard" element={<DashboardPage />} />
-                        <Route path="tenants" element={<TenantsPage />} />
-                        <Route path="property" element={<PropertiesPage />} />
-                        <Route path="units" element={<UnitsPage />} />
-                        <Route path="renters" element={<RentersPage />} />
-                        <Route path="contracts" element={<ContractsPage/>} />
-                        <Route path="accounting" element={<AccountingPage />} />
-                        <Route path="accounting/payments" element={<PaymentsPage />} />
-                        <Route path="expenses" element={<ExpensesPage />} />
-                        <Route path="tasks" element={<TasksPage />} />
+
+                        {/* لوحة التحكم */}
+                        <Route path="dashboard" element={isRenter ? <RenterDashboard /> : <DashboardPage />} />
+
+                        {/* مسارات المالك (Tenant) - محمية الآن من المستأجر */}
+                        <Route path="tenants" element={isRenter ? <Navigate to="/dashboard" /> : <TenantsPage />} />
+                        <Route path="property" element={isRenter ? <Navigate to="/dashboard" /> : <PropertiesPage />} />
+                        <Route path="units" element={isRenter ? <Navigate to="/dashboard" /> : <UnitsPage />} />
+                        <Route path="renters" element={isRenter ? <Navigate to="/dashboard" /> : <RentersPage />} />
+
+                        {/* العقود - مقسمة حسب الصلاحية */}
+                        <Route path="contracts" element={isRenter ? <MyContractPage /> : <ContractsPage />} />
+
+                        {/* الحسابات والمصاريف والمهام - محمية من المستأجر باستثناء صفحة الدفعات المخصصة له */}
+                        <Route path="accounting" element={isRenter ? <Navigate to="/dashboard" /> : <AccountingPage />} />
+                        <Route path="accounting/payments" element={<PaymentsPage />} /> {/* مشتركة أو مخصصة حسب البرمجة */}
+                        <Route path="expenses" element={isRenter ? <Navigate to="/dashboard" /> : <ExpensesPage />} />
+                        <Route path="tasks" element={isRenter ? <Navigate to="/dashboard" /> : <TasksPage />} />
+
+                        {/* الصيانة للمستأجر */}
+                        <Route path="maintenance" element={isRenter ? <MaintenancePage /> : <Navigate to="/dashboard" />} />
+                        <Route path="maintenance/:id" element={isRenter ? <TicketDetailsPage /> : <Navigate to="/dashboard" />} />
+
+                        {/* الإعدادات والحساب الشخصي - متاحة للجميع */}
                         <Route path="settings" element={<SettingsPage />} />
                         <Route path="account" element={<AccountPage />} />
                     </Route>
