@@ -11,7 +11,8 @@ export const maintenanceService = {
 
     // 2. جلب تذكرة معينة عن طريق الـ ID
     getTicketById: async (id: string, config?: AxiosRequestConfig): Promise<TicketResponseDto> => {
-        const response = await apiClient.get<TicketResponseDto>(`/maintenance-tickets/${id}`, config);
+        // تم تحديث المسار ليتطابق مع الـ API الذي أظهرته في الصورة
+        const response = await apiClient.get<TicketResponseDto>(`/maintenance-tickets/renter/${id}`, config);
         return response.data;
     },
 

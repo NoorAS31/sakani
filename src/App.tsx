@@ -11,6 +11,7 @@ import RentersPage from "./features/renters/RenterPage.tsx";
 import ContractsPage from "./features/contracts/ContractsPage.tsx";
 import AccountingPage from "./features/Accounting/AccountingPage.tsx";
 import PaymentsPage from "./features/Accounting/PaymentsPage.tsx";
+import PaymentsPageForRenter from "./features/Accounting/PaymentPageforRenter.tsx";
 import ExpensesPage from './features/expenses/ExpensesPage.tsx';
 import SettingsPage from './features/settings/SettingsPage.tsx';
 import AccountPage from './features/account/AccountPage.tsx';
@@ -25,7 +26,6 @@ import MaintenancePage from './features/maintenance/MaintenancePage';
 import MaintenanceTicketsPage from './features/tickets/MaintenanceTicketsPage.tsx';
 import CreateMaintenanceTicketPage from './features/tickets/CreateMaintenanceTicketPage.tsx';
 import MaintenanceTicketDetailPage from './features/tickets/MaintenanceTicketDetailPage.tsx';
-import TasksPage from './features/tasks/TasksPage.tsx'; // تأكد من مسار هذا الملف عندك
 
 // استيرادات النظام والتصميم (System/Layout)
 import FadeRoutes from './components/common/FadeRoutes';
@@ -77,11 +77,13 @@ function App() {
                                             {/* العقود */}
                                             <Route path="contracts" element={isRenter ? <MyContractPage /> : <ContractsPage />} />
 
-                                            {/* الحسابات والمصاريف والمهام */}
+                                            {/* الحسابات والمصاريف */}
                                             <Route path="accounting" element={isRenter ? <Navigate to="/dashboard" /> : <AccountingPage />} />
-                                            <Route path="accounting/payments" element={<PaymentsPage />} />
+
+                                            {/* الدفعات - مقسمة حسب الصلاحية */}
+                                            <Route path="accounting/payments" element={isRenter ? <PaymentsPageForRenter /> : <PaymentsPage />} />
+
                                             <Route path="expenses" element={isRenter ? <Navigate to="/dashboard" /> : <ExpensesPage />} />
-                                            <Route path="tasks" element={isRenter ? <Navigate to="/dashboard" /> : <TasksPage />} />
 
                                             {/* الصيانة للمستأجر */}
                                             <Route path="maintenance" element={isRenter ? <MaintenancePage /> : <Navigate to="/dashboard" />} />
