@@ -17,6 +17,6 @@ export interface Unit {
     area: string;
     rentPrice: number;
     propertyId: string;
-    UnitStatus:  unitStatus;
+    unitStatus:  unitStatus;
     tenantId: string;
 }

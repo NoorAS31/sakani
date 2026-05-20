@@ -58,8 +58,8 @@ const CreateContractModal = ({ isOpen, onClose, onContractCreated, preselectedRe
                         renterService.getAll()
                     ]);
                     // Only Vacant units (status 1) - handle both casing from API
-                    const vacantUnits = allUnits.filter((u: any) => {
-                        const status = u.unitStatus ?? u.UnitStatus;
+                    const vacantUnits = allUnits.filter((u: Unit) => {
+                        const status = u.unitStatus;
                         return status === 1;
                     });
                     setUnits(vacantUnits);
@@ -88,9 +88,9 @@ const CreateContractModal = ({ isOpen, onClose, onContractCreated, preselectedRe
     // 1a2. Prefill unit when preselectedUnit is provided
     useEffect(() => {
         if (isOpen && preselectedUnit) {
-            const unitId = preselectedUnit.id || (preselectedUnit as any).Id || '';
-            const unitNo = preselectedUnit.unitNo || (preselectedUnit as any).UnitNo || '';
-            const rentPrice = preselectedUnit.rentPrice ?? (preselectedUnit as any).RentPrice ?? 0;
+            const unitId = preselectedUnit.id || '';
+            const unitNo = preselectedUnit.unitNo || '';
+            const rentPrice = preselectedUnit.rentPrice ?? 0;
             const displayText = `#${unitNo}`;
             setFormData(prev => ({ ...prev, unitId, rentAmount: rentPrice }));
             setUnitSearch(displayText);
@@ -364,8 +364,8 @@ const CreateContractModal = ({ isOpen, onClose, onContractCreated, preselectedRe
                             {/* Financial Summary */}
                             <div className="p-6 bg-gray-500 rounded-lg text-white space-y-4">
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-300 text-xl font-bold uppercase tracking-wider"> Rent</span>
-                                    <div className="flex items-center gap-2">
+                                    <span className="text-gray-300 text-xl font-bold uppercase tracking-wider"> Total Amount</span>
+                                    <div className="flex font-xl items-center gap-2">
                                         <span className="text-gray-400">$</span>
                                         <input
                                             type="number"

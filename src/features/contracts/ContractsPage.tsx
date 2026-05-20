@@ -39,6 +39,10 @@ const ContractsPage = () => {
     usePageTitle('Contracts');
     const location = useLocation();
     const navigate = useNavigate();
+    const contractIdFromQuery = useMemo(
+        () => new URLSearchParams(location.search).get('contractId')?.trim() ?? '',
+        [location.search]
+    );
     const [contracts, setContracts] = useState<ContractDisplay[]>([]);
     const [renters, setRenters] = useState<Renter[]>([]);
     const [selectedContract, setSelectedContract] = useState<ContractDisplay | null>(null);
@@ -89,44 +93,155 @@ const ContractsPage = () => {
     }, [location.search, renters]);
 
     const handleDownloadPDF = (contract: ContractDisplay) => {
-        // Generate a simple text-based contract document
-        const contractContent = `
-LEASE CONTRACT AGREEMENT
-========================
+        const renter = renters.find(r => r.id === contract.renterId);
+        const renterName = contract.renterName || (renter ? `${renter.firstName} ${renter.lastName}`.trim() : 'N/A');
+        const tenantName = renterName || 'N/A';
+        const unitLabel = contract.unitNo ? `Unit #${contract.unitNo}` : 'N/A';
+        const formatDate = (value?: string) => value ? new Date(value).toLocaleDateString() : 'N/A';
+        const formatMoney = (value?: number) => typeof value === 'number' ? `$${value.toLocaleString()}` : 'N/A';
+        const escapeHtml = (value: string) => value
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+        const statusLabel = getStatusConfig(contract.contractStatus).label;
+        const statusBadgeStyle = contract.contractStatus === 2
+            ? 'background:#dcfce7;color:#166534;'
+            : contract.contractStatus === 1
+                ? 'background:#fef3c7;color:#92400e;'
+                : contract.contractStatus === 3
+                    ? 'background:#fee2e2;color:#991b1b;'
+                    : 'background:#f3f4f6;color:#4b5563;';
 
-Contract Reference: ${contract.id}
-Generated: ${new Date().toLocaleDateString()}
+        const html = `<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Contract ${escapeHtml(contract.id)}</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 32px; background: #f8fafc; color: #0f172a; font-family: "Segoe UI", Arial, sans-serif; }
+        .header { background: #111827; color: #fff; padding: 24px 28px; border-radius: 16px; }
+        .header h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
+        .header p { margin: 8px 0 0; font-size: 12px; opacity: 0.8; }
+        .meta { display: flex; gap: 24px; margin-top: 14px; font-size: 12px; opacity: 0.9; }
+        .section { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 18px 20px; margin-top: 18px; }
+        .section h3 { margin: 0 0 12px; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #6b7280; }
+        .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 18px; }
+        .item .label { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: #9ca3af; font-weight: 700; margin-bottom: 4px; }
+        .item .value { font-size: 14px; font-weight: 600; color: #111827; }
+        .badge { display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border-radius: 999px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+        .signature { margin-top: 18px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+        .signature-line { border-bottom: 1px solid #d1d5db; padding-bottom: 6px; font-size: 12px; color: #6b7280; }
+        footer { margin-top: 24px; font-size: 11px; color: #6b7280; text-align: center; }
+        @media print {
+            body { background: #fff; padding: 24px; }
+            .section { break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Lease Contract</h1>
+        <p>Contract reference ${escapeHtml(contract.id.split('-')[0])}</p>
+        <div class="meta">
+            <div>Generated ${escapeHtml(formatDate(new Date().toISOString()))}</div>
+            <div><span class="badge" style="${statusBadgeStyle}">${escapeHtml(statusLabel)}</span></div>
+        </div>
+    </div>
 
-PARTIES
--------
-Unit: #${contract.unitNo || 'N/A'}
-Renter: ${contract.renterName || 'N/A'}
+    <div class="section">
+        <h3>Parties</h3>
+        <div class="grid">
+            <div class="item">
+                <div class="label">Unit</div>
+                <div class="value">${escapeHtml(unitLabel)}</div>
+            </div>
+            <div class="item">
+                <div class="label">Tenant Name</div>
+                <div class="value">${escapeHtml(tenantName)}</div>
+            </div>
+            <div class="item">
+                <div class="label">Renter Name</div>
+                <div class="value">${escapeHtml(renterName)}</div>
+            </div>
+            <div class="item">
+                <div class="label">Tenant ID</div>
+                <div class="value">${escapeHtml(contract.tenantId || 'N/A')}</div>
+            </div>
+            <div class="item">
+                <div class="label">Renter Phone</div>
+                <div class="value">${escapeHtml(renter?.phoneNumber || 'N/A')}</div>
+            </div>
+            <div class="item">
+                <div class="label">Renter Email</div>
+                <div class="value">${escapeHtml(renter?.email || 'N/A')}</div>
+            </div>
+            <div class="item">
+                <div class="label">National ID</div>
+                <div class="value">${escapeHtml(renter?.nationalId || 'N/A')}</div>
+            </div>
+        </div>
+    </div>
 
-CONTRACT TERMS
---------------
-Start Date: ${new Date(contract.startDate).toLocaleDateString()}
-End Date: ${new Date(contract.endDate).toLocaleDateString()}
-Rent Amount: $${contract.rentAmount}
-Payment Frequency: ${getPaymentFreqLabel(contract.paymentFreq)}
-Contract Status: ${contract.contractStatus === 1 ? 'Draft' : contract.contractStatus === 2 ? 'Active' : contract.contractStatus === 3 ? 'Expired' : 'Terminated'}
+    <div class="section">
+        <h3>Contract Terms</h3>
+        <div class="grid">
+            <div class="item">
+                <div class="label">Start Date</div>
+                <div class="value">${escapeHtml(formatDate(contract.startDate))}</div>
+            </div>
+            <div class="item">
+                <div class="label">End Date</div>
+                <div class="value">${escapeHtml(formatDate(contract.endDate))}</div>
+            </div>
+            <div class="item">
+                <div class="label">Payment Frequency</div>
+                <div class="value">${escapeHtml(getPaymentFreqLabel(contract.paymentFreq))}</div>
+            </div>
+            <div class="item">
+                <div class="label">Rent Amount</div>
+                <div class="value">${escapeHtml(formatMoney(contract.rentAmount))}</div>
+            </div>
+            <div class="item">
+                <div class="label">Contract Status</div>
+                <div class="value">${escapeHtml(statusLabel)}</div>
+            </div>
+            <div class="item">
+                <div class="label">Contract ID</div>
+                <div class="value">${escapeHtml(contract.id)}</div>
+            </div>
+        </div>
+    </div>
 
-SIGNATURES
-----------
-Landlord: ______________________ Date: __________
+    <div class="section">
+        <h3>Signatures</h3>
+        <div class="signature">
+            <div class="signature-line">Landlord Signature</div>
+            <div class="signature-line">Tenant Signature</div>
+        </div>
+    </div>
 
-Renter: ________________________ Date: __________
-        `;
+    <footer>
+        Generated by Sakani Contracts on ${escapeHtml(new Date().toLocaleString())}
+    </footer>
+</body>
+</html>`;
 
-        // Create blob and download
-        const blob = new Blob([contractContent], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `contract-${contract.id.split('-')[0]}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        const printWindow = window.open('', '_blank', 'noopener,noreferrer');
+        if (!printWindow) {
+            alert('Pop-up blocked. Please allow pop-ups to export the PDF.');
+            return;
+        }
+        printWindow.document.open();
+        printWindow.document.write(html);
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.onload = () => {
+            printWindow.print();
+            printWindow.onafterprint = () => printWindow.close();
+        };
     };
     const getStatusConfig = (statusNum: number) => {
         switch (statusNum) {
@@ -206,6 +321,10 @@ Renter: ________________________ Date: __________
     }, []);
 
     const filteredContracts = useMemo(() => {
+        if (contractIdFromQuery) {
+            return contracts.filter(c => c.id === contractIdFromQuery);
+        }
+
         return contracts.filter(c => {
             // Text search
             if (searchTerm.trim()) {
@@ -258,7 +377,22 @@ Renter: ________________________ Date: __________
 
             return true;
         });
-    }, [contracts, searchTerm, filters]);
+    }, [contracts, contractIdFromQuery, searchTerm, filters]);
+
+    useEffect(() => {
+        if (!contractIdFromQuery || contracts.length === 0) return;
+
+        const exactContract = contracts.find(c => c.id === contractIdFromQuery);
+        if (!exactContract) return;
+
+        setSelectedContract(exactContract);
+        window.setTimeout(() => {
+            document.getElementById(`contract-row-${contractIdFromQuery}`)?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }, 100);
+    }, [contractIdFromQuery, contracts]);
 
     return (
         <div className="flex flex-row gap-6 relative min-h-[calc(100vh-100px)]">
@@ -510,7 +644,7 @@ Renter: ________________________ Date: __________
                                 onClick={() => handleDownloadPDF(selectedContract)}
                                 className="w-full py-3 bg-gray-900 text-white rounded-xl text-sm font-bold hover:bg-black transition-colors flex items-center justify-center gap-2"
                             >
-                                <Download size={18} /> Download PDF
+                                <Download size={18} /> Export PDF
                             </button>
                             {(selectedContract.contractStatus === 1 || selectedContract.contractStatus === 2) && (
                                 <button 
@@ -536,7 +670,7 @@ Renter: ________________________ Date: __________
     );
 };
 
-const DetailItem = ({ label, value, icon }: { label: string, value: any, icon: React.ReactNode }) => (
+const DetailItem = ({ label, value, icon }: { label: string, value: string, icon: React.ReactNode }) => (
     <div className="flex items-start gap-3">
         <div className="mt-0.5 text-gray-400">{icon}</div>
         <div>

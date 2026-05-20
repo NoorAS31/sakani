@@ -1,5 +1,4 @@
-import axios from 'axios';
-import { storage } from '../utils/storage';
+import apiClient from '../api/apiClient';
 
 export interface Task {
     id: string;
@@ -14,27 +13,21 @@ export interface Task {
     createdAt: string;
 }
 
-const API_URL = 'https://localhost:7176/api/tasks';
-
-const getAuthHeaders = () => ({
-    headers: { Authorization: `Bearer ${storage.getToken()}` }
-});
-
 export const taskService = {
     getAll: async (): Promise<Task[]> => {
-        const response = await axios.get(API_URL, getAuthHeaders());
+        const response = await apiClient.get('/tasks');
         return response.data;
     },
 
     create: async (task: Partial<Task>): Promise<Task> => {
-        const response = await axios.post(API_URL, task, getAuthHeaders());
+        const response = await apiClient.post('/tasks', task);
         return response.data;
     },
 
 
     updateStatus: async (taskId: string, status: 'PENDING' | 'IN_PROGRESS' | 'DONE'): Promise<Task> => {
         // We send only the status string in the body
-        const response = await axios.patch(`${API_URL}/${taskId}/status`, { status }, getAuthHeaders());
+        const response = await apiClient.patch(`/tasks/${taskId}/status`, { status });
         return response.data;
     }
 };

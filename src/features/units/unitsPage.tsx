@@ -10,6 +10,7 @@ import type { Unit } from '../../types/unit';
 import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal.tsx";
 import UpdateUnitModal from "./UpdateUnitModal.tsx";
 import { usePageTitle } from '../../hooks/usePageTitle';
+import axios from "axios";
 
 const UnitsPage = () => {
     usePageTitle('Units');
@@ -44,11 +45,18 @@ const UnitsPage = () => {
                     setLoadingUnits(prev => [...prev, propertyId]);
                     const units = await unitService.getByPropertyId(propertyId);
                     setUnitsByProperty(prev => ({ ...prev, [propertyId]: units }));
-                } catch (err) {
-                    if (err.response?.status === 404) {
-                        setUnitsByProperty(prev => ({ ...prev, [propertyId]: [] }));
+                } catch (err: unknown) {
+                    if (axios.isAxiosError(err)) {
+                        if (err.response?.status === 404) {
+                            setUnitsByProperty(prev => ({
+                                ...prev,
+                                [propertyId]: []
+                            }));
+                        } else {
+                            console.error("Failed to fetch units:", err);
+                        }
                     } else {
-                        console.error("Failed to fetch units:", err);
+                        console.error("Unexpected error:", err);
                     }
                 } finally {
                     setLoadingUnits(prev => prev.filter(id => id !== propertyId));
@@ -81,15 +89,16 @@ const UnitsPage = () => {
                     ...prev,
                     [unitToDelete.propertyId]: updatedUnits
                 }));
-            } catch (refreshErr: any) {
-
-                if (refreshErr.response?.status === 404) {
+            } catch (err: unknown) {
+                if (axios.isAxiosError(err)) {
+                    if (err.response?.status === 404) {
                     setUnitsByProperty(prev => ({
                         ...prev,
                         [unitToDelete.propertyId]: []
                     }));
+                }
                 } else {
-                    throw refreshErr;
+                    throw err;
                 }
             }
         } catch (err) {
@@ -162,7 +171,7 @@ const UnitsPage = () => {
                                     </button>
                                 </div>                            ) : (
                                 unitsByProperty[property.id]?.map(unit => {
-                                    const currentStatus = (unit as any).unitStatus;
+                                    const currentStatus = (unit as Unit).unitStatus;
                                     const statusConfig = getStatusConfig(currentStatus);
 
                                     return (

@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, Loader2, FileText } from 'lucide-react';
+import { 
+    Home, Loader2, FileText, TrendingUp, DollarSign, 
+    Building2, CheckCircle2, TrendingDown, Lock
+} from 'lucide-react';
 import { propertyService } from '../../services/propertyService';
 import { unitService } from '../../services/unitService';
 import { contractService } from '../../services/contractService';
@@ -8,9 +11,9 @@ import { accountingService } from '../../services/accountingService';
 import type { Property } from '../../types/property';
 import type {Unit} from '../../types/unit';
 import type { Contract } from '../../types/contract';
-import type { ExpectedPayment } from '../../types/accounting';
-import { storage } from "../../utils/storage.ts";
+import type { AccountingStats } from '../../types/accounting';
 import { usePageTitle } from '../../hooks/usePageTitle';
+import { storage } from '../../utils/storage';
 
 const DashboardPage = () => {
     usePageTitle('Dashboard');
@@ -18,44 +21,43 @@ const DashboardPage = () => {
     const [properties, setProperties] = useState<Property[]>([]);
     const [allUnits, setAllUnits] = useState<Unit[]>([]);
     const [contracts, setContracts] = useState<Contract[]>([]);
-    const [upcomingExpectedPayments, setUpcomingExpectedPayments] = useState<ExpectedPayment[]>([]);
-    const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
+    const [accountingStats, setAccountingStats] = useState<AccountingStats | null>(null);
     const [loading, setLoading] = useState(true);
+    const [hasAccountingAccess, setHasAccountingAccess] = useState(true);
+    const userRole = storage.getRole();
 
     useEffect(() => {
         const fetchDashboardData = async () => {
             const today = new Date();
-            const startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0, 0);
-            const endDate = new Date(startDate);
-            endDate.setDate(endDate.getDate() + 14);
-            endDate.setHours(23, 59, 59, 999);
+            const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+            const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59, 999);
 
-            const upcomingPromise = accountingService
-                .getExpected(startDate.toISOString(), endDate.toISOString())
+            const statsPromise = accountingService
+                .getStats(today.getMonth() + 1, today.getFullYear(), monthStart.toISOString(), monthEnd.toISOString(), 1)
+                .then(stats => {
+                    setHasAccountingAccess(true);
+                    return stats;
+                })
                 .catch((err) => {
-                    console.error("Failed to fetch upcoming expected payments", err);
-                    return [];
+                    // Handle 403 permission errors gracefully
+                    if (err.response?.status === 403) {
+                        setHasAccountingAccess(false);
+                        return null;
+                    }
+                    console.error("Failed to fetch accounting stats", err);
+                    return null;
                 });
 
-            if (storage.isSuperAdmin()) {
-                const upcoming = await upcomingPromise;
-                setUpcomingExpectedPayments(upcoming);
-                setLoading(false);
-                return;
-            }
-
             try {
-                const [props, allContracts, upcoming] = await Promise.all([
+                const [props, allContracts, stats] = await Promise.all([
                     propertyService.getAll(),
                     contractService.getAll(),
-                    upcomingPromise
+                    statsPromise
                 ]);
                 setProperties(props);
                 setContracts(allContracts);
-                setUpcomingExpectedPayments(upcoming);
-                setSelectedPropertyId(props[0]?.id ?? null);
+                if (stats) setAccountingStats(stats);
                 
-                // Fetch units for each property
                 const unitsPromises = props.map((p: Property) => 
                     unitService.getByPropertyId(p.id).catch(() => [])
                 );
@@ -71,8 +73,7 @@ const DashboardPage = () => {
 
         fetchDashboardData();
     }, []);
-    // Unit Status Aggregation - handle both camelCase and PascalCase
-    const getUnitStatus = (u: any) => u.unitStatus ?? u.UnitStatus;
+    const getUnitStatus = (u: Unit) => u.unitStatus;
     const unitStats = {
         available: allUnits.filter(u => getUnitStatus(u) === 1).length,
         rented: allUnits.filter(u => getUnitStatus(u) === 2).length,
@@ -81,8 +82,7 @@ const DashboardPage = () => {
         total: allUnits.length
     };
 
-    // Contract Status Aggregation - handle both camelCase and PascalCase
-    const getContractStatus = (c: any) => c.contractStatus ?? c.ContractStatus;
+    const getContractStatus = (c: Contract) => c.contractStatus;
     const contractStats = {
         active: contracts.filter(c => getContractStatus(c) === 2).length,
         pending: contracts.filter(c => getContractStatus(c) === 1).length,
@@ -103,37 +103,7 @@ const DashboardPage = () => {
         };
     };
 
-    // Calculate ring segments for contracts
-    const contractRingSegments = () => {
-        if (contractStats.total === 0) return { active: 0, pending: 0, expired: 0, terminated: 0 };
-        const total = contractStats.total;
-        return {
-            active: (contractStats.active / total) * 100,
-            pending: (contractStats.pending / total) * 100,
-            expired: (contractStats.expired / total) * 100,
-            terminated: (contractStats.terminated / total) * 100
-        };
-    };
-
     const unitSegs = unitRingSegments();
-    const contractSegs = contractRingSegments();
-    const upcomingExpectedCount = upcomingExpectedPayments.length;
-    const upcomingExpectedTotal = upcomingExpectedPayments.reduce((sum, payment) => sum + payment.amount, 0);
-    const selectedProperty = properties.find((property) => property.id === selectedPropertyId) ?? null;
-    const selectedPropertyUnits = selectedProperty
-        ? allUnits.filter((unit) => unit.propertyId === selectedProperty.id)
-        : [];
-    const selectedPropertyUnitIds = new Set(selectedPropertyUnits.map((unit) => unit.id));
-    const selectedPropertyContracts = contracts.filter((contract) => selectedPropertyUnitIds.has(contract.unitId));
-
-    const getPropertyTypeLabel = (propertyType: string | number) => {
-        const value = Number(propertyType);
-        if (value === 1) return 'Residential';
-        if (value === 2) return 'Commercial';
-        if (value === 3) return 'Industrial';
-        if (value === 4) return 'Mixed Use';
-        return String(propertyType || 'Unknown');
-    };
 
     if (loading) return (
         <div className="h-96 flex items-center justify-center text-gray-400">
@@ -141,336 +111,257 @@ const DashboardPage = () => {
         </div>
     );
     return (
-        <div className="p-6 space-y-6">
-            <header>
-                <h1 className="text-2xl font-bold text-gray-800">Tenant Dashboard</h1>
-                <p className="text-gray-500 text-sm">Portfolio Overview & Property Health</p>
-            </header>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-8">
+            <div className="mb-8">
+                <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+                <p className="text-gray-600 dark:text-gray-400 mt-2">Real-time portfolio and financial overview</p>
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {hasAccountingAccess ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+                    {/* Expected Revenue */}
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm dark:shadow-lg border border-blue-100 dark:border-blue-900 p-6 hover:shadow-md dark:hover:shadow-xl transition-shadow">
+                        <div className="flex items-start justify-between mb-4">
+                            <div className="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+                                <DollarSign size={24} className="text-blue-600 dark:text-blue-400" />
+                            </div>
+                            <span className="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded">This Month</span>
+                        </div>
+                        <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Expected Revenue</p>
+                        <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">${(accountingStats?.totalExpectedMonth ?? 0).toLocaleString()}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">Revenue to be collected</p>
+                    </div>
 
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm dark:shadow-lg border border-green-100 dark:border-green-900 p-6 hover:shadow-md dark:hover:shadow-xl transition-shadow">
+                        <div className="flex items-start justify-between mb-4">
+                            <div className="p-3 bg-green-50 dark:bg-green-900/30 rounded-lg">
+                                <CheckCircle2 size={24} className="text-green-600 dark:text-green-400" />
+                            </div>
+                            <span className="text-xs font-bold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded">Collected</span>
+                        </div>
+                        <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Collected Revenue</p>
+                        <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">${(accountingStats?.totalCollectedMonth ?? 0).toLocaleString()}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">{accountingStats ? ((accountingStats.totalCollectedMonth / (accountingStats.totalExpectedMonth || 1)) * 100).toFixed(1) : '0'}% collected</p>
+                    </div>
 
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm dark:shadow-lg border border-red-100 dark:border-red-900 p-6 hover:shadow-md dark:hover:shadow-xl transition-shadow">
+                        <div className="flex items-start justify-between mb-4">
+                            <div className="p-3 bg-red-50 dark:bg-red-900/30 rounded-lg">
+                                <TrendingDown size={24} className="text-red-600 dark:text-red-400" />
+                            </div>
+                            <span className="text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 px-2 py-1 rounded">Outflow</span>
+                        </div>
+                        <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Total Expenses</p>
+                        <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">${(accountingStats?.expensesMonth ?? 0).toLocaleString()}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">Operating expenses</p>
+                    </div>
 
-                {/* Card 1: Unit Status (Preview Circle) */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-                    <div className="mb-6">
-                        <h2 className="font-bold text-gray-700 flex items-center gap-2">
-                            <Home size={18} className="text-orange-500" /> Unit Occupancy
+                    {/* Net Income */}
+                    <div className={`rounded-xl shadow-sm dark:shadow-lg border p-6 hover:shadow-md dark:hover:shadow-xl transition-shadow ${
+                        (accountingStats?.netIncomeMonth ?? 0) >= 0 
+                            ? 'bg-white dark:bg-slate-800 border-emerald-100 dark:border-emerald-900' 
+                            : 'bg-white dark:bg-slate-800 border-amber-100 dark:border-amber-900'
+                    }`}>
+                        <div className="flex items-start justify-between mb-4">
+                            <div className={`p-3 rounded-lg ${
+                                (accountingStats?.netIncomeMonth ?? 0) >= 0 
+                                    ? 'bg-emerald-50 dark:bg-emerald-900/30' 
+                                    : 'bg-amber-50 dark:bg-amber-900/30'
+                            }`}>
+                                <TrendingUp size={24} className={
+                                    (accountingStats?.netIncomeMonth ?? 0) >= 0 
+                                        ? 'text-emerald-600 dark:text-emerald-400' 
+                                        : 'text-amber-600 dark:text-amber-400'
+                                } />
+                            </div>
+                            <span className={`text-xs font-bold px-2 py-1 rounded ${
+                                (accountingStats?.netIncomeMonth ?? 0) >= 0 
+                                    ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30' 
+                                    : 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30'
+                            }`}>
+                                {(accountingStats?.netIncomeMonth ?? 0) >= 0 ? 'Positive' : 'Negative'}
+                            </span>
+                        </div>
+                        <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Net Income</p>
+                        <p className={`text-3xl font-bold mt-2 ${
+                            (accountingStats?.netIncomeMonth ?? 0) >= 0 
+                                ? 'text-emerald-600 dark:text-emerald-400' 
+                                : 'text-amber-600 dark:text-amber-400'
+                        }`}>
+                            ${(accountingStats?.netIncomeMonth ?? 0).toLocaleString()}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">Revenue minus expenses</p>
+                    </div>
+
+                    {/* Occupancy Rate */}
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm dark:shadow-lg border border-purple-100 dark:border-purple-900 p-6 hover:shadow-md dark:hover:shadow-xl transition-shadow">
+                        <div className="flex items-start justify-between mb-4">
+                            <div className="p-3 bg-purple-50 dark:bg-purple-900/30 rounded-lg">
+                                <Building2 size={24} className="text-purple-600 dark:text-purple-400" />
+                            </div>
+                            <span className="text-xs font-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 px-2 py-1 rounded">Utilization</span>
+                        </div>
+                        <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Occupancy Rate</p>
+                        <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{(accountingStats?.occupancyRate ?? 0).toFixed(1)}%</p>
+                        <div className="mt-3 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div 
+                                className="bg-purple-600 dark:bg-purple-500 h-2 rounded-full" 
+                                style={{ width: `${Math.min((accountingStats?.occupancyRate ?? 0), 100)}%` }}
+                            />
+                        </div>
+                    </div>
+                </div>
+            ) : (
+                <div className="mb-8">
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm dark:shadow-lg border border-gray-200 dark:border-gray-700 p-8">
+                        <div className="flex items-center justify-center gap-4">
+                            <div className="p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                                <Lock size={32} className="text-gray-500 dark:text-gray-400" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Financial Details Unavailable</h3>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">You don't have permission to view accounting and financial details.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {userRole !== 'SuperAdmin' && (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700 p-6">
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            <Home size={20} className="text-orange-500" />
+                            Unit Status
                         </h2>
                     </div>
 
-                    <div className="flex items-center justify-around h-32">
-                        {/* The Visual Circle - SVG Donut Chart */}
-                        <div className="relative w-28 h-28">
-                            <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
-                                {/* Background circle */}
-                                <circle cx="18" cy="18" r="15.915" fill="none" stroke="#f3f4f6" strokeWidth="3" />
-                                {/* Available - Green */}
-                                <circle 
-                                    cx="18" cy="18" r="15.915" fill="none" 
-                                    stroke="#22c55e" strokeWidth="3"
-                                    strokeDasharray={`${unitSegs.available} ${100 - unitSegs.available}`}
-                                    strokeDashoffset="0"
-                                />
-                                {/* Rented - Blue */}
-                                <circle 
-                                    cx="18" cy="18" r="15.915" fill="none" 
-                                    stroke="#3b82f6" strokeWidth="3"
-                                    strokeDasharray={`${unitSegs.rented} ${100 - unitSegs.rented}`}
-                                    strokeDashoffset={`${-unitSegs.available}`}
-                                />
-                                {/* Maintenance - Red */}
-                                <circle 
-                                    cx="18" cy="18" r="15.915" fill="none" 
-                                    stroke="#ef4444" strokeWidth="3"
-                                    strokeDasharray={`${unitSegs.maintenance} ${100 - unitSegs.maintenance}`}
-                                    strokeDashoffset={`${-(unitSegs.available + unitSegs.rented)}`}
-                                />
-                                {/* Reserved - Amber */}
-                                <circle 
-                                    cx="18" cy="18" r="15.915" fill="none" 
-                                    stroke="#f59e0b" strokeWidth="3"
-                                    strokeDasharray={`${unitSegs.reserved} ${100 - unitSegs.reserved}`}
-                                    strokeDashoffset={`${-(unitSegs.available + unitSegs.rented + unitSegs.maintenance)}`}
-                                />
-                            </svg>
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="text-center">
-                                    <span className="block text-2xl font-black text-gray-800">{unitStats.total}</span>
-                                    <span className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Total Units</span>
+                    <div className="flex flex-col lg:flex-row gap-6">
+                        {/* Circle - responsive layout */}
+                        <div className="flex flex-col xl:flex-col lg:flex-row items-center gap-6 w-full lg:w-auto">
+                            <div className="relative w-40 h-40 lg:w-32 lg:h-32 xl:w-64 xl:h-64 flex-shrink-0">
+                                <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+                                    <circle cx="18" cy="18" r="15.915" fill="none" stroke="#e2e8f0" strokeWidth="3" className="dark:stroke-gray-700" />
+                                    <circle 
+                                        cx="18" cy="18" r="15.915" fill="none" 
+                                        stroke="#22c55e" strokeWidth="3"
+                                        strokeDasharray={`${unitSegs.available} ${100 - unitSegs.available}`}
+                                        strokeDashoffset="0"
+                                    />
+                                    <circle 
+                                        cx="18" cy="18" r="15.915" fill="none" 
+                                        stroke="#3b82f6" strokeWidth="3"
+                                        strokeDasharray={`${unitSegs.rented} ${100 - unitSegs.rented}`}
+                                        strokeDashoffset={`${-unitSegs.available}`}
+                                    />
+                                    <circle 
+                                        cx="18" cy="18" r="15.915" fill="none" 
+                                        stroke="#ef4444" strokeWidth="3"
+                                        strokeDasharray={`${unitSegs.maintenance} ${100 - unitSegs.maintenance}`}
+                                        strokeDashoffset={`${-(unitSegs.available + unitSegs.rented)}`}
+                                    />
+                                </svg>
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <span className="text-3xl lg:text-2xl xl:text-5xl font-bold text-gray-900 dark:text-white">{unitStats.total}</span>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Legend matching your Enum Integer Statuses */}
-                        <div className="text-xs space-y-2 font-medium">
-                            <div className="flex items-center gap-3">
-                                <span className="w-3 h-3 rounded-full bg-green-500"></span>
-                                <span className="text-gray-600 w-20">Available</span>
-                                <span className="font-bold text-gray-900">{unitStats.available}</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <span className="w-3 h-3 rounded-full bg-blue-500"></span>
-                                <span className="text-gray-600 w-20">Rented</span>
-                                <span className="font-bold text-gray-900">{unitStats.rented}</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <span className="w-3 h-3 rounded-full bg-red-500"></span>
-                                <span className="text-gray-600 w-20">Maintenance</span>
-                                <span className="font-bold text-gray-900">{unitStats.maintenance}</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <span className="w-3 h-3 rounded-full bg-amber-400"></span>
-                                <span className="text-gray-600 w-20">Reserved</span>
-                                <span className="font-bold text-gray-900">{unitStats.reserved}</span>
+                            {/* Legend - below circle on XL, beside on LG */}
+                            <div className="text-sm space-y-2 w-full lg:w-auto xl:space-y-0 xl:flex xl:gap-8">
+                                <div className="flex items-center gap-2 lg:flex-col lg:items-start xl:flex-col xl:items-start">
+                                    <div className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></div>
+                                    <span className="text-gray-600 dark:text-gray-400">Available</span>
+                                    <span className="font-bold text-gray-900 dark:text-white ml-auto lg:ml-0 xl:ml-0">{unitStats.available}</span>
+                                </div>
+                                <div className="flex items-center gap-2 lg:flex-col lg:items-start xl:flex-col xl:items-start">
+                                    <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></div>
+                                    <span className="text-gray-600 dark:text-gray-400">Rented</span>
+                                    <span className="font-bold text-gray-900 dark:text-white ml-auto lg:ml-0 xl:ml-0">{unitStats.rented}</span>
+                                </div>
+                                <div className="flex items-center gap-2 lg:flex-col lg:items-start xl:flex-col xl:items-start">
+                                    <div className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></div>
+                                    <span className="text-gray-600 dark:text-gray-400">Maintenance</span>
+                                    <span className="font-bold text-gray-900 dark:text-white ml-auto lg:ml-0 xl:ml-0">{unitStats.maintenance}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Card 2: Contracts Overview */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-                    <div className="mb-6 flex justify-between items-center">
-                        <h2 className="font-bold text-gray-700 flex items-center gap-2">
-                            <FileText size={18} className="text-purple-500" /> Contracts
+                {/* Contract Status */}
+                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700 p-6">
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            <FileText size={20} className="text-purple-500" />
+                            Contracts
                         </h2>
                         <button 
                             onClick={() => navigate('/contracts')}
-                            className="text-xs text-purple-600 hover:text-purple-800 font-bold"
+                            className="text-xs text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-bold"
                         >
                             View All →
                         </button>
                     </div>
 
-                    <div className="flex items-center justify-around h-32">
-                        <div className="relative w-28 h-28">
-                            <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
-                                {/* Background circle */}
-                                <circle cx="18" cy="18" r="15.915" fill="none" stroke="#f3f4f6" strokeWidth="3" />
-                                {/* Active - Green */}
-                                <circle 
-                                    cx="18" cy="18" r="15.915" fill="none" 
-                                    stroke="#22c55e" strokeWidth="3"
-                                    strokeDasharray={`${contractSegs.active} ${100 - contractSegs.active}`}
-                                    strokeDashoffset="0"
-                                />
-                                {/* Pending - Blue */}
-                                <circle 
-                                    cx="18" cy="18" r="15.915" fill="none" 
-                                    stroke="#3b82f6" strokeWidth="3"
-                                    strokeDasharray={`${contractSegs.pending} ${100 - contractSegs.pending}`}
-                                    strokeDashoffset={`${-contractSegs.active}`}
-                                />
-                                {/* Expired - Amber */}
-                                <circle 
-                                    cx="18" cy="18" r="15.915" fill="none" 
-                                    stroke="#f59e0b" strokeWidth="3"
-                                    strokeDasharray={`${contractSegs.expired} ${100 - contractSegs.expired}`}
-                                    strokeDashoffset={`${-(contractSegs.active + contractSegs.pending)}`}
-                                />
-                                {/* Terminated - Red */}
-                                <circle 
-                                    cx="18" cy="18" r="15.915" fill="none" 
-                                    stroke="#ef4444" strokeWidth="3"
-                                    strokeDasharray={`${contractSegs.terminated} ${100 - contractSegs.terminated}`}
-                                    strokeDashoffset={`${-(contractSegs.active + contractSegs.pending + contractSegs.expired)}`}
-                                />
-                            </svg>
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="text-center">
-                                    <span className="block text-2xl font-black text-gray-800">{contractStats.total}</span>
-                                    <span className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Total</span>
-                                </div>
-                            </div>
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Active</span>
+                            <span className="font-bold text-gray-900 dark:text-white">{contractStats.active}</span>
                         </div>
-
-                        {/* Legend ordered by priority: Active -> Draft -> Expired -> Terminated */}
-                        <div className="text-xs space-y-2 font-medium">
-                            <div className="flex items-center gap-3">
-                                <span className="w-3 h-3 rounded-full bg-green-500"></span>
-                                <span className="text-gray-600 w-20">Active</span>
-                                <span className="font-bold text-gray-900">{contractStats.active}</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <span className="w-3 h-3 rounded-full bg-blue-500"></span>
-                                <span className="text-gray-600 w-20">Pending</span>
-                                <span className="font-bold text-gray-900">{contractStats.pending}</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <span className="w-3 h-3 rounded-full bg-amber-500"></span>
-                                <span className="text-gray-600 w-20">Expired</span>
-                                <span className="font-bold text-gray-900">{contractStats.expired}</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <span className="w-3 h-3 rounded-full bg-red-500"></span>
-                                <span className="text-gray-600 w-20">Terminated</span>
-                                <span className="font-bold text-gray-900">{contractStats.terminated}</span>
-                            </div>
+                        <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Pending</span>
+                            <span className="font-bold text-gray-900 dark:text-white">{contractStats.pending}</span>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Expired</span>
+                            <span className="font-bold text-gray-900 dark:text-white">{contractStats.expired}</span>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Terminated</span>
+                            <span className="font-bold text-gray-900 dark:text-white">{contractStats.terminated}</span>
                         </div>
                     </div>
                 </div>
-                {/* Card 3: Expecting payments */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div>
-                        <p className="text-xs uppercase tracking-wider font-bold text-gray-500">Expected in 2 Weeks</p>
-                        <p className="text-xl font-black text-gray-900 mt-1">${upcomingExpectedTotal.toLocaleString()}</p>
-                        <p className="text-sm text-gray-500 mt-0.5">{upcomingExpectedCount} upcoming payments</p>
+
+                {/* Quick Actions & Info */}
+                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700 p-6">
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Quick Actions</h2>
+                    <div className="space-y-3">
+                        <button
+                            onClick={() => navigate('/property')}
+                            className="w-full p-3 text-left rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                        >
+                            <p className="font-bold text-gray-900 dark:text-white">Properties</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">{properties.length} total</p>
+                        </button>
+                        <button
+                            onClick={() => navigate('/units')}
+                            className="w-full p-3 text-left rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors"
+                        >
+                            <p className="font-bold text-gray-900 dark:text-white">Units</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">{unitStats.total} total</p>
+                        </button>
+                        <button
+                            onClick={() => navigate('/expenses')}
+                            className="w-full p-3 text-left rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                        >
+                            <p className="font-bold text-gray-900 dark:text-white">Expenses</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Manage monthly costs</p>
+                        </button>
+                        <button
+                            onClick={() => navigate('/accounting')}
+                            className="w-full p-3 text-left rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
+                        >
+                            <p className="font-bold text-gray-900 dark:text-white">Financial Details</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">View full accounting</p>
+                        </button>
                     </div>
-                    <button
-                        onClick={() => navigate('/accounting')}
-                        className="self-start sm:self-auto px-4 py-2 rounded-lg text-sm font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
-                    >
-                        View Accounting
-                    </button>
                 </div>
-
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-                <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-bold text-gray-800">Property Details</h2>
-                    <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-                        Click a property to preview
-                    </span>
                 </div>
-
-                {properties.length === 0 ? (
-                    <div className="rounded-xl border border-dashed border-gray-200 p-6 text-sm text-gray-500 text-center">
-                        No properties available yet.
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
-                        <div className="space-y-2">
-                            {properties.map((property) => (
-                                <button
-                                    key={property.id}
-                                    onClick={() => setSelectedPropertyId(property.id)}
-                                    className={`w-full rounded-xl border p-3 text-left transition-all ${
-                                        selectedPropertyId === property.id
-                                            ? 'border-blue-200 bg-blue-50'
-                                            : 'border-gray-200 bg-gray-50 hover:bg-white'
-                                    }`}
-                                >
-                                    <p className="font-bold text-sm text-gray-800">{property.name}</p>
-                                    <p className="text-xs text-gray-500 mt-0.5">{property.city}</p>
-                                </button>
-                            ))}
-                        </div>
-
-                        <div className="xl:col-span-2 space-y-4">
-                            {selectedProperty ? (
-                                <>
-                                    <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-                                        <div className="flex items-center justify-between gap-3">
-                                            <div>
-                                                <p className="text-lg font-black text-gray-900">{selectedProperty.name}</p>
-                                                <p className="text-sm text-gray-600 mt-0.5">
-                                                    {selectedProperty.city}, {selectedProperty.addressRegion}
-                                                </p>
-                                            </div>
-                                            <span className="text-xs font-bold px-2 py-1 rounded-lg bg-blue-100 text-blue-700">
-                                                {getPropertyTypeLabel(selectedProperty.propertyType)}
-                                            </span>
-                                        </div>
-                                        <p className="text-xs text-gray-500 mt-2">
-                                            {selectedProperty.street} • Building #{selectedProperty.buildingNo}
-                                        </p>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="rounded-xl border border-gray-200 p-3">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <p className="text-sm font-bold text-gray-700">Units Preview</p>
-                                                <button
-                                                    onClick={() => navigate('/units')}
-                                                    className="text-xs font-bold text-blue-600 hover:text-blue-800"
-                                                >
-                                                    View Units →
-                                                </button>
-                                            </div>
-                                            <div className="relative">
-                                                <div className="overflow-x-hidden">
-                                                    <div className="flex gap-2">
-                                                        {selectedPropertyUnits.slice(0, 3).map((unit, index) => (
-                                                            <button
-                                                                key={unit.id}
-                                                                onClick={() => navigate('/units')}
-                                                                className={`min-w-[44%] rounded-lg border border-gray-200 p-2 text-left bg-gray-50 hover:bg-white transition ${
-                                                                    index === 2 ? 'opacity-60' : ''
-                                                                }`}
-                                                            >
-                                                                <p className="text-sm font-bold text-gray-800">Unit #{unit.unitNo}</p>
-                                                                <p className="text-[11px] text-gray-500 mt-0.5">Floor {unit.floor}</p>
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                                {selectedPropertyUnits.length > 2 && (
-                                                    <div className="pointer-events-none absolute right-0 top-0 h-full w-20 bg-gradient-to-l from-white to-transparent" />
-                                                )}
-                                                {selectedPropertyUnits.length === 0 && (
-                                                    <div className="rounded-lg border border-dashed border-gray-200 p-3 text-xs text-gray-500 text-center">
-                                                        No units for this property.
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        <div className="rounded-xl border border-gray-200 p-3">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <p className="text-sm font-bold text-gray-700">Contracts Preview</p>
-                                                <button
-                                                    onClick={() => navigate('/contracts')}
-                                                    className="text-xs font-bold text-purple-600 hover:text-purple-800"
-                                                >
-                                                    View Contracts →
-                                                </button>
-                                            </div>
-                                            <div className="relative">
-                                                <div className="overflow-x-hidden">
-                                                    <div className="flex gap-2">
-                                                        {selectedPropertyContracts.slice(0, 3).map((contract, index) => (
-                                                            <button
-                                                                key={contract.id}
-                                                                onClick={() => navigate('/contracts')}
-                                                                className={`min-w-[44%] rounded-lg border border-gray-200 p-2 text-left bg-gray-50 hover:bg-white transition ${
-                                                                    index === 2 ? 'opacity-60' : ''
-                                                                }`}
-                                                            >
-                                                                <p className="text-sm font-bold text-gray-800">
-                                                                    Unit #{selectedPropertyUnits.find((unit) => unit.id === contract.unitId)?.unitNo ?? 'N/A'}
-                                                                </p>
-                                                                <p className="text-[11px] text-gray-500 mt-0.5">
-                                                                    Ends {new Date(contract.endDate).toLocaleDateString()}
-                                                                </p>
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                                {selectedPropertyContracts.length > 2 && (
-                                                    <div className="pointer-events-none absolute right-0 top-0 h-full w-20 bg-gradient-to-l from-white to-transparent" />
-                                                )}
-                                                {selectedPropertyContracts.length === 0 && (
-                                                    <div className="rounded-lg border border-dashed border-gray-200 p-3 text-xs text-gray-500 text-center">
-                                                        No contracts linked to this property.
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </>
-                            ) : (
-                                <div className="rounded-xl border border-dashed border-gray-200 p-6 text-sm text-gray-500 text-center">
-                                    Select a property to view details.
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                )}
-            </div>
-
-
+                    )}
         </div>
+
     );
 };
 

@@ -3,7 +3,6 @@ import {
     Building2,
     Sun,
     Moon,
-
     Calculator,
     CheckSquare,
     Settings,
@@ -16,10 +15,9 @@ import {
     Wrench,
     FileText
 } from 'lucide-react';
-import {NavLink} from 'react-router-dom';
-import {storage} from "../../utils/storage.ts";
+import { NavLink } from 'react-router-dom';
+import { storage } from "../../utils/storage.ts";
 import { useTheme } from '../../context/ThemeContext';
-
 
 const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
     const { theme, toggleTheme } = useTheme();
@@ -33,37 +31,35 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
             { name: 'Maintenance', icon: <Wrench size={20} />, path: '/maintenance' }
         ]
         : [
-            {name: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/dashboard' },
             ...(storage.isSuperAdmin()
                 ? [{ name: 'Tenants', icon: <Users size={20} />, path: '/tenants' }]
                 : []),
-            ...( storage.isTenant()?
-                [
-                    {name: 'Property', icon: <Building2 size={20} />, path: '/property'},
-                    {name: 'Units', icon: <MapPin size={20} />, path: '/units' },
-                    {name: 'Renter', icon: <UserCircle size={20} />, path: '/renters'},
-                    {name : 'Contracts', icon:<FileChartColumn size={20} />, path: '/contracts'}
+            ...(storage.isTenant()
+                ? [
+                    { name: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/dashboard' },
+                    { name: 'Property', icon: <Building2 size={20} />, path: '/property' },
+                    { name: 'Units', icon: <MapPin size={20} />, path: '/units' },
+                    { name: 'Renter', icon: <UserCircle size={20} />, path: '/renters' },
+                    { name: 'Contracts', icon: <FileChartColumn size={20} />, path: '/contracts' },
+                    { name: 'Accounting', icon: <Calculator size={20} />, path: '/accounting' },
+                    { name: 'Expenses', icon: <ReceiptText size={20} />, path: '/expenses' },
+                    { name: 'Tasks', icon: <CheckSquare size={20} />, path: '/tasks' },
+                    { name: 'Maintenance', icon: <Wrench size={20} />, path: '/maintenance-tickets' },
                 ]
-            : []),
-
-
-
-            { name: 'Accounting', icon: <Calculator size={20} />, path: '/accounting' },
-            { name: 'Expenses', icon: <ReceiptText size={20} />, path: '/expenses' },
-            { name: 'Tasks', icon: <CheckSquare size={20} />, path: '/tasks' },
+                : []),
         ];
 
     return (
         <div className="w-2/12 bg-gray-800 h-screen flex-shrink-0 sticky top-0 flex flex-col text-slate-300 shadow-xl">
             {/* Logo Section */}
-            <div className="p-4  mb-2">
+            <div className="p-4 mb-2">
                 <div className="flex items-center gap-2">
-                   <div className={"w-20 h-8"}>
-                       <img
-                       src={"assets/Sakani.png"}
-                       alt="Sakani"
-                       />
-                   </div>
+                    <div className="w-20 h-8">
+                        <img
+                            src="assets/Sakani.png"
+                            alt="Sakani"
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -74,11 +70,11 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
                         key={item.name}
                         to={item.path}
                         className={({ isActive }) => `
-                w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-md transition-all
-                ${isActive
+                            w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-md transition-all
+                            ${isActive
                             ? 'bg-slate-700/50 text-white border-l-4 border-gray-400'
                             : 'hover:bg-slate-800 hover:text-white text-slate-400'}
-            `}
+                        `}
                     >
                         {item.icon}
                         {item.name}
@@ -106,8 +102,8 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
                     className={({ isActive }) => `
                         w-full flex items-center gap-3 px-4 py-2 text-sm rounded-md transition-all
                         ${isActive
-                            ? 'bg-slate-700/50 text-white border-l-4 border-gray-400'
-                            : 'hover:bg-slate-800 hover:text-white text-slate-400'}
+                        ? 'bg-slate-700/50 text-white border-l-4 border-gray-400'
+                        : 'hover:bg-slate-800 hover:text-white text-slate-400'}
                     `}
                 >
                     <Settings size={20} />
@@ -118,8 +114,8 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
                     className={({ isActive }) => `
                         w-full flex items-center gap-3 px-4 py-2 text-sm rounded-md transition-all
                         ${isActive
-                            ? 'bg-slate-700/50 text-white border-l-4 border-gray-400'
-                            : 'hover:bg-slate-800 hover:text-white text-slate-400'}
+                        ? 'bg-slate-700/50 text-white border-l-4 border-gray-400'
+                        : 'hover:bg-slate-800 hover:text-white text-slate-400'}
                     `}
                 >
                     <UserCircle size={20} />

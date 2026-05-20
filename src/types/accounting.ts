@@ -28,6 +28,8 @@ export interface AccountingStats {
     totalExpectedMonth: number;
     totalCollectedMonth: number;
     occupancyRate: number;
+    expensesMonth: number;
+    netIncomeMonth: number;
 }
 
 export interface PaymentHistoryResponseDto {

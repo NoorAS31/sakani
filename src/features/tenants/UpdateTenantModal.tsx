@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Save } from 'lucide-react';
 import { tenantService } from '../../services/tenantService';
+import type { Tenant } from '../../types/tenant';
 
-interface CreateTenantModalProps {
+interface UpdateTenantModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onTenantCreated: () => void;
+    onTenantUpdated: () => void;
+    tenant: Tenant | null;
 }
 
-const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantModalProps) => {
+const UpdateTenantModal = ({ isOpen, onClose, onTenantUpdated, tenant }: UpdateTenantModalProps) => {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -16,13 +18,29 @@ const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantMod
         addressStreet: '',
         addressCity: '',
         addressRegion: '',
-        status: 1 // Active = 1
+        status: 1
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
     const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-    // Validation Checks
+    useEffect(() => {
+        if (tenant && isOpen) {
+            setFormData({
+                name: tenant.name || '',
+                email: tenant.email || '',
+                phoneNumber: tenant.phoneNumber || '',
+                addressStreet: tenant.addressStreet || '',
+                addressCity: tenant.addressCity || '',
+                addressRegion: tenant.addressRegion || '',
+                status: tenant.status || 1
+            });
+        }
+    }, [tenant, isOpen]);
+
+    if (!isOpen || !tenant) return null;
+
+    // Validation Checks - moved after guard clause
     const isNameValid = formData.name.length >= 4;
     const isEmailValid = isValidEmail(formData.email);
     const isPhoneValid = formData.phoneNumber.length >= 7;
@@ -30,29 +48,24 @@ const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantMod
 
     const isFormValid = isNameValid && isEmailValid && isPhoneValid && isAddressValid;
 
-
-    if (!isOpen) return null;
-
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setError('');
 
-        // 1. Phone Number Restriction (Digits only)
         if (name === 'phoneNumber') {
-            const onlyNums = value.replace(/[^0-9]/g, ''); // Remove everything except 0-9
-            if (onlyNums.length <= 15) { // Common max length for phone numbers
+            const onlyNums = value.replace(/[^0-9]/g, '');
+            if (onlyNums.length <= 15) {
                 setFormData(prev => ({ ...prev, [name]: onlyNums }));
             }
             return;
         }
 
-        // 2. Status is sent as number
         if (name === 'status') {
-            setFormData(prev => ({ ...prev, [name]: Number(value) }));
+            if (value !== '') {
+                setFormData(prev => ({ ...prev, [name]: Number(value) }));
+            }
             return;
         }
 
-        // 3. Name Length Restriction
         if (name === 'name' && value.length > 100) return;
 
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -61,37 +74,28 @@ const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantMod
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Final check before sending to backend
         if (formData.phoneNumber.length < 7) {
             alert("Please enter a valid phone number.");
             return;
         }
 
         setIsSubmitting(true);
+
         try {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
-            await tenantService.create(formData);
-            onTenantCreated();
-            setFormData({
-                name: '',
-                email: '',
-                phoneNumber: '',
-                addressStreet: '',
-                addressCity: '',
-                addressRegion: '',
-                status: 1
-            });
+            await tenantService.update(tenant.id, {
+                id: tenant.id,
+                ...formData
+            } as Tenant);
+            onTenantUpdated();
             onClose();
         } catch (err: unknown) {
-            if(err instanceof Error) {
-                console.error("Failed to create tenant", err.message);
+            if(err instanceof Error ){
+                console.error("Failed to update tenant", err.message);
             }
-            else{
-                console.error("Failed to create tenant. Please try again." , err);
-            }
-
-        } finally {
+            else {
+            setError( "failed to update tenant. Please try again.");
+        }
+        }finally {
             setIsSubmitting(false);
         }
     };
@@ -101,13 +105,12 @@ const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantMod
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200">
                 {/* Modal Header */}
                 <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                    <h2 className="text-xl font-bold text-gray-800">Create New Tenant</h2>
+                    <h2 className="text-xl font-bold text-gray-800">Update Tenant</h2>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
                         <X size={24} />
                     </button>
                 </div>
 
-                {/* Form Content */}
                 <form onSubmit={handleSubmit} className="p-6 space-y-6">
                     {error && (
                         <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
@@ -115,7 +118,6 @@ const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantMod
                         </p>
                     )}
 
-                    {/* Section 1: Basic Information */}
                     <div>
                         <h3 className="underline text-xs font-bold text-red-600 uppercase tracking-wider mb-4">Basic Information</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -133,6 +135,7 @@ const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantMod
                             <div className="space-y-1">
                                 <label className="text-sm font-medium text-gray-700">Status</label>
                                 <select name="status" value={formData.status} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-600 outline-none bg-white">
+                                    <option value="">-- Select Status --</option>
                                     <option value={1}>Active</option>
                                     <option value={2}>Suspended</option>
                                     <option value={3}>Inactive</option>
@@ -156,54 +159,90 @@ const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantMod
                             </div>
                             <div className="space-y-1">
                                 <label className="text-sm font-medium text-gray-700">Phone Number</label>
-                                <input name="phoneNumber" type="text" onChange={handleChange} value={formData.phoneNumber} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-600 outline-none" placeholder="+962    7XXXXXXXX" />
+                                <input
+                                    name="phoneNumber"
+                                    type="tel"
+                                    value={formData.phoneNumber}
+                                    onChange={handleChange}
+                                    className={`w-full border rounded-lg px-3 py-2 outline-none transition-all ${
+                                        formData.phoneNumber && !isPhoneValid ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-gray-500'
+                                    }`}
+                                    placeholder="Enter phone number"
+                                />
+                                {formData.phoneNumber && !isPhoneValid && (
+                                    <p className="text-[10px] text-red-500 font-medium italic">Phone number must be at least 7 digits.</p>
+                                )}
                             </div>
                         </div>
                     </div>
 
-                    {/* Section 2: Address Details */}
+                    {/* Section 2: Address Information */}
                     <div>
-                        <h3 className="text-xs font-bold underline text-red-600 uppercase tracking-wider mb-4">Location Details</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="md:col-span-3 space-y-1">
+                        <h3 className="underline text-xs font-bold text-red-600 uppercase tracking-wider mb-4">Address</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="md:col-span-2 space-y-1">
                                 <label className="text-sm font-medium text-gray-700">Street Address</label>
-                                <input name="addressStreet" type="text" onChange={handleChange} value={formData.addressStreet} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-500 outline-none" placeholder="123 Property Lane" />
+                                <input
+                                    name="addressStreet"
+                                    type="text"
+                                    value={formData.addressStreet}
+                                    onChange={handleChange}
+                                    className={`w-full border rounded-lg px-3 py-2 outline-none transition-all ${
+                                        formData.addressStreet && !isAddressValid ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-gray-500'
+                                    }`}
+                                    placeholder="e.g., 123 Business Ave"
+                                />
+                                {formData.addressStreet && !isAddressValid && (
+                                    <p className="text-[10px] text-red-500 font-medium italic">Street address must be at least 5 characters.</p>
+                                )}
                             </div>
                             <div className="space-y-1">
                                 <label className="text-sm font-medium text-gray-700">City</label>
-                                <input name="addressCity" type="text" onChange={handleChange} value={formData.addressCity} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-600-500 outline-none" />
+                                <input
+                                    name="addressCity"
+                                    type="text"
+                                    value={formData.addressCity}
+                                    onChange={handleChange}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-600 outline-none transition-all"
+                                    placeholder="e.g., Cairo"
+                                />
                             </div>
                             <div className="space-y-1">
-                                <label className="text-sm font-medium text-gray-700">Region</label>
-                                <input name="addressRegion" type="text" onChange={handleChange} value={formData.addressRegion} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-500 outline-none" placeholder="e.g. State/Province" />
+                                <label className="text-sm font-medium text-gray-700">Region/State</label>
+                                <input
+                                    name="addressRegion"
+                                    type="text"
+                                    value={formData.addressRegion}
+                                    onChange={handleChange}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-600 outline-none transition-all"
+                                    placeholder="e.g., Cairo Governorate"
+                                />
                             </div>
                         </div>
                     </div>
 
-                    {/* Footer Actions */}
-                    <div className="pt-6 border-t border-gray-100 flex justify-end gap-3">
-                        <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors">
+                    {/* Form Actions */}
+                    <div className="flex gap-3 justify-end pt-4 border-t border-gray-100">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-all"
+                        >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={!isFormValid || isSubmitting}
-                            className={`px-6 py-2 rounded-lg text-sm font-bold flex items-center gap-2 shadow-lg transition-all ${
-                                isFormValid && !isSubmitting
-                                    ? 'bg-gray-600 hover:bg-gray-700 text-white active:scale-95'
-                                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                            }`}
-
+                            className="bg-gray-900 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 hover:bg-black transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <Save size={18} />
-                            {isSubmitting ? 'Creating...' : 'Save Tenant'}
+                            {isSubmitting ? 'Updating...' : 'Update Tenant'}
                         </button>
                     </div>
                 </form>
-
             </div>
         </div>
     );
 };
 
-export default CreateTenantModal;
+export default UpdateTenantModal;
