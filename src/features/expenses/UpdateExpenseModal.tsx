@@ -34,7 +34,7 @@ const UpdateExpenseModal = ({ isOpen, onClose, expense, onExpenseUpdated }: Upda
             setFormData({
                 expenseId: expense.expenseID,
                 amount: expense.amount.toString(),
-                description: expense.description,
+                description: expense.description ?? '',
                 expenseType: expense.expenseType
             });
         }

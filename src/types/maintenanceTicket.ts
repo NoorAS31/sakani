@@ -1,9 +1,11 @@
-export enum MaintenanceTicketStatus {
-    Open = 1,
-    InProgress = 2,
-    Resolved = 3,
-    Closed = 4
-}
+const MaintenanceTicketStatus = {
+    Open: 1,
+    InProgress: 2,
+    Resolved: 3,
+    Closed: 4
+} as const;
+
+export type MaintenanceTicketStatus = typeof MaintenanceTicketStatus[keyof typeof MaintenanceTicketStatus];
 
 export interface MaintenanceImage {
     id: string;

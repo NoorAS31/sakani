@@ -4,7 +4,6 @@ import {
     Sun,
     Moon,
     Calculator,
-    CheckSquare,
     Settings,
     UserCircle,
     LogOut,
