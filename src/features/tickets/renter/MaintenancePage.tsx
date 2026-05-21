@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Wrench, Search, Filter, Clock, CheckCircle2, AlertCircle, AlertTriangle, ArrowRight } from 'lucide-react';
 import { usePageTitle } from '../../../hooks/usePageTitle';
 import { maintenanceTicketService } from '../../../services/maintenanceTicketService';
-import type { MaintenanceTicket } from '../../../types/maintenanceTicket';
+import type { MaintenanceTicket, MaintenanceTicketStatusType } from '../../../types/maintenanceTicket';
 import { MaintenanceTicketStatus } from '../../../types/maintenanceTicket';
 import CreateTicketModal from './CreateTicketModal';
 
@@ -39,7 +39,7 @@ const MaintenancePage = () => {
         loadTickets();
     };
 
-    const getStatusConfig = (status: MaintenanceTicketStatus | string | number) => {
+    const getStatusConfig = (status: MaintenanceTicketStatusType | string | number) => {
         switch (Number(status)) {
             case MaintenanceTicketStatus.Open:
                 return {

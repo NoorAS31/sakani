@@ -5,7 +5,7 @@ import { usePageTitle } from '../../hooks/usePageTitle';
 import { maintenanceTicketService } from '../../services/maintenanceTicketService';
 import { unitService } from '../../services/unitService';
 import { storage } from '../../utils/storage';
-import type { MaintenanceTicket } from '../../types/maintenanceTicket';
+import type { MaintenanceTicket, MaintenanceTicketStatusType } from '../../types/maintenanceTicket';
 import { MaintenanceTicketStatus } from '../../types/maintenanceTicket';
 import type { Unit } from '../../types/unit';
 import SkeletonLoader from '../../components/common/SkeletonLoader';
@@ -43,7 +43,7 @@ const MaintenanceTicketsPage = () => {
         loadTickets();
     }, [loadTickets]);
 
-    const getStatusConfig = (status: MaintenanceTicketStatus | string) => {
+    const getStatusConfig = (status: MaintenanceTicketStatusType | string) => {
         switch (Number(status)) {
             case MaintenanceTicketStatus.Open:
                 return { 
