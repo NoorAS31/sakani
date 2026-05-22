@@ -28,12 +28,20 @@ import { DARK_THEME_BRIDGE_CLASSES } from './utils/theme';
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(() => !!storage.getToken());
-    const isRenter = storage.isRenter();
 
     const handleLogout = () => {
         localStorage.clear();
         sessionStorage.clear();
         setIsAuthenticated(false);
+    };
+
+    const getAuthenticatedHome = () => {
+        const isRenter = storage.isRenter();
+        const isSuperAdmin = storage.isSuperAdmin();
+        
+        if (isRenter) return '/dashboard';
+        if (isSuperAdmin) return '/tenants';
+        return '/dashboard';
     };
 
     const layoutKey = isAuthenticated ? `authenticated-${storage.getUserId()}` : 'guest';
@@ -50,25 +58,26 @@ function App() {
                                 {(location) => (
                                     <Routes location={location}>
                                         <Route path="/" element={<DashboardLayout />}>
-                                            <Route index element={<Navigate to="/dashboard" />} />
-                                            <Route path="dashboard" element={isRenter ? <RenterDashboard /> : <DashboardPage />} />
-                                            <Route path="tenants" element={isRenter ? <Navigate to="/dashboard" /> : <TenantsPage />} />
-                                            <Route path="property" element={isRenter ? <Navigate to="/dashboard" /> : <PropertiesPage />} />
-                                            <Route path="units" element={isRenter ? <Navigate to="/dashboard" /> : <UnitsPage />} />
-                                            <Route path="renters" element={isRenter ? <Navigate to="/dashboard" /> : <RentersPage />} />
-                                            <Route path="contracts" element={isRenter ? <MyContractPage /> : <ContractsPage />} />
-                                            <Route path="accounting" element={isRenter ? <Navigate to="/dashboard" /> : <AccountingPage />} />
-                                            <Route path="accounting/payments" element={isRenter ? <PaymentsPageForRenter /> : <PaymentsPage />} />
-                                            <Route path="expenses" element={isRenter ? <Navigate to="/dashboard" /> : <ExpensesPage />} />
-                                            <Route path="maintenance" element={isRenter ? <MaintenancePage /> : <Navigate to="/dashboard" />} />
-                                            <Route path="maintenance/:id" element={isRenter ? <MaintenanceTicketDetailPage canEdit={false} isRenter={true} /> : <Navigate to="/dashboard" />} />
-                                            <Route path="maintenance-ticket/:id" element={isRenter ? <MaintenanceTicketDetailPage canEdit={false} isRenter={true} /> : <Navigate to="/dashboard" />} />
-                                            <Route path="maintenance-tickets" element={isRenter ? <Navigate to="/dashboard" /> : <MaintenanceTicketsPage />} />
-                                            <Route path="maintenance-tickets/create" element={isRenter ? <Navigate to="/dashboard" /> : <CreateMaintenanceTicketPage />} />
-                                            <Route path="maintenance-tickets/:id" element={isRenter ? <Navigate to="/dashboard" /> : <MaintenanceTicketDetailPage canEdit={false} />} />
+                                            <Route index element={<Navigate to={getAuthenticatedHome()} replace />} />
+                                            <Route path="dashboard" element={storage.isRenter() ? <RenterDashboard /> : <DashboardPage />} />
+                                            <Route path="tenants" element={storage.isRenter() ? <Navigate to="/dashboard" replace /> : <TenantsPage />} />
+                                            <Route path="property" element={storage.isRenter() ? <Navigate to="/dashboard" replace /> : <PropertiesPage />} />
+                                            <Route path="units" element={storage.isRenter() ? <Navigate to="/dashboard" replace /> : <UnitsPage />} />
+                                            <Route path="renters" element={storage.isRenter() ? <Navigate to="/dashboard" replace /> : <RentersPage />} />
+                                            <Route path="contracts" element={storage.isRenter() ? <MyContractPage /> : <ContractsPage />} />
+                                            <Route path="accounting" element={storage.isRenter() ? <Navigate to="/dashboard" replace /> : <AccountingPage />} />
+                                            <Route path="accounting/payments" element={storage.isRenter() ? <PaymentsPageForRenter /> : <PaymentsPage />} />
+                                            <Route path="expenses" element={storage.isRenter() ? <Navigate to="/dashboard" replace /> : <ExpensesPage />} />
+                                            <Route path="maintenance" element={storage.isRenter() ? <MaintenancePage /> : <Navigate to="/dashboard" replace />} />
+                                            <Route path="maintenance/:id" element={storage.isRenter() ? <MaintenanceTicketDetailPage canEdit={false} isRenter={true} /> : <Navigate to="/dashboard" replace />} />
+                                            <Route path="maintenance-ticket/:id" element={storage.isRenter() ? <MaintenanceTicketDetailPage canEdit={false} isRenter={true} /> : <Navigate to="/dashboard" replace />} />
+                                            <Route path="maintenance-tickets" element={storage.isRenter() ? <Navigate to="/dashboard" replace /> : <MaintenanceTicketsPage />} />
+                                            <Route path="maintenance-tickets/create" element={storage.isRenter() ? <Navigate to="/dashboard" replace /> : <CreateMaintenanceTicketPage />} />
+                                            <Route path="maintenance-tickets/:id" element={storage.isRenter() ? <Navigate to="/dashboard" replace /> : <MaintenanceTicketDetailPage canEdit={false} />} />
                                             <Route path="settings" element={<SettingsPage />} />
                                             <Route path="account" element={<AccountPage />} />
                                         </Route>
+                                        <Route path="*" element={<Navigate to={getAuthenticatedHome()} replace />} />
                                     </Routes>
                                 )}
                             </FadeRoutes>
@@ -84,7 +93,8 @@ function App() {
                                 path="/login"
                                 element={<LoginPage onLogin={() => setIsAuthenticated(true)} />}
                             />
-                            <Route path="*" element={<Navigate to="/login" />} />
+                            <Route path="/" element={<Navigate to="/login" replace />} />
+                            <Route path="*" element={<Navigate to="/login" replace />} />
                         </Routes>
                     )}
                 </FadeRoutes>

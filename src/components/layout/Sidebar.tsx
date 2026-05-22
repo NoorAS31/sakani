@@ -18,6 +18,8 @@ import { NavLink } from 'react-router-dom';
 import { storage } from "../../utils/storage.ts";
 import { useTheme } from '../../context/ThemeContext';
 
+const sakaniLogo = '/Sakani.png';
+
 const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
     const { theme, toggleTheme } = useTheme();
     const isRenter = storage.isRenter();
@@ -54,7 +56,7 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
                 <div className="flex items-center gap-2">
                     <div className="w-20 h-8">
                         <img
-                            src="assets/Sakani.png"
+                            src={sakaniLogo}
                             alt="Sakani"
                         />
                     </div>

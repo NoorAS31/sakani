@@ -7,6 +7,17 @@
   <title>sakani</title>
 </head>
   <body>
+    <script>
+      (function () {
+        const redirectPath = sessionStorage.getItem('spa:redirectPath');
+        if (!redirectPath) return;
+        sessionStorage.removeItem('spa:redirectPath');
+        const normalizedPath = redirectPath.startsWith('/')
+          ? redirectPath
+          : `/${redirectPath}`;
+        history.replaceState(null, '', normalizedPath);
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

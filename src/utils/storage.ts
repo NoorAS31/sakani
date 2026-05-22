@@ -8,8 +8,18 @@ const KEYS = {
     USER_ID: 'userId'
 };
 
-// Change this from a 'const' to a function
-const getStorage = () => localStorage.getItem(KEYS.TOKEN) ? localStorage : sessionStorage;
+const normalizeRole = (role: string | null | undefined) => (role ?? '').trim().toLowerCase();
+
+const isSuperAdminRole = (role: string | null | undefined) => {
+    const normalized = normalizeRole(role);
+    return normalized === 'superadmin' || normalized === 'super admin';
+};
+
+const getStorage = () => {
+    if (sessionStorage.getItem(KEYS.TOKEN)) return sessionStorage;
+    if (localStorage.getItem(KEYS.TOKEN)) return localStorage;
+    return sessionStorage;
+};
 
 export const storage = {
     get: (key: string) => getStorage().getItem(key),
@@ -19,11 +29,15 @@ export const storage = {
     getTenantID: () => getStorage().getItem(KEYS.TENANT_ID),
     getUserId: () => getStorage().getItem(KEYS.USER_ID),
 
-    isSuperAdmin: () => getStorage().getItem(KEYS.ROLE) === 'SuperAdmin',
-    isTenant: () => getStorage().getItem(KEYS.ROLE) === 'Tenant',
-    isRenter: () => getStorage().getItem(KEYS.ROLE) === 'Renter',
+    isSuperAdmin: () => isSuperAdminRole(getStorage().getItem(KEYS.ROLE)),
+    isTenant: () => normalizeRole(getStorage().getItem(KEYS.ROLE)) === 'tenant',
+    isRenter: () => normalizeRole(getStorage().getItem(KEYS.ROLE)) === 'renter',
 
     setLoginData: (data: any, remember: boolean) => {
+        Object.values(KEYS).forEach((key) => {
+            localStorage.removeItem(key);
+            sessionStorage.removeItem(key);
+        });
         const engine = remember ? localStorage : sessionStorage;
         engine.setItem(KEYS.TOKEN, data.token);
         engine.setItem(KEYS.ROLE, data.role);

@@ -9,7 +9,14 @@ import { useTheme } from '../../context/ThemeContext.tsx';
 
 const LOADING_BARRIER_MS = 1000;
 
-const isTenantRole = (role: string): boolean => (role ?? '').toLowerCase() === 'tenant';
+const normalizeRole = (role: string | null | undefined): string => (role ?? '').trim().toLowerCase();
+
+const isTenantRole = (role: string | null | undefined): boolean => normalizeRole(role) === 'tenant';
+
+const isSuperAdminRole = (role: string | null | undefined): boolean => {
+    const normalized = normalizeRole(role);
+    return normalized === 'superadmin' || normalized === 'super admin';
+};
 
 const isTenantStatusActive = (status: string | undefined): boolean => {
     if (typeof status !== 'string') return false;
@@ -68,7 +75,8 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
             await new Promise((resolve) => setTimeout(resolve, LOADING_BARRIER_MS));
 
             console.log("Logged in successfully!");
-            navigate('/dashboard', { replace: true });
+            const homePath = isSuperAdminRole(authenticatedRole) ? '/tenants' : '/dashboard';
+            navigate(homePath, { replace: true });
             onLogin();
 
         } catch (err) {
