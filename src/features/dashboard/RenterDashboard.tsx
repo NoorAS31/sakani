@@ -197,7 +197,7 @@ const RenterDashboard = () => {
                                         <td className="px-4 py-3 text-gray-700">{formatDate(request.createdAt)}</td>
                                         <td className="px-4 py-3">
                                             <span
-                                                className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusConfig( Number(request.status))}`}
+                                                className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusConfig(Number(request.status)).color} ${getStatusConfig( Number(request.status))}`}
                                             >
                                                 {getStatusConfig(Number(request.status)).label}
                                             </span>
