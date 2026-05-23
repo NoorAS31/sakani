@@ -1,5 +1,5 @@
 import type { SVGProps } from 'react';
-import { useTheme } from '@/context/ThemeContext';
+import {useTheme} from "../../context/ThemeContext.tsx";
 
 type LogoProps = SVGProps<SVGSVGElement>;
 
