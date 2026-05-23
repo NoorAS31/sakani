@@ -17,8 +17,7 @@ import {
 import { NavLink } from 'react-router-dom';
 import { storage } from "../../utils/storage.ts";
 import { useTheme } from '../../context/ThemeContext';
-
-const sakaniLogo = '/Sakani.png';
+import { LogoIcon } from '../brand/Logo';
 
 const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
     const { theme, toggleTheme } = useTheme();
@@ -49,15 +48,18 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
                 : []),
         ];
 
+    const isDark = theme === 'dark';
+
     return (
-        <div className="w-2/12 bg-gray-800 h-screen flex-shrink-0 sticky top-0 flex flex-col text-slate-300 shadow-xl">
+        <div className={`w-2/12 h-screen flex-shrink-0 sticky top-0 flex flex-col shadow-xl transition-colors ${
+            isDark ? 'bg-gray-800 text-slate-300' : 'bg-white text-slate-700'
+        }`}>
             {/* Logo Section */}
             <div className="p-4 mb-2">
                 <div className="flex items-center gap-2">
-                    <div className="w-20 h-8">
-                        <img
-                            src={sakaniLogo}
-                            alt="Sakani"
+                    <div className="w-9 h-9">
+                        <LogoIcon
+                            className="w-full h-full"
                         />
                     </div>
                 </div>
@@ -70,10 +72,14 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
                         key={item.name}
                         to={item.path}
                         className={({ isActive }) => `
-                            w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-md transition-all
+                            w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-md transition-all border
                             ${isActive
-                            ? 'bg-slate-700/50 text-white border-l-4 border-gray-400'
-                            : 'hover:bg-slate-800 hover:text-white text-slate-400'}
+                            ? isDark
+                                ? 'bg-slate-700/50 text-white border-gray-400'
+                                : 'bg-black text-white border-black'
+                            : isDark
+                                ? 'hover:bg-slate-800 hover:text-white text-slate-400 border-slate-700'
+                                : 'hover:bg-gray-50 text-black border-gray-300 bg-white'}
                         `}
                     >
                         {item.icon}
@@ -83,27 +89,41 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
             </nav>
 
             {/* Bottom Actions */}
-            <div className="px-3 pb-6 space-y-1 border-t border-slate-700 pt-4">
+            <div className={`px-3 pb-6 space-y-1 transition-colors ${
+                isDark ? 'border-t border-slate-700' : 'border-t border-gray-200'
+            } pt-4`}>
                 <button
                     type="button"
                     onClick={toggleTheme}
-                    className="w-full flex items-center justify-between gap-3 px-4 py-2 text-sm rounded-md transition-all hover:bg-slate-800 text-slate-300"
+                    className={`w-full flex items-center justify-between gap-3 px-4 py-2 text-sm rounded-md transition-all border ${
+                        isDark
+                        ? 'hover:bg-slate-800 text-slate-300 border-slate-700'
+                        : 'hover:bg-gray-50 text-black border-gray-300 bg-white'
+                    }`}
                 >
                     <span className="flex items-center gap-3">
-                        {theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
+                        {isDark ? <Moon size={18} /> : <Sun size={18} />}
                         Theme
                     </span>
-                    <span className="text-xs font-bold px-2 py-0.5 rounded bg-slate-700/50 text-slate-200 uppercase">
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded uppercase transition-colors ${
+                        isDark
+                        ? 'bg-slate-700/50 text-slate-200'
+                        : 'bg-black text-white'
+                    }`}>
                         {theme}
                     </span>
                 </button>
                 <NavLink
                     to="/settings"
                     className={({ isActive }) => `
-                        w-full flex items-center gap-3 px-4 py-2 text-sm rounded-md transition-all
+                        w-full flex items-center gap-3 px-4 py-2 text-sm rounded-md transition-all border
                         ${isActive
-                        ? 'bg-slate-700/50 text-white border-l-4 border-gray-400'
-                        : 'hover:bg-slate-800 hover:text-white text-slate-400'}
+                        ? isDark
+                            ? 'bg-slate-700/50 text-white border-gray-400'
+                            : 'bg-black text-white border-black'
+                        : isDark
+                            ? 'hover:bg-slate-800 hover:text-white text-slate-400 border-slate-700'
+                            : 'hover:bg-gray-50 text-black border-gray-300 bg-white'}
                     `}
                 >
                     <Settings size={20} />
@@ -112,10 +132,14 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
                 <NavLink
                     to="/account"
                     className={({ isActive }) => `
-                        w-full flex items-center gap-3 px-4 py-2 text-sm rounded-md transition-all
+                        w-full flex items-center gap-3 px-4 py-2 text-sm rounded-md transition-all border
                         ${isActive
-                        ? 'bg-slate-700/50 text-white border-l-4 border-gray-400'
-                        : 'hover:bg-slate-800 hover:text-white text-slate-400'}
+                        ? isDark
+                            ? 'bg-slate-700/50 text-white border-gray-400'
+                            : 'bg-black text-white border-black'
+                        : isDark
+                            ? 'hover:bg-slate-800 hover:text-white text-slate-400 border-slate-700'
+                            : 'hover:bg-gray-50 text-black border-gray-300 bg-white'}
                     `}
                 >
                     <UserCircle size={20} />
@@ -123,7 +147,11 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
                 </NavLink>
                 <button
                     onClick={onLogout}
-                    className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded-md transition-colors mt-2"
+                    className={`w-full flex items-center gap-3 px-4 py-2 text-sm rounded-md transition-colors mt-2 ${
+                        isDark
+                        ? 'text-red-400 hover:text-red-300 hover:bg-red-900/20'
+                        : 'text-red-600 hover:text-red-700 hover:bg-red-50'
+                    }`}
                 >
                     <LogOut size={20} />
                     <span>Log out</span>

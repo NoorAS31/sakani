@@ -93,7 +93,7 @@ const TenantsPage = () => {
                         <button
                             onClick={() => setIsAddUserModalOpen(true)}
                             disabled={!selectedTenant || !!selectedTenant?.userId}
-                            className="bg-blue-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 hover:bg-blue-700 transition-all shadow-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="dark:bg-white dark:text-black  px-5 py-2.5 rounded-xl flex items-center gap-2 hover:bg-slate-700 transition-all shadow-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                             title={selectedTenant?.userId ? "User account already exists for this tenant" : ""}>
                             <UserPlus size={18} /> Add Tenant account
                         </button>
@@ -105,7 +105,6 @@ const TenantsPage = () => {
                     </div>
                 </div>
 
-                {/* Grid of Tenant Cards */}
                 <div className={`grid grid-cols-1 ${selectedTenant ? 'md:grid-cols-1 lg:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-3'} gap-6`}>
                     {tenants.map(tenant => (
                         <div key={tenant.id}
@@ -156,7 +155,6 @@ const TenantsPage = () => {
             {/* Side Details Panel */}
             {selectedTenant && (
                 <div className="w-4/12 bg-white border border-gray-200 rounded-3xl shadow-xl overflow-hidden h-[fit-content] sticky top-8 animate-in slide-in-from-right duration-300">
-                    {/* Header with Background Accent */}
                     <div className="bg-gray-900 p-6 text-white relative">
                         <button
                             onClick={() => setSelectedTenant(null)}

@@ -86,14 +86,15 @@ const RenterDashboard = () => {
         };
     }, []);
 
-    const statusClasses = (status: TicketResponseDto['status']) => {
-        if (status === 'Open') return 'bg-amber-50 text-amber-700';
-        if (status === 'InProgress') return 'bg-blue-50 text-blue-700';
-        if (status === 'Resolved') return 'bg-emerald-50 text-emerald-700';
-        return 'bg-green-50 text-green-700';
+    const getStatusConfig = (statusNum: number) => {
+        switch (statusNum) {
+            case 1: return { label: 'Open', color: 'bg-green-100 text-green-700' };
+            case 2: return { label: 'In Progress', color: 'bg-blue-100 text-blue-700' };
+            case 3: return { label: 'Resolved', color: 'bg-green-100 text-green-700' };
+            case 4: return { label: 'Closed', color: 'bg-amber-100 text-amber-700' };
+            default: return { label: 'UNKNOWN', color: 'bg-gray-100 text-gray-700' };
+        }
     };
-
-    const statusLabel = (status: TicketResponseDto['status']) => (status === 'InProgress' ? 'In Progress' : status);
 
     const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString('en-US');
 
@@ -196,16 +197,16 @@ const RenterDashboard = () => {
                                         <td className="px-4 py-3 text-gray-700">{formatDate(request.createdAt)}</td>
                                         <td className="px-4 py-3">
                                             <span
-                                                className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${statusClasses(request.status)}`}
+                                                className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusConfig( Number(request.status))}`}
                                             >
-                                                {statusLabel(request.status)}
+                                                {getStatusConfig(Number(request.status)).label}
                                             </span>
                                         </td>
                                         <td className="px-4 py-3 text-right">
                                             <button
                                                 type="button"
                                                 onClick={() => navigate(`/maintenance/${request.id}`)}
-                                                className="text-xs font-semibold text-blue-600 hover:text-blue-800"
+                                                className="text-xs font-semibold text-gray-300 hover:text-gray-800"
                                             >
                                                 View
                                             </button>
