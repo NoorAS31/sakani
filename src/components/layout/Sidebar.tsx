@@ -17,7 +17,7 @@ import {
 import { NavLink } from 'react-router-dom';
 import { storage } from "../../utils/storage.ts";
 import { useTheme } from '../../context/ThemeContext';
-import { LogoIcon } from '../brand/Logo';
+import {Logo} from '../brand/Logo';
 
 const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
     const { theme, toggleTheme } = useTheme();
@@ -58,7 +58,7 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
             <div className="p-4 mb-2">
                 <div className="flex items-center gap-2">
                     <div className="w-9 h-9">
-                        <LogoIcon
+                        <Logo
                             className="w-full h-full"
                         />
                     </div>

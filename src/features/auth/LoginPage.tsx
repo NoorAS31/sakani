@@ -6,6 +6,7 @@ import {storage} from "../../utils/storage.ts";
 import { Eye, EyeOff, Moon, Sun, Lock, Mail } from "lucide-react";
 import { usePageTitle } from '../../hooks/usePageTitle';
 import { useTheme } from '../../context/ThemeContext.tsx';
+import {Logo} from "../../components/brand/Logo.tsx";
 
 const LOADING_BARRIER_MS = 1000;
 
@@ -105,7 +106,6 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
                 </div>
             </div>
 
-            {/* Theme Toggle Button */}
             <button
                 type="button"
                 onClick={toggleTheme}
@@ -125,13 +125,13 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
                     {/* Logo/Title */}
                     <div className="mb-8">
                         <div className="flex justify-center mb-4">
-                            <div className="w-12 h-12 bg-gradient-to-br from-gray-600 to-gray-800 dark:from-gray-500 dark:to-gray-700 rounded-xl flex items-center justify-center shadow-lg transform hover:scale-110 transition-transform duration-300">
-                                <span className="text-2xl font-bold text-white">S</span>
+                            <div className="w-full h-16 rounded-xl flex items-center justify-center ">
+                                <Logo
+                                    className="w-full h-full"
+                                />
                             </div>
                         </div>
-                        <h1 className="text-center text-3xl font-bold text-slate-900 dark:text-white mb-2 animate-slide-down">
-                            Sakani
-                        </h1>
+
                         <p className="text-center text-slate-600 dark:text-slate-400 text-sm animate-slide-down animation-delay-100">
                             Property Management Solution
                         </p>
