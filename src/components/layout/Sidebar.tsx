@@ -57,7 +57,7 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
             {/* Logo Section */}
             <div className="p-4 mb-2">
                 <div className="flex items-center gap-2">
-                    <div className="w-1/2 h-13">
+                    <div className="w-1/2 h-12">
                         <Logo
                             className="w-full h-full"
                         />
