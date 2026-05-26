@@ -135,7 +135,6 @@ const AccountingPage = () => {
             new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
         );
         
-        // Calculate cumulative amounts
         let cumulative = 0;
         const points: { date: Date; amount: number; cumulative: number; pointType: 'overdue' | 'expected' }[] = [];
         

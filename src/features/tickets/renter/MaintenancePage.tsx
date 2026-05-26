@@ -1,8 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Wrench, Search, Filter, Clock, CheckCircle2, AlertCircle, AlertTriangle, ArrowRight, X } from 'lucide-react';
+import { Plus, Wrench, Search, Filter, Clock, CheckCircle2, AlertCircle, AlertTriangle, ArrowRight } from 'lucide-react';
 import { usePageTitle } from '../../../hooks/usePageTitle';
-import { maintenanceTicketService } from '../../../services/maintenanceTicketService';
+import { MaintenanceTicketService } from '../../../services/maintenanceTicketService';
 import type { MaintenanceTicket, MaintenanceTicketStatusType } from '../../../types/maintenanceTicket';
 import { MaintenanceTicketStatus } from '../../../types/maintenanceTicket';
 import CreateTicketModal from './CreateTicketModal';
@@ -23,7 +23,7 @@ const MaintenancePage = () => {
     const loadTickets = useCallback(async () => {
         try {
             setLoading(true);
-            const data = await maintenanceTicketService.getMy();
+            const data = await MaintenanceTicketService.getMy();
             setTickets(data);
         } catch (err) {
             console.error('Failed to load tickets:', err);
@@ -47,7 +47,7 @@ const MaintenancePage = () => {
         
         setIsClosing(true);
         try {
-            await maintenanceTicketService.cancel(closeTicketModal.ticketId);
+            await MaintenanceTicketService.cancel(closeTicketModal.ticketId);
             setCloseTicketModal({ isOpen: false, ticketId: null });
             await loadTickets();
         } catch (err) {
