@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Calendar, FileText, Loader2, MapPin, Pencil, Wrench, X, Check } from 'lucide-react';
 import { usePageTitle } from '../../hooks/usePageTitle';
-import { maintenanceTicketService } from '../../services/maintenanceTicketService';
+import { MaintenanceTicketService } from '../../services/maintenanceTicketService';
 import type { MaintenanceTicket } from '../../types/maintenanceTicket';
 import { MaintenanceTicketStatus } from '../../types/maintenanceTicket';
 
@@ -65,8 +65,8 @@ const MaintenanceTicketDetailPage = ({ canEdit = true, isRenter = false, onClose
         if (!id) return;
 
         const fetchTicket = isRenter 
-            ? maintenanceTicketService.getRenterTicketById(id)
-            : maintenanceTicketService.getById(id);
+            ? MaintenanceTicketService.getRenterById(id)
+            : MaintenanceTicketService.getById(id);
 
         fetchTicket
             .then((data) => {
@@ -102,7 +102,7 @@ const MaintenanceTicketDetailPage = ({ canEdit = true, isRenter = false, onClose
         setEditError(null);
         setIsUpdating(true);
         try {
-            await maintenanceTicketService.update(id, {
+            await MaintenanceTicketService.update(id, {
                 id,
                 subject: editSubject.trim(),
                 description: editDescription.trim()
@@ -121,7 +121,7 @@ const MaintenanceTicketDetailPage = ({ canEdit = true, isRenter = false, onClose
         setResolveError(null);
         setIsMarkingResolved(true);
         try {
-            await maintenanceTicketService.updateStatus({
+            await MaintenanceTicketService.updateStatus({
                 ticketId: id,
                 newStatus: MaintenanceTicketStatus.Resolved
             });

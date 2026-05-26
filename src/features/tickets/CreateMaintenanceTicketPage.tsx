@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
 import { usePageTitle } from '../../hooks/usePageTitle';
-import { maintenanceTicketService } from '../../services/maintenanceTicketService';
+import { MaintenanceTicketService } from '../../services/maintenanceTicketService';
 import { unitService } from '../../services/unitService';
 import type { Unit } from '../../types/unit';
 
@@ -40,7 +40,7 @@ const CreateMaintenanceTicketPage = () => {
 
         setSubmitting(true);
         try {
-            await maintenanceTicketService.create({
+            await MaintenanceTicketService.create({
                 unitId: formData.unitId,
                 subject: formData.subject,
                 description: formData.description
