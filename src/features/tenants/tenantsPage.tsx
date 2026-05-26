@@ -124,10 +124,8 @@ const TenantsPage = () => {
                                     </div>
                                     <div>
                                         <h3 className="font-bold text-gray-900">{tenant.name}</h3>
-                                        <div className={`text-[10px] font-bold uppercase tracking-wider ${
-                                            tenant.status === 1 ? 'text-green-600' : tenant.status === 2 ? 'text-red-600' : 'text-gray-400'
-                                        }`}>
-                                            {tenant.status === 1 ? 'Active' : tenant.status === 2 ? 'Suspended' : 'Inactive'}
+                                        <div className={`text-[10px] font-bold uppercase tracking-wider `}>
+                                            {tenant.status}
                                         </div>
                                     </div>
                                 </div>
@@ -181,21 +179,18 @@ const TenantsPage = () => {
                             <DetailItem icon={<Phone size={16}/>} label="Phone Number" value={selectedTenant.phoneNumber} />
                         </div>
 
-                        <hr className="border-gray-100" />
 
-                        {/* Address Information Group */}
+
                         <div className="space-y-4">
                             <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
                                 <MapPin size={14} /> Address
                             </h3>
-                            <DetailItem label="Street" value={selectedTenant.addressStreet}/>
                             <DetailItem label="City" value={selectedTenant.addressCity} />
-                            <DetailItem label="Region" value={selectedTenant.addressRegion} />
                         </div>
 
                         <hr className="border-gray-100" />
 
-                        {/* Status Group */}
+
                         <div className="space-y-4">
                             <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
                                 <Info size={14} /> Status
@@ -203,10 +198,8 @@ const TenantsPage = () => {
                             <div className="group flex items-start gap-3">
                                 <div>
                                     <p className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Status</p>
-                                    <p className={`text-sm font-semibold ${
-                                        selectedTenant.status === 1 ? 'text-green-600' : selectedTenant.status === 2 ? 'text-red-600' : 'text-gray-600'
-                                    }`}>
-                                        {selectedTenant.status === 1 ? 'Active' : selectedTenant.status === 2 ? 'Suspended' : 'Inactive'}
+                                    <p className={`text-sm font-semibold`}>
+                                        {selectedTenant.status}
                                     </p>
                                 </div>
                             </div>
@@ -214,7 +207,7 @@ const TenantsPage = () => {
 
                         <hr className="border-gray-100" />
 
-                        {/* Action Buttons */}
+
                         <div className="flex gap-3 pt-2">
                             <button
                                 onClick={() => setIsUpdateModalOpen(true)}

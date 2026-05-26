@@ -1,7 +1,13 @@
 import apiClient from '../api/apiClient';
-import type { MaintenanceTicket, CreateMaintenanceTicketDto, UpdateMaintenanceTicketDto, UpdateMaintenanceTicketStatusDto } from '../types/maintenanceTicket';
+import type { AxiosRequestConfig } from 'axios';
+import type {
+    MaintenanceTicket,
+    CreateMaintenanceTicketDto,
+    UpdateMaintenanceTicketDto,
+    UpdateMaintenanceTicketStatusDto
+} from '../types/maintenanceTicket';
 
-interface GetMaintenanceTicketsParams {
+export interface GetMaintenanceTicketsParams {
     status?: number;
     unitId?: string;
     renterId?: string;
@@ -10,103 +16,65 @@ interface GetMaintenanceTicketsParams {
     toDate?: string;
 }
 
-const handleApiError = (error: unknown): string => {
-    if (error instanceof Error) {
-        return error.message;
-    }
-    return 'An unexpected error occurred';
-};
-
-export const maintenanceTicketService = {
-    // Create a new maintenance ticket
-    create: async (dto: CreateMaintenanceTicketDto): Promise<string> => {
-        try {
-            const response = await apiClient.post<string>('/maintenance-tickets', dto);
-            return response.data;
-        } catch (error) {
-            throw new Error(handleApiError(error));
-        }
+export const MaintenanceTicketService = {
+    // 1. Cleaner, shorter method names
+    getAll: async (params?: GetMaintenanceTicketsParams, config?: AxiosRequestConfig): Promise<MaintenanceTicket[]> => {
+        const response = await apiClient.get<MaintenanceTicket[]>('/maintenance-tickets', {
+            ...config,
+            params: { ...params, ...config?.params }
+        });
+        return response.data;
     },
 
-    // Get all maintenance tickets with filters
-    getAll: async (params?: GetMaintenanceTicketsParams): Promise<MaintenanceTicket[]> => {
-        try {
-            const response = await apiClient.get<MaintenanceTicket[]>('/maintenance-tickets', { params });
-            return response.data;
-        } catch (error) {
-            throw new Error(handleApiError(error));
-        }
+    getMy: async (config?: AxiosRequestConfig): Promise<MaintenanceTicket[]> => {
+        const response = await apiClient.get<MaintenanceTicket[]>('/maintenance-tickets/my', config);
+        return response.data;
     },
 
-    // Get current user's maintenance tickets
-    getMy: async (): Promise<MaintenanceTicket[]> => {
-        try {
-            const response = await apiClient.get<MaintenanceTicket[]>('/maintenance-tickets/my');
-            return response.data;
-        } catch (error) {
-            throw new Error(handleApiError(error));
-        }
+    getById: async (id: string, config?: AxiosRequestConfig): Promise<MaintenanceTicket> => {
+        const response = await apiClient.get<MaintenanceTicket>(`/maintenance-tickets/${id}`, config);
+        return response.data;
     },
 
-    // Get a single maintenance ticket by ID
-    getById: async (id: string): Promise<MaintenanceTicket> => {
-        try {
-            const response = await apiClient.get<MaintenanceTicket>(`/maintenance-tickets/${id}`);
-            return response.data;
-        } catch (error) {
-            throw new Error(handleApiError(error));
-        }
+    getRenterById: async (id: string, config?: AxiosRequestConfig): Promise<MaintenanceTicket> => {
+        const response = await apiClient.get<MaintenanceTicket>(`/maintenance-tickets/renter/${id}`, config);
+        return response.data;
     },
 
-    // Get a single renter maintenance ticket by ID
-    getRenterTicketById: async (id: string): Promise<MaintenanceTicket> => {
-        try {
-            const response = await apiClient.get<MaintenanceTicket>(`/maintenance-tickets/renter/${id}`);
-            return response.data;
-        } catch (error) {
-            throw new Error(handleApiError(error));
-        }
+    create: async (dto: CreateMaintenanceTicketDto, config?: AxiosRequestConfig): Promise<string> => {
+        // Assuming backend returns the newly created item ID or string token
+        const response = await apiClient.post<string>('/maintenance-tickets', dto, config);
+        return response.data;
     },
 
-    // Update a maintenance ticket
-    update: async (id: string, dto: UpdateMaintenanceTicketDto): Promise<void> => {
-        try {
-            await apiClient.put(`/maintenance-tickets/${id}`, dto);
-        } catch (error) {
-            throw new Error(handleApiError(error));
-        }
+    update: async (id: string, dto: UpdateMaintenanceTicketDto, config?: AxiosRequestConfig): Promise<void> => {
+        await apiClient.put(`/maintenance-tickets/${id}`, dto, config);
     },
 
-    // Cancel a maintenance ticket
-    cancel: async (id: string): Promise<void> => {
-        try {
-            await apiClient.put(`/maintenance-tickets/${id}/cancel`);
-        } catch (error) {
-            throw new Error(handleApiError(error));
-        }
+    updateStatus: async (dto: UpdateMaintenanceTicketStatusDto, config?: AxiosRequestConfig): Promise<void> => {
+        await apiClient.patch('/maintenance-tickets/status', dto, config);
     },
 
-    // Update maintenance ticket status
-    updateStatus: async (dto: UpdateMaintenanceTicketStatusDto): Promise<void> => {
-        try {
-            await apiClient.patch('/maintenance-tickets/status', dto);
-        } catch (error) {
-            throw new Error(handleApiError(error));
-        }
+    cancel: async (id: string, config?: AxiosRequestConfig): Promise<void> => {
+        await apiClient.put(`/maintenance-tickets/${id}/cancel`, {}, config);
     },
 
-    // Upload image to a maintenance ticket
-    uploadImage: async (ticketId: string, imageFile: File): Promise<void> => {
-        try {
-            const formData = new FormData();
-            formData.append('image', imageFile);
-            await apiClient.post(`/maintenance-tickets/${ticketId}/images`, formData, {
+    uploadImage: async (ticketId: string, imageFile: File, config?: AxiosRequestConfig): Promise<{ url: string }> => {
+        const formData = new FormData();
+        // Match the key name your backend expects ('image' vs 'file')
+        formData.append('image', imageFile);
+
+        const response = await apiClient.post<{ url: string }>(
+            `/maintenance-tickets/${ticketId}/images`,
+            formData,
+            {
+                ...config,
                 headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
-        } catch (error) {
-            throw new Error(handleApiError(error));
-        }
+                    ...config?.headers,
+                    'Content-Type': 'multipart/form-data',
+                },
+            }
+        );
+        return response.data;
     }
 };

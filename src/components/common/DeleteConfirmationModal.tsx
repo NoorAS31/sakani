@@ -5,11 +5,26 @@ interface DeleteModalProps {
     onClose: () => void;
     onConfirm: () => void;
     title: string;
+    description?: string;
+    confirmText?: string;
+    cancelText?: string;
     isSubmitting?: boolean;
 }
 
-const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, title, isSubmitting }: DeleteModalProps) => {
+const DeleteConfirmationModal = ({ 
+    isOpen, 
+    onClose, 
+    onConfirm, 
+    title, 
+    description,
+    confirmText = 'Delete Now',
+    cancelText = 'Cancel',
+    isSubmitting 
+}: DeleteModalProps) => {
     if (!isOpen) return null;
+
+    const defaultDescription = `Are you sure you want to delete <span class="font-semibold text-gray-800">"${title}"</span>?
+                        This action cannot be undone and may affect associated units.`;
 
     return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
@@ -24,10 +39,9 @@ const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, title, isSubmitti
                         </button>
                     </div>
 
-                    <h2 className="text-xl font-bold text-gray-900 mb-2">Delete Property</h2>
+                    <h2 className="text-xl font-bold text-gray-900 mb-2">{title}</h2>
                     <p className="text-gray-500 text-sm leading-relaxed">
-                        Are you sure you want to delete <span className="font-semibold text-gray-800">"{title}"</span>?
-                        This action cannot be undone and may affect associated units.
+                        {description ? description : <span dangerouslySetInnerHTML={{ __html: defaultDescription }} />}
                     </p>
                 </div>
 
@@ -36,14 +50,14 @@ const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, title, isSubmitti
                         onClick={onClose}
                         className="flex-1 py-2.5 border rounded-xl font-bold text-gray-600 hover:bg-white transition-all"
                     >
-                        Cancel
+                        {cancelText}
                     </button>
                     <button
                         onClick={onConfirm}
                         disabled={isSubmitting}
                         className="flex-1 py-2.5 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 disabled:opacity-50 transition-all shadow-lg shadow-red-100"
                     >
-                        {isSubmitting ? "Deleting..." : "Delete Now"}
+                        {isSubmitting ? `${confirmText.replace(' Now', '')}...` : confirmText}
                     </button>
                 </div>
             </div>

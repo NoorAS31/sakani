@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, AlertCircle, Clock, CheckCircle2, AlertTriangle, ImageIcon, ArrowRight, Filter, Search } from 'lucide-react';
 import { usePageTitle } from '../../hooks/usePageTitle';
-import { maintenanceTicketService } from '../../services/maintenanceTicketService';
+import { MaintenanceTicketService } from '../../services/maintenanceTicketService';
 import { unitService } from '../../services/unitService';
 import { storage } from '../../utils/storage';
 import type { MaintenanceTicket, MaintenanceTicketStatusType } from '../../types/maintenanceTicket';
@@ -28,7 +28,7 @@ const MaintenanceTicketsPage = () => {
             setLoading(true);
             const [unitData, ticketData] = await Promise.all([
                 unitService.getAll(),
-                maintenanceTicketService.getAll()
+                MaintenanceTicketService.getAll()
             ]);
             setUnits(unitData);
             setTickets(ticketData);

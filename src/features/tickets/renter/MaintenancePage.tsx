@@ -1,11 +1,12 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Wrench, Search, Filter, Clock, CheckCircle2, AlertCircle, AlertTriangle, ArrowRight } from 'lucide-react';
+import { Plus, Wrench, Search, Filter, Clock, CheckCircle2, AlertCircle, AlertTriangle, ArrowRight, X } from 'lucide-react';
 import { usePageTitle } from '../../../hooks/usePageTitle';
 import { maintenanceTicketService } from '../../../services/maintenanceTicketService';
 import type { MaintenanceTicket, MaintenanceTicketStatusType } from '../../../types/maintenanceTicket';
 import { MaintenanceTicketStatus } from '../../../types/maintenanceTicket';
 import CreateTicketModal from './CreateTicketModal';
+import DeleteConfirmationModal from '../../../components/common/DeleteConfirmationModal';
 
 
 const MaintenancePage = () => {
@@ -16,6 +17,8 @@ const MaintenancePage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState<number | null>(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [closeTicketModal, setCloseTicketModal] = useState<{ isOpen: boolean; ticketId: string | null }>({ isOpen: false, ticketId: null });
+    const [isClosing, setIsClosing] = useState(false);
 
     const loadTickets = useCallback(async () => {
         try {
@@ -37,6 +40,21 @@ const MaintenancePage = () => {
     const handleCreateSuccess = () => {
         setIsCreateModalOpen(false);
         loadTickets();
+    };
+
+    const handleCloseTicket = async () => {
+        if (!closeTicketModal.ticketId) return;
+        
+        setIsClosing(true);
+        try {
+            await maintenanceTicketService.cancel(closeTicketModal.ticketId);
+            setCloseTicketModal({ isOpen: false, ticketId: null });
+            await loadTickets();
+        } catch (err) {
+            console.error('Failed to close ticket:', err);
+        } finally {
+            setIsClosing(false);
+        }
     };
 
     const getStatusConfig = (status: MaintenanceTicketStatusType | string | number) => {
@@ -99,13 +117,6 @@ const MaintenancePage = () => {
             day: 'numeric',
         });
 
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center h-[60vh]">
-                <Wrench className="animate-spin text-gray-400" size={48} />
-            </div>
-        );
-    }
 
     return (
         <div className="p-6 space-y-6">
@@ -151,7 +162,11 @@ const MaintenancePage = () => {
                 </div>
             </div>
 
-            {filteredTickets.length === 0 ? (
+            {loading ? (
+                    <div className="flex justify-center items-center h-[60vh]">
+                        <Wrench className="animate-spin text-gray-400" size={48} />
+                    </div>
+                ) :filteredTickets.length === 0 ? (
                 <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center dark:bg-gray-900 dark:border-gray-800">
                     <div className="mx-auto w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 mb-4 dark:bg-gray-800">
                         <Wrench size={22} />
@@ -169,11 +184,10 @@ const MaintenancePage = () => {
                         return (
                             <div
                                 key={ticket.id}
-                                onClick={() => navigate(`/maintenance-ticket/${ticket.id}`)}
-                                className="group bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg transition-all duration-300 cursor-pointer dark:bg-gray-800 dark:border-gray-700"
+                                className="group bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg transition-all duration-300 dark:bg-gray-800 dark:border-gray-700"
                             >
                                 <div className="flex items-start justify-between gap-4 mb-3">
-                                    <div className="flex-1">
+                                    <div className="flex-1 cursor-pointer" onClick={() => navigate(`/maintenance-ticket/${ticket.id}`)}>
                                         <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors dark:text-white">{ticket.subject}</h3>
                                         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">{ticket.description}</p>
                                     </div>
@@ -197,9 +211,22 @@ const MaintenancePage = () => {
                                     )}
                                 </div>
 
-                                <div className="mt-4 flex items-center text-blue-600 font-semibold text-sm group-hover:gap-2 transition-all dark:text-blue-400">
-                                    View Details
-                                    <ArrowRight size={16} className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <div className="mt-4 flex items-center justify-between">
+                                    <div className="flex items-center text-blue-600 font-semibold text-sm group-hover:gap-2 transition-all dark:text-blue-400 cursor-pointer" onClick={() => navigate(`/maintenance-ticket/${ticket.id}`)}>
+                                        View Details
+                                        <ArrowRight size={16} className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    </div>
+                                    {Number(ticket.status) === MaintenanceTicketStatus.Open && (
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setCloseTicketModal({ isOpen: true, ticketId: ticket.id });
+                                            }}
+                                            className="px-3 py-1.5 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-lg transition-colors dark:text-red-400 dark:hover:bg-red-900/20"
+                                        >
+                                            Close Ticket
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         );
@@ -214,8 +241,18 @@ const MaintenancePage = () => {
                     onSuccess={handleCreateSuccess}
                 />
             )}
+
+            <DeleteConfirmationModal
+                isOpen={closeTicketModal.isOpen}
+                onClose={() => setCloseTicketModal({ isOpen: false, ticketId: null })}
+                onConfirm={handleCloseTicket}
+                title="Close Maintenance Ticket"
+                description="Are you sure you want to close this maintenance ticket? This action cannot be undone."
+                confirmText="Close Ticket"
+                cancelText="Cancel"
+                isSubmitting={isClosing}
+            />
         </div>
     );
 };
-
 export default MaintenancePage;

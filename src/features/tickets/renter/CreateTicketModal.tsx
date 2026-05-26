@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Loader2, X } from 'lucide-react';
-import { maintenanceService } from '../../../services/maintenanceService.ts';
+import { MaintenanceTicketService } from '../../../services/maintenanceTicketService.ts';
+import { contractService } from '../../../services/contractService.ts';
+import type { MyContractDetailsDto } from '../../../types/contract.ts';
 
 interface CreateTicketModalProps {
     isOpen: boolean;
@@ -11,14 +13,18 @@ interface CreateTicketModalProps {
 const CreateTicketModal = ({ isOpen, onClose, onSuccess }: CreateTicketModalProps) => {
     const [subject, setSubject] = useState('');
     const [description, setDescription] = useState('');
+    const [unitId, setUnitId] = useState('');
     const [files, setFiles] = useState<File[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [uploadStatus, setUploadStatus] = useState('');
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [activeContracts, setActiveContracts] = useState<MyContractDetailsDto | null>(null);
+    const [loadingContracts, setLoadingContracts] = useState(false);
 
     const resetForm = () => {
         setSubject('');
         setDescription('');
+        setUnitId('');
         setFiles([]);
         setIsSubmitting(false);
         setUploadStatus('');
@@ -32,7 +38,22 @@ const CreateTicketModal = ({ isOpen, onClose, onSuccess }: CreateTicketModalProp
         }
 
         resetForm();
+        loadActiveContracts();
     }, [isOpen]);
+
+    const loadActiveContracts = async () => {
+        try {
+            setLoadingContracts(true);
+            const contract = await contractService.getMyActiveContract();
+            setActiveContracts(contract);
+            setUnitId(contract.contractId);
+        } catch (err) {
+            console.error('Failed to load active contracts:', err);
+            setActiveContracts(null);
+        } finally {
+            setLoadingContracts(false);
+        }
+    };
 
     if (!isOpen) {
         return null;
@@ -45,7 +66,8 @@ const CreateTicketModal = ({ isOpen, onClose, onSuccess }: CreateTicketModalProp
         setUploadStatus('Submitting ticket...');
 
         try {
-            const response = await maintenanceService.createTicket({
+            const response = await MaintenanceTicketService.create({
+                unitId: unitId,
                 subject: subject.trim(),
                 description: description.trim()
             });
@@ -57,12 +79,11 @@ const CreateTicketModal = ({ isOpen, onClose, onSuccess }: CreateTicketModalProp
 
             let uploadFailed = false;
 
-            // رفع الملفات بالتوازي باستخدام Promise.all لسرعة وكفاءة أعلى
             if (files.length > 0) {
                 setUploadStatus(`Uploading ${files.length} image(s)...`);
                 try {
                     const uploadPromises = files.map((file) =>
-                        maintenanceService.uploadTicketImage(ticketId, file)
+                        MaintenanceTicketService.uploadImage(ticketId, file)
                     );
                     await Promise.all(uploadPromises);
                 } catch (uploadError) {
@@ -120,6 +141,8 @@ const CreateTicketModal = ({ isOpen, onClose, onSuccess }: CreateTicketModalProp
         setFiles((prev) => prev.filter((_, index) => index !== indexToRemove));
     };
 
+    const hasUnits = activeContracts !== null;
+
     return (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
             <div className="w-full max-w-xl bg-white rounded-2xl border border-gray-200 shadow-xl">
@@ -138,120 +161,149 @@ const CreateTicketModal = ({ isOpen, onClose, onSuccess }: CreateTicketModalProp
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
-                    {errorMessage && (
-                        <div className="rounded-xl bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-600">
-                            {errorMessage}
-                        </div>
-                    )}
-
-                    <div className="space-y-2">
-                        <label className="text-xs font-semibold text-gray-600" htmlFor="ticket-subject">
-                            Subject
-                        </label>
-                        <input
-                            id="ticket-subject"
-                            type="text"
-                            maxLength={100}
-                            required
-                            value={subject}
-                            onChange={(event) => setSubject(event.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                            placeholder="e.g., AC not cooling"
-                            disabled={isSubmitting}
-                        />
-                        <p className="text-[11px] text-gray-400">Max 100 characters.</p>
+                {!hasUnits && !loadingContracts && (
+                    <div className="rounded-2xl border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-600 m-6">
+                        <p className="font-semibold">No active rental unit</p>
+                        <p className="text-xs mt-1">You don't have any active rental contracts. Please contact support to create a maintenance request.</p>
                     </div>
+                )}
 
-                    <div className="space-y-2">
-                        <label className="text-xs font-semibold text-gray-600" htmlFor="ticket-description">
-                            Description
-                        </label>
-                        <textarea
-                            id="ticket-description"
-                            required
-                            rows={4}
-                            value={description}
-                            onChange={(event) => setDescription(event.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                            placeholder="Share the details of the issue..."
-                            disabled={isSubmitting}
-                        />
+                {loadingContracts ? (
+                    <div className="flex items-center justify-center py-12">
+                        <Loader2 size={24} className="animate-spin text-gray-400" />
                     </div>
-
-                    <div className="space-y-2">
-                        <label className="text-xs font-semibold text-gray-600" htmlFor="ticket-images">
-                            Attach Images (optional)
-                        </label>
-                        <div className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-gray-200 px-3 py-3 text-sm text-gray-500">
-                            <span>Select JPG/PNG images (max 5MB each)</span>
-                            <label
-                                className="inline-flex items-center justify-center rounded-lg bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-200 cursor-pointer"
-                                htmlFor="ticket-images"
-                            >
-                                Browse
-                            </label>
-                        </div>
-                        <input
-                            id="ticket-images"
-                            type="file"
-                            accept=".jpg,.jpeg,.png"
-                            multiple
-                            onChange={handleFileChange}
-                            className="hidden"
-                            disabled={isSubmitting}
-                        />
-                    </div>
-
-                    {files.length > 0 && (
-                        <div className="space-y-2">
-                            <p className="text-xs font-semibold text-gray-600">Selected Images</p>
-                            <div className="space-y-2">
-                                {files.map((file, index) => (
-                                    <div
-                                        key={`${file.name}-${index}`}
-                                        className="flex items-center justify-between rounded-lg border border-gray-200 px-3 py-2 text-xs text-gray-600"
-                                    >
-                                        <span className="truncate">{file.name}</span>
-                                        <button
-                                            type="button"
-                                            onClick={() => removeFile(index)}
-                                            className="text-gray-400 hover:text-gray-700"
-                                            aria-label="Remove file"
-                                        >
-                                            <X size={14} />
-                                        </button>
-                                    </div>
-                                ))}
+                ) : (
+                    <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+                        {errorMessage && (
+                            <div className="rounded-xl bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-600">
+                                {errorMessage}
                             </div>
-                        </div>
-                    )}
+                        )}
 
-                    <div className="flex items-center justify-end gap-2 pt-2">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="px-4 py-2 text-sm font-semibold text-gray-600 hover:text-gray-800"
-                            disabled={isSubmitting}
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition-colors disabled:opacity-60"
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? (
-                                <>
-                                    <Loader2 size={16} className="animate-spin" />
-                                    {uploadStatus || 'Submitting...'}
-                                </>
-                            ) : (
-                                'Submit Request'
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-gray-600" htmlFor="ticket-unit">
+                                Unit
+                            </label>
+                            {hasUnits && activeContracts && (
+                                <div className="rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900 bg-gray-50">
+                                    {activeContracts.unitNo}
+                                </div>
                             )}
-                        </button>
-                    </div>
-                </form>
+                            {!hasUnits && (
+                                <div className="rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-500 bg-gray-50">
+                                    No units available
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-gray-600" htmlFor="ticket-subject">
+                                Subject
+                            </label>
+                            <input
+                                id="ticket-subject"
+                                type="text"
+                                maxLength={100}
+                                required
+                                value={subject}
+                                onChange={(event) => setSubject(event.target.value)}
+                                className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                placeholder="e.g., AC not cooling"
+                                disabled={isSubmitting || !hasUnits}
+                            />
+                            <p className="text-[11px] text-gray-400">Max 100 characters.</p>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-gray-600" htmlFor="ticket-description">
+                                Description
+                            </label>
+                            <textarea
+                                id="ticket-description"
+                                required
+                                rows={4}
+                                value={description}
+                                onChange={(event) => setDescription(event.target.value)}
+                                className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                placeholder="Share the details of the issue..."
+                                disabled={isSubmitting || !hasUnits}
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-gray-600" htmlFor="ticket-images">
+                                Attach Images (optional)
+                            </label>
+                            <div className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-gray-200 px-3 py-3 text-sm text-gray-500">
+                                <span>Select JPG/PNG images (max 1MB each)</span>
+                                <label
+                                    className="inline-flex items-center justify-center rounded-lg bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-200 cursor-pointer"
+                                    htmlFor="ticket-images"
+                                >
+                                    Browse
+                                </label>
+                            </div>
+                            <input
+                                id="ticket-images"
+                                type="file"
+                                accept=".jpg,.jpeg,.png"
+                                multiple
+                                onChange={handleFileChange}
+                                className="hidden"
+                                disabled={isSubmitting || !hasUnits}
+                            />
+                        </div>
+
+                        {files.length > 0 && (
+                            <div className="space-y-2">
+                                <p className="text-xs font-semibold text-gray-600">Selected Images</p>
+                                <div className="space-y-2">
+                                    {files.map((file, index) => (
+                                        <div
+                                            key={`${file.name}-${index}`}
+                                            className="flex items-center justify-between rounded-lg border border-gray-200 px-3 py-2 text-xs text-gray-600"
+                                        >
+                                            <span className="truncate">{file.name}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => removeFile(index)}
+                                                className="text-gray-400 hover:text-gray-700"
+                                                aria-label="Remove file"
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="flex items-center justify-end gap-2 pt-2">
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="px-4 py-2 text-sm font-semibold text-gray-600 hover:text-gray-800"
+                                disabled={isSubmitting}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                className="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-700 transition-colors disabled:opacity-60"
+                                disabled={isSubmitting || !hasUnits}
+                            >
+                                {isSubmitting ? (
+                                    <>
+                                        <Loader2 size={16} className="animate-spin" />
+                                        {uploadStatus || 'Submitting...'}
+                                    </>
+                                ) : (
+                                    'Submit Request'
+                                )}
+                            </button>
+                        </div>
+                    </form>
+                )}
             </div>
         </div>
     );

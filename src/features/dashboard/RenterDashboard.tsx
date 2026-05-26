@@ -3,18 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import DashboardCard from '../../components/dashboard/DashboardCard.tsx';
 import { accountingService } from '../../services/accountingService.ts';
 import { contractService } from '../../services/contractService.ts';
-import { maintenanceService } from '../../services/maintenanceService.ts';
+import { MaintenanceTicketService } from '../../services/maintenanceTicketService.ts';
 import { usePageTitle } from '../../hooks/usePageTitle.ts';
 import type { PaymentHistoryResponseDto } from '../../types/accounting.ts';
 import type { MyContractDetailsDto } from '../../types/contract.ts';
-import type { TicketResponseDto } from '../../types/maintenance.ts';
+import type { MaintenanceTicket } from '../../types/maintenanceTicket.ts';
 
 const RenterDashboard = () => {
     usePageTitle('Dashboard');
     const navigate = useNavigate();
     const [contract, setContract] = useState<MyContractDetailsDto | null>(null);
     const [nextPayment, setNextPayment] = useState<PaymentHistoryResponseDto | null>(null);
-    const [requests, setRequests] = useState<TicketResponseDto[]>([]);
+    const [requests, setRequests] = useState<MaintenanceTicket[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     const openCount = requests.filter((request) => Number(request.status) === 1 || Number(request.status) === 2).length;
@@ -56,8 +56,8 @@ const RenterDashboard = () => {
                     return [];
                 });
 
-            const requestsPromise = maintenanceService
-                .getMyTickets({ signal: controller.signal })
+            const requestsPromise = MaintenanceTicketService
+                .getMy({ signal: controller.signal })
                 .catch((error) => {
                     if (controller.signal.aborted || isCanceled(error)) return [];
                     if (isNotFound(error)) return [];
