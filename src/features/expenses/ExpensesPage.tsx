@@ -156,117 +156,117 @@ const ExpensesPage = () => {
     }
 
     return (
-        <div className="p-6 flex flex-row gap-6 relative min-h-screen">
-            <div className={`transition-all duration-300 ${isCreateCardOpen ? 'w-8/12' : 'w-full'} space-y-6`}>
-                <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="p-4 sm:p-6 flex flex-col lg:flex-row gap-4 sm:gap-6 relative min-h-screen page-fade-in">
+            <div className={`transition-all duration-300 ${isCreateCardOpen ? 'lg:w-8/12' : 'w-full'} space-y-4 sm:space-y-6 card-fade-in-1`}>
+                <div className="flex flex-col sm:flex-row flex-wrap items-start justify-between gap-2 sm:gap-3">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-800">Expenses</h1>
-                        <p className="text-sm text-gray-500">Track and manage property expenses</p>
+                        <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Expenses</h1>
+                        <p className="text-xs sm:text-sm text-gray-500">Track and manage property expenses</p>
                     </div>
 
-                    <div className="flex gap-2">
+                    <div className="flex gap-1.5 sm:gap-2 w-full sm:w-auto">
                         <button
                             type="button"
                             onClick={() => setIsFilterOpen(true)}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-300 bg-white text-gray-700 text-sm font-semibold hover:bg-gray-50"
+                            className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl border border-gray-300 bg-white text-gray-700 text-xs sm:text-sm font-semibold hover:bg-gray-50"
                         >
-                            <Filter size={16} />
-                            Filters
+                            <Filter size={14} />
+                            <span className="hidden sm:inline">Filters</span>
                         </button>
                         <button
                             type="button"
                             onClick={() => setIsCreateCardOpen(true)}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm font-semibold hover:bg-gray-50"
+                            className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl border border-gray-200 bg-white text-gray-700 text-xs sm:text-sm font-semibold hover:bg-gray-50"
                         >
-                            <Plus size={16} />
-                            Create New Expense
+                            <Plus size={14} />
+                            <span className="hidden sm:inline">Create New</span>
                         </button>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div className="bg-white rounded-xl border border-gray-200 p-4">
-                        <p className="text-xs uppercase tracking-wide text-gray-400 font-semibold">Total Expenses</p>
-                        <p className="text-2xl font-bold text-gray-900 mt-1">${totalAmount.toLocaleString()}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 card-fade-in-2">
+                    <div className="bg-white rounded-xl border border-gray-200 p-3 sm:p-4">
+                        <p className="text-[9px] sm:text-xs uppercase tracking-wide text-gray-400 font-semibold">Total Expenses</p>
+                        <p className="text-xl sm:text-2xl font-bold text-gray-900 mt-1">${totalAmount.toLocaleString()}</p>
                     </div>
-                    <div className="bg-white rounded-xl border border-gray-200 p-4">
-                        <p className="text-xs uppercase tracking-wide text-gray-400 font-semibold">Top Category</p>
-                        <p className="text-xl font-bold text-gray-900 mt-1">{topExpenseType}</p>
+                    <div className="bg-white rounded-xl border border-gray-200 p-3 sm:p-4">
+                        <p className="text-[9px] sm:text-xs uppercase tracking-wide text-gray-400 font-semibold">Top Category</p>
+                        <p className="text-base sm:text-lg font-bold text-gray-900 mt-1 truncate">{topExpenseType}</p>
                     </div>
-                    <div className="bg-white rounded-xl border border-gray-200 p-4">
-                        <p className="text-xs uppercase tracking-wide text-gray-400 font-semibold">Last Activity</p>
-                        <p className="text-sm font-semibold text-gray-900 mt-1">
+                    <div className="bg-white rounded-xl border border-gray-200 p-3 sm:p-4">
+                        <p className="text-[9px] sm:text-xs uppercase tracking-wide text-gray-400 font-semibold">Last Activity</p>
+                        <p className="text-xs sm:text-sm font-semibold text-gray-900 mt-1">
                             {latestExpense ? new Date(latestExpense.expenseDate).toLocaleDateString() : '-'}
                         </p>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-[9px] sm:text-xs text-gray-500 mt-1">
                             {latestExpense ? getExpenseTypeConfig(latestExpense.expenseType).label : 'No expenses yet'}
                         </p>
                     </div>
                 </div>
 
-                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden card-fade-in-3">
                     {loading ? (
-                        <div className="p-8 text-center text-gray-500 flex justify-center">
-                            <Loader2 className="animate-spin" />
+                        <div className="p-6 sm:p-8 text-center text-gray-500 flex justify-center">
+                            <Loader2 className="animate-spin" size={24} />
                         </div>
                     ) : filteredExpenses.length === 0 ? (
-                        <div className="p-10 text-center text-gray-400">
-                            <ReceiptText className="mx-auto mb-3" size={36} />
+                        <div className="p-8 sm:p-10 text-center text-gray-400">
+                            <ReceiptText className="mx-auto mb-2 sm:mb-3" size={32} />
                             {hasActiveFilters ? 'No expenses match the selected filters' : 'No expenses found'}
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
-                            <table className="w-full text-sm">
+                            <table className="w-full text-xs sm:text-sm">
                                 <thead className="bg-gray-50 text-gray-600">
                                     <tr>
-                                        <th className="text-left px-4 py-3">Date</th>
-                                        <th className="text-left px-4 py-3">Property</th>
-                                        <th className="text-left px-4 py-3">Unit</th>
-                                        <th className="text-left px-4 py-3">Type</th>
-                                        <th className="text-left px-4 py-3">Description</th>
-                                        <th className="text-right px-4 py-3">Amount</th>
-                                        <th className="text-right px-4 py-3">Action</th>
+                                        <th className="text-left px-2 sm:px-4 py-2 sm:py-3">Date</th>
+                                        <th className="text-left px-2 sm:px-4 py-2 sm:py-3 hidden md:table-cell">Property</th>
+                                        <th className="text-left px-2 sm:px-4 py-2 sm:py-3 hidden lg:table-cell">Unit</th>
+                                        <th className="text-left px-2 sm:px-4 py-2 sm:py-3">Type</th>
+                                        <th className="text-left px-2 sm:px-4 py-2 sm:py-3 hidden sm:table-cell">Description</th>
+                                        <th className="text-right px-2 sm:px-4 py-2 sm:py-3">Amount</th>
+                                        <th className="text-right px-2 sm:px-4 py-2 sm:py-3">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {filteredExpenses.map(expense => (
-                                        <tr key={expense.expenseID} className="border-t border-gray-100">
-                                            <td className="px-4 py-3 text-gray-700">
+                                        <tr key={expense.expenseID} className="border-t border-gray-100 text-xs sm:text-sm">
+                                            <td className="px-2 sm:px-4 py-2 sm:py-3 text-gray-700 whitespace-nowrap">
                                                 {new Date(expense.expenseDate).toLocaleDateString()}
                                             </td>
-                                            <td className="px-4 py-3 text-gray-700">
+                                            <td className="px-2 sm:px-4 py-2 sm:py-3 text-gray-700 hidden md:table-cell truncate">
                                                 {propertyNameById[expense.propertyId] ?? expense.propertyId}
                                             </td>
-                                            <td className="px-4 py-3 text-gray-700">
+                                            <td className="px-2 sm:px-4 py-2 sm:py-3 text-gray-700 hidden lg:table-cell truncate">
                                                 {expense.unitId ? (unitNameById[expense.unitId] ?? expense.unitId) : '-'}
                                             </td>
-                                            <td className="px-4 py-3">
-                                                <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${getExpenseTypeConfig(expense.expenseType).color}`}>
+                                            <td className="px-2 sm:px-4 py-2 sm:py-3">
+                                                <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[9px] sm:text-xs font-semibold whitespace-nowrap ${getExpenseTypeConfig(expense.expenseType).color}`}>
                                                     {getExpenseTypeConfig(expense.expenseType).label}
                                                 </span>
                                             </td>
-                                            <td className="px-4 py-3 text-gray-700">{expense.description || '-'}</td>
-                                            <td className="px-4 py-3 text-right font-semibold text-gray-900">
+                                            <td className="px-2 sm:px-4 py-2 sm:py-3 text-gray-700 hidden sm:table-cell truncate">{expense.description || '-'}</td>
+                                            <td className="px-2 sm:px-4 py-2 sm:py-3 text-right font-semibold text-gray-900 whitespace-nowrap">
                                                 ${expense.amount.toLocaleString()}
                                             </td>
-                                            <td className="px-4 py-3 text-right">
-                                                <div className="flex gap-2 justify-end">
+                                            <td className="px-2 sm:px-4 py-2 sm:py-3 text-right">
+                                                <div className="flex gap-1 sm:gap-2 justify-end">
                                                     <button
                                                         type="button"
                                                         onClick={() => setSelectedExpenseForEdit(expense)}
-                                                        className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700"
+                                                        className="inline-flex items-center gap-0.5 sm:gap-1 text-blue-600 hover:text-blue-700 text-[11px] sm:text-sm"
                                                     >
-                                                        <Edit3 size={14} />
-                                                        Edit
+                                                        <Edit3 size={12} />
+                                                        <span className="hidden sm:inline">Edit</span>
                                                     </button>
                                                     <button
                                                         type="button"
                                                         onClick={() => handleDeleteExpense(expense.expenseID)}
                                                         disabled={deletingId === expense.expenseID}
-                                                        className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 disabled:opacity-50"
+                                                        className="inline-flex items-center gap-0.5 sm:gap-1 text-red-600 hover:text-red-700 disabled:opacity-50 text-[11px] sm:text-sm"
                                                     >
-                                                        <Trash2 size={14} />
-                                                        Delete
+                                                        <Trash2 size={12} />
+                                                        <span className="hidden sm:inline">Delete</span>
                                                     </button>
                                                 </div>
                                             </td>

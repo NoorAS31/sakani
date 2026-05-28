@@ -88,70 +88,70 @@ const MyContractPage = () => {
 
     if (!contract) {
         return (
-            <div className="p-6">
-                <div className="bg-white rounded-2xl border border-gray-200 p-10 text-center">
+            <div className="p-4 sm:p-6 page-fade-in">
+                <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-10 text-center">
                     <div className="mx-auto w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-4">
                         <FileText size={22} />
                     </div>
-                    <h2 className="text-lg font-bold text-gray-800">No active contract found</h2>
-                    <p className="text-sm text-gray-500 mt-1">No active contract found for your account.</p>
+                    <h2 className="text-base sm:text-lg font-bold text-gray-800">No active contract found</h2>
+                    <p className="text-xs sm:text-sm text-gray-500 mt-1">No active contract found for your account.</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="p-6 space-y-6">
-            <header className="flex flex-col gap-2">
-                <h1 className="text-2xl font-bold text-gray-800">My Contract</h1>
-                <p className="text-sm text-gray-500">View your current rental agreement details.</p>
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 page-fade-in">
+            <header className="flex flex-col gap-1 sm:gap-2 card-fade-in-1">
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-800">My Contract</h1>
+                <p className="text-xs sm:text-sm text-gray-500">View your current rental agreement details.</p>
             </header>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                                <Home size={20} />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 card-fade-in-2">
+                <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6">
+                    <div className="flex items-center justify-between mb-3 sm:mb-4">
+                        <div className="flex items-center gap-2 sm:gap-3">
+                            <div className="w-8 sm:w-10 h-8 sm:h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                                <Home size={18} />
                             </div>
                             <div>
-                                <p className="text-xs text-gray-400 uppercase tracking-wide">Property Details</p>
-                                <h2 className="text-lg font-bold text-gray-800">{contract.propertyName}</h2>
+                                <p className="text-[10px] sm:text-xs text-gray-400 uppercase tracking-wide">Property Details</p>
+                                <h2 className="text-base sm:text-lg font-bold text-gray-800">{contract.propertyName}</h2>
                             </div>
                         </div>
-                        <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${statusBadge()}`}>
+                        <span className={`text-[9px] sm:text-[11px] font-bold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full ${statusBadge()}`}>
                             {statusLabel()}
                         </span>
                     </div>
-                    <div className="text-sm text-gray-500">Unit No</div>
-                    <div className="text-lg font-semibold text-gray-900">{contract.unitNo}</div>
+                    <div className="text-xs sm:text-sm text-gray-500">Unit No</div>
+                    <div className="text-base sm:text-lg font-semibold text-gray-900">{contract.unitNo}</div>
                 </div>
 
-                <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                            <DollarSign size={20} />
+                <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6">
+                    <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                        <div className="w-8 sm:w-10 h-8 sm:h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                            <DollarSign size={18} />
                         </div>
                         <div>
-                            <p className="text-xs text-gray-400 uppercase tracking-wide">Financials</p>
-                            <h2 className="text-lg font-bold text-gray-800">Rent Amount</h2>
+                            <p className="text-[10px] sm:text-xs text-gray-400 uppercase tracking-wide">Financials</p>
+                            <h2 className="text-base sm:text-lg font-bold text-gray-800">Rent Amount</h2>
                         </div>
                     </div>
-                    <div className="text-2xl font-black text-gray-900">{formatCurrency(contract.rentAmount)}</div>
-                    <p className="text-xs text-gray-400 mt-1">Per payment cycle</p>
+                    <div className="text-xl sm:text-2xl font-black text-gray-900">{formatCurrency(contract.rentAmount)}</div>
+                    <p className="text-[9px] sm:text-xs text-gray-400 mt-1">Per payment cycle</p>
                 </div>
 
-                <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-                            <Calendar size={20} />
+                <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6">
+                    <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                        <div className="w-8 sm:w-10 h-8 sm:h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                            <Calendar size={18} />
                         </div>
                         <div>
-                            <p className="text-xs text-gray-400 uppercase tracking-wide">Timeline</p>
-                            <h2 className="text-lg font-bold text-gray-800">Contract Dates</h2>
+                            <p className="text-[10px] sm:text-xs text-gray-400 uppercase tracking-wide">Timeline</p>
+                            <h2 className="text-base sm:text-lg font-bold text-gray-800">Contract Dates</h2>
                         </div>
                     </div>
-                    <div className="space-y-2 text-sm text-gray-600">
+                    <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-gray-600">
                         <div className="flex items-center justify-between">
                             <span>Start Date</span>
                             <span className="font-semibold text-gray-800">{formatDate(contract.startDate)}</span>

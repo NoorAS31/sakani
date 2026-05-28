@@ -81,69 +81,71 @@ const TenantsPage = () => {
     }
 
     return (
-        <div className="flex flex-row gap-6 relative min-h-screen">
+        <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 relative min-h-screen page-fade-in">
             {/* Main Content Area */}
-            <div className={`transition-all duration-300 ${selectedTenant ? 'w-8/12' : 'w-full'} space-y-6`}>
-                <div className="flex justify-between items-end">
+            <div className={`transition-all duration-300 ${selectedTenant ? 'lg:w-8/12' : 'w-full'} space-y-4 sm:space-y-6 card-fade-in-1`}>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-800">Tenants Directory</h1>
-                        <p className="text-sm text-gray-500">Manage property managers and contact information</p>
+                        <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Tenants Directory</h1>
+                        <p className="text-xs sm:text-sm text-gray-500">Manage property managers and contact information</p>
                     </div>
-                    <div className="flex gap-3">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
                         <button
                             onClick={() => setIsAddUserModalOpen(true)}
                             disabled={!selectedTenant || !!selectedTenant?.userId}
-                            className="dark:bg-white dark:text-black  px-5 py-2.5 rounded-xl flex items-center gap-2 hover:bg-slate-700 transition-all shadow-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="dark:bg-white dark:text-black px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-700 transition-all shadow-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                             title={selectedTenant?.userId ? "User account already exists for this tenant" : ""}>
-                            <UserPlus size={18} /> Add Tenant account
+                            <UserPlus size={18} /> Add Account
                         </button>
                         <button
                             onClick={() => setIsModalOpen(true)}
-                            className="bg-gray-900 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 hover:bg-black transition-all shadow-sm font-semibold">
+                            className="bg-gray-900 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl flex items-center justify-center gap-2 hover:bg-black transition-all shadow-sm font-semibold text-sm">
                             <Plus size={18} /> Add Tenant
                         </button>
                     </div>
                 </div>
 
-                <div className={`grid grid-cols-1 ${selectedTenant ? 'md:grid-cols-1 lg:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-3'} gap-6`}>
-                    {tenants.map(tenant => (
+                <div className={`grid grid-cols-1 ${selectedTenant ? 'md:grid-cols-1 lg:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-3'} gap-3 sm:gap-6 card-fade-in-2`}>
+                    {tenants.map((tenant, index) => (
                         <div key={tenant.id}
                              onClick={() => setSelectedTenant(tenant)}
-                             className={`bg-white rounded-3xl transition-all border p-6 cursor-pointer relative group ${
+                             className={`bg-white rounded-3xl transition-all border p-4 sm:p-6 cursor-pointer relative group ${
                                  selectedTenant?.id === tenant.id
                                      ? 'border-gray-900 ring-2 ring-gray-900/5 shadow-md'
                                      : 'border-gray-100 hover:shadow-md'
+                             } ${
+                                index < 3 ? `card-fade-in-${index + 1}` : ''
                              }`}>
 
                             <div className="flex justify-between items-start mb-4">
-                                <div className="flex items-center gap-3">
-                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${
-                                        selectedTenant?.id === tenant.id ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-500 group-hover:bg-gray-900 group-hover:text-white'
-                                    }`}>
-                                        <span className="text-lg font-bold">{tenant.name.charAt(0).toUpperCase()}</span>
-                                    </div>
-                                    <div>
-                                        <h3 className="font-bold text-gray-900">{tenant.name}</h3>
-                                        <div className={`text-[10px] font-bold uppercase tracking-wider `}>
-                                            {tenant.status}
-                                        </div>
-                                    </div>
-                                </div>
+                               <div className="flex items-center gap-3">
+                                   <div className={`w-10 sm:w-12 h-10 sm:h-12 rounded-2xl flex items-center justify-center transition-colors ${
+                                       selectedTenant?.id === tenant.id ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-500 group-hover:bg-gray-900 group-hover:text-white'
+                                   }`}>
+                                       <span className="text-base sm:text-lg font-bold">{tenant.name.charAt(0).toUpperCase()}</span>
+                                   </div>
+                                   <div>
+                                       <h3 className="font-bold text-sm sm:text-base text-gray-900">{tenant.name}</h3>
+                                       <div className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-wider `}>
+                                           {tenant.status}
+                                       </div>
+                                   </div>
+                               </div>
                             </div>
 
                             <div className="space-y-2 mt-4">
-                                <div className="flex items-center gap-3 p-2 rounded-xl">
-                                    <Mail size={16} className="text-gray-400" />
-                                    <span className="text-sm text-gray-600">{tenant.email}</span>
-                                </div>
-                                <div className="flex items-center gap-3 p-2 rounded-xl">
-                                    <Phone size={16} className="text-gray-400" />
-                                    <span className="text-sm text-gray-600">{tenant.phoneNumber}</span>
-                                </div>
-                                <div className="flex items-center gap-3 p-2 rounded-xl">
-                                    <MapPin size={16} className="text-gray-400" />
-                                    <span className="text-sm text-gray-600">{tenant.addressCity}</span>
-                                </div>
+                               <div className="flex items-center gap-3 p-2 rounded-xl">
+                                   <Mail size={14} className="text-gray-400 flex-shrink-0" />
+                                   <span className="text-xs sm:text-sm text-gray-600 truncate">{tenant.email}</span>
+                               </div>
+                               <div className="flex items-center gap-3 p-2 rounded-xl">
+                                   <Phone size={14} className="text-gray-400 flex-shrink-0" />
+                                   <span className="text-xs sm:text-sm text-gray-600 truncate">{tenant.phoneNumber}</span>
+                               </div>
+                               <div className="flex items-center gap-3 p-2 rounded-xl">
+                                   <MapPin size={14} className="text-gray-400 flex-shrink-0" />
+                                   <span className="text-xs sm:text-sm text-gray-600 truncate">{tenant.addressCity}</span>
+                               </div>
                             </div>
                         </div>
                     ))}
@@ -152,8 +154,8 @@ const TenantsPage = () => {
 
             {/* Side Details Panel */}
             {selectedTenant && (
-                <div className="w-4/12 bg-white border border-gray-200 rounded-3xl shadow-xl overflow-hidden h-[fit-content] sticky top-8 animate-in slide-in-from-right duration-300">
-                    <div className="bg-gray-900 p-6 text-white relative">
+                <div className="w-full lg:w-4/12 bg-white border border-gray-200 rounded-3xl shadow-xl overflow-hidden h-fit sticky top-8 animate-in slide-in-from-right duration-300 card-fade-in-3">
+                    <div className="bg-gray-900 p-4 sm:p-6 text-white relative">
                         <button
                             onClick={() => setSelectedTenant(null)}
                             className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
@@ -161,19 +163,19 @@ const TenantsPage = () => {
                             <X size={20} />
                         </button>
                         <div className="flex flex-col items-center text-center mt-2">
-                            <div className="w-20 h-20 bg-white/10 rounded-3xl flex items-center justify-center mb-4 backdrop-blur-sm border border-white/20">
-                                <span className="text-3xl font-bold">{selectedTenant.name.charAt(0).toUpperCase()}</span>
+                            <div className="w-16 sm:w-20 h-16 sm:h-20 bg-white/10 rounded-3xl flex items-center justify-center mb-4 backdrop-blur-sm border border-white/20">
+                               <span className="text-2xl sm:text-3xl font-bold">{selectedTenant.name.charAt(0).toUpperCase()}</span>
                             </div>
-                            <h2 className="text-xl font-bold">{selectedTenant.name}</h2>
+                            <h2 className="text-lg sm:text-xl font-bold">{selectedTenant.name}</h2>
                             <p className="text-xs text-gray-400 font-mono">#{selectedTenant.id.split('-')[0]}</p>
                         </div>
                     </div>
 
-                    <div className="p-6 space-y-6">
+                    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
                         {/* Contact Information Group */}
                         <div className="space-y-4">
-                            <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                                <Info size={14} /> Contact Information
+                            <h3 className="text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                               <Info size={14} /> Contact Information
                             </h3>
                             <DetailItem icon={<Mail size={16}/>} label="Email Address" value={selectedTenant.email}/>
                             <DetailItem icon={<Phone size={16}/>} label="Phone Number" value={selectedTenant.phoneNumber} />
@@ -182,8 +184,8 @@ const TenantsPage = () => {
 
 
                         <div className="space-y-4">
-                            <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                                <MapPin size={14} /> Address
+                            <h3 className="text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                               <MapPin size={14} /> Address
                             </h3>
                             <DetailItem label="City" value={selectedTenant.addressCity} />
                         </div>
@@ -192,8 +194,8 @@ const TenantsPage = () => {
 
 
                         <div className="space-y-4">
-                            <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                                <Info size={14} /> Status
+                            <h3 className="text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                               <Info size={14} /> Status
                             </h3>
                             <div className="group flex items-start gap-3">
                                 <div>

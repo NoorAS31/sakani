@@ -103,43 +103,43 @@ const PaymentPageForRenter = () => {
         const StatusIcon = paymentStatus.icon;
         const canPay = payment.paymentStatus === 1 || payment.paymentStatus === 3;
 
-        return (
+        const return (
             <div key={actualPaymentId || index} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-4">
+                <div className="flex flex-col gap-3 sm:gap-4 p-4 sm:p-5 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-3 sm:gap-4">
                         <div className={`p-2 rounded-lg ${paymentStatus.color}`}>
                             <StatusIcon size={16} />
                         </div>
                         <div>
-                            <div className="font-bold text-gray-800 text-sm">
+                            <div className="font-bold text-gray-800 text-xs sm:text-sm">
                                 Payment Due {p.unitNo || p.UnitNo ? `- Unit ${p.unitNo || p.UnitNo}` : ''}
                             </div>
-                            <div className="text-xs text-gray-500 font-medium">
+                            <div className="text-[10px] sm:text-xs text-gray-500 font-medium">
                                 {formatDate(payment.dueDate)}
                             </div>
                             {payment.paymentDate && (
-                                <div className="text-[10px] text-gray-400 mt-0.5">
+                                <div className="text-[9px] sm:text-[10px] text-gray-400 mt-0.5">
                                     Paid on {formatDate(payment.paymentDate)}
                                 </div>
                             )}
                         </div>
                     </div>
 
-                    <div className="flex flex-col sm:items-end gap-3">
+                    <div className="flex flex-col sm:items-end gap-2 sm:gap-3">
                         <div className="text-right">
-                            <p className="text-sm font-bold text-gray-900">{formatCurrency(payment.amount)}</p>
-                            <p className="text-[10px] text-gray-400">Amount</p>
+                            <p className="text-xs sm:text-sm font-bold text-gray-900">{formatCurrency(payment.amount)}</p>
+                            <p className="text-[9px] sm:text-[10px] text-gray-400">Amount</p>
                         </div>
 
-                        <div className="flex items-center gap-3">
-                            <span className={`px-2 py-1 rounded text-[10px] font-black ${paymentStatus.color}`}>
+                        <div className="flex items-center gap-2 sm:gap-3">
+                            <span className={`px-2 py-0.5 sm:py-1 rounded text-[9px] sm:text-[10px] font-black ${paymentStatus.color}`}>
                                 {paymentStatus.label}
                             </span>
                             {canPay && (
                                 <button
                                     type="button"
                                     onClick={() => openPaymentModal(actualPaymentId)}
-                                    className="px-3 py-2 text-xs font-bold rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                                    className="px-2 sm:px-3 py-1.5 sm:py-2 text-[10px] sm:text-xs font-bold rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
                                 >
                                     Pay Now
                                 </button>
@@ -152,23 +152,23 @@ const PaymentPageForRenter = () => {
     };
 
     return (
-        <div className="p-6 space-y-6">
-            <div>
-                <h1 className="text-2xl font-bold text-gray-800">My Payments</h1>
-                <p className="text-sm text-gray-500 mt-1">Review and pay your upcoming rent installments</p>
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 page-fade-in">
+            <div className="card-fade-in-1">
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-800">My Payments</h1>
+                <p className="text-xs sm:text-sm text-gray-500 mt-1">Review and pay your upcoming rent installments</p>
             </div>
 
             {sortedPayments.length === 0 ? (
-                <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
+                <div className="bg-white rounded-xl border border-gray-200 p-6 sm:p-12 text-center card-fade-in-2">
                     <CreditCard size={48} className="text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500">No payments found</p>
+                    <p className="text-sm text-gray-500">No payments found</p>
                 </div>
             ) : (
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6 card-fade-in-2">
                     {/* Overdue + Pending */}
                     {unpaidPayments.length > 0 && (
-                        <div className="space-y-3">
-                            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                        <div className="space-y-2 sm:space-y-3">
+                            <p className="text-[10px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wide">
                                 Outstanding ({unpaidPayments.length})
                             </p>
                             {unpaidPayments.map((payment, index) => renderPayment(payment, index))}
@@ -177,8 +177,8 @@ const PaymentPageForRenter = () => {
 
                     {/* Paid */}
                     {paidPayments.length > 0 && (
-                        <div className="space-y-3">
-                            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                        <div className="space-y-2 sm:space-y-3">
+                            <p className="text-[10px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wide">
                                 Paid ({paidPayments.length})
                             </p>
                             {paidPayments.map((payment, index) => renderPayment(payment, index))}

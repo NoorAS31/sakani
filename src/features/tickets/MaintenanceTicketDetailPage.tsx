@@ -215,15 +215,19 @@ const MaintenanceTicketDetailPage = ({ canEdit = true, isRenter = false, onClose
                     )}
 
                     {!loading && ticket && (
-                        <div className="space-y-6">
-                            <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-4">
+                        <div className="space-y-4 sm:space-y-6">
+                            <div className={`bg-white rounded-2xl border border-gray-200 p-4 sm:p-6 space-y-4 transition-all duration-300 ${
+                                isClosing 
+                                    ? 'animate-out fade-out zoom-out-95 duration-200' 
+                                    : 'animate-in fade-in zoom-in-95 duration-300'
+                            }`}>
                                 <div className="flex flex-col gap-2">
                                     <div className="flex items-center gap-2 text-gray-400 text-xs">
                                         <Wrench size={14} />
                                         Ticket Details
                                     </div>
-                                    <h2 className="text-2xl font-bold text-gray-900">{ticket.subject}</h2>
-                                    <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+                                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{ticket.subject}</h2>
+                                    <div className="flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500">
                                         <span className="inline-flex items-center gap-1">
                                             <MapPin size={14} />
                                             Unit {ticket.unitNo}
@@ -239,33 +243,41 @@ const MaintenanceTicketDetailPage = ({ canEdit = true, isRenter = false, onClose
                                 </div>
                             </div>
 
-                            <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-3">
+                            <div className={`bg-white rounded-2xl border border-gray-200 p-4 sm:p-6 space-y-3 transition-all duration-300 ${
+                                isClosing 
+                                    ? 'animate-out fade-out zoom-out-95 duration-200' 
+                                    : 'animate-in fade-in zoom-in-95 duration-300 [animation-delay:100ms]'
+                            }`}>
                                 <div className="flex items-center gap-2 text-gray-400 text-xs">
                                     <FileText size={14} />
                                     Description
                                 </div>
-                                <p className="text-sm text-gray-700 whitespace-pre-wrap">{ticket.description}</p>
+                                <p className="text-xs sm:text-sm text-gray-700 whitespace-pre-wrap">{ticket.description}</p>
                             </div>
 
-                            <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-4">
+                            <div className={`bg-white rounded-2xl border border-gray-200 p-4 sm:p-6 space-y-4 transition-all duration-300 ${
+                                isClosing 
+                                    ? 'animate-out fade-out zoom-out-95 duration-200' 
+                                    : 'animate-in fade-in zoom-in-95 duration-300 [animation-delay:200ms]'
+                            }`}>
                                 <div className="flex items-center gap-2 text-gray-400 text-xs">
                                     <Wrench size={14} />
                                     Images
                                 </div>
                                 {ticket.images && ticket.images.length > 0 ? (
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                                         {ticket.images.map((image) => (
                                             <div key={image.id} className="rounded-xl border border-gray-200 overflow-hidden cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setSelectedImageUrl(image.imageUrl)}>
                                                 <img
                                                     src={image.imageUrl}
                                                     alt="Maintenance"
-                                                    className="w-full h-80 object-cover hover:opacity-90 transition-opacity"
+                                                    className="w-full h-48 sm:h-80 object-cover hover:opacity-90 transition-opacity"
                                                 />
                                             </div>
                                         ))}
                                     </div>
                                 ) : (
-                                    <p className="text-sm text-gray-500">No images provided.</p>
+                                    <p className="text-xs sm:text-sm text-gray-500">No images provided.</p>
                                 )}
                             </div>
 

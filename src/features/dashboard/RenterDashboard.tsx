@@ -110,13 +110,13 @@ const RenterDashboard = () => {
     }
 
     return (
-        <div className="p-6 space-y-6">
-            <header>
-                <h1 className="text-2xl font-bold text-gray-800">Renter Dashboard</h1>
-                <p className="text-gray-500 text-sm">Your contract, payments, and maintenance at a glance</p>
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 page-fade-in">
+            <header className="card-fade-in-1">
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Renter Dashboard</h1>
+                <p className="text-gray-500 text-xs sm:text-sm">Your contract, payments, and maintenance at a glance</p>
             </header>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 card-fade-in-2">
                 <DashboardCard title="Contract">
                     <div className="space-y-2">
                         <p className="text-2xl font-black text-gray-900">
@@ -170,43 +170,43 @@ const RenterDashboard = () => {
                 </DashboardCard>
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                <div className="px-5 py-4 border-b border-gray-100">
-                    <h2 className="text-lg font-bold text-gray-800">Recent Maintenance Requests</h2>
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden card-fade-in-3">
+                <div className="px-4 sm:px-5 py-4 border-b border-gray-100">
+                    <h2 className="text-base sm:text-lg font-bold text-gray-800">Recent Maintenance Requests</h2>
                 </div>
 
                 {requests.length === 0 ? (
-                    <div className="p-8 text-center text-gray-400">No maintenance requests yet.</div>
+                    <div className="p-4 sm:p-8 text-center text-gray-400 text-xs sm:text-sm">No maintenance requests yet.</div>
                 ) : (
                     <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
+                        <table className="w-full text-xs sm:text-sm">
                             <thead className="bg-gray-50 text-gray-600">
                                 <tr>
-                                    <th className="text-left px-4 py-3">Unit No</th>
-                                    <th className="text-left px-4 py-3">Subject</th>
-                                    <th className="text-left px-4 py-3">Date</th>
-                                    <th className="text-left px-4 py-3">Status</th>
-                                    <th className="text-right px-4 py-3">Action</th>
+                                    <th className="text-left px-2 sm:px-4 py-2 sm:py-3">Unit No</th>
+                                    <th className="text-left px-2 sm:px-4 py-2 sm:py-3">Subject</th>
+                                    <th className="text-left px-2 sm:px-4 py-2 sm:py-3">Date</th>
+                                    <th className="text-left px-2 sm:px-4 py-2 sm:py-3">Status</th>
+                                    <th className="text-right px-2 sm:px-4 py-2 sm:py-3">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {requests.slice(0, 5).map((request) => (
                                     <tr key={request.id} className="border-t border-gray-100">
-                                        <td className="px-4 py-3 text-gray-700">{request.unitNo}</td>
-                                        <td className="px-4 py-3 text-gray-700">{request.subject}</td>
-                                        <td className="px-4 py-3 text-gray-700">{formatDate(request.createdAt)}</td>
-                                        <td className="px-4 py-3">
+                                       <td className="px-2 sm:px-4 py-2 sm:py-3 text-gray-700">{request.unitNo}</td>
+                                       <td className="px-2 sm:px-4 py-2 sm:py-3 text-gray-700">{request.subject}</td>
+                                       <td className="px-2 sm:px-4 py-2 sm:py-3 text-gray-700">{formatDate(request.createdAt)}</td>
+                                       <td className="px-2 sm:px-4 py-2 sm:py-3">
                                             <span
-                                                className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusConfig(Number(request.status)).color} ${getStatusConfig( Number(request.status))}`}
+                                                className={`inline-flex items-center rounded-full px-2 sm:px-2.5 py-0.5 sm:py-1 text-[10px] sm:text-xs font-semibold ${getStatusConfig(Number(request.status)).color} ${getStatusConfig( Number(request.status))}`}
                                             >
                                                 {getStatusConfig(Number(request.status)).label}
                                             </span>
                                         </td>
-                                        <td className="px-4 py-3 text-right">
+                                        <td className="px-2 sm:px-4 py-2 sm:py-3 text-right">
                                             <button
                                                 type="button"
                                                 onClick={() => navigate(`/maintenance/${request.id}`)}
-                                                className="text-xs font-semibold text-gray-300 hover:text-gray-800"
+                                                className="text-[10px] sm:text-xs font-semibold text-gray-300 hover:text-gray-800"
                                             >
                                                 View
                                             </button>
@@ -219,11 +219,11 @@ const RenterDashboard = () => {
                 )}
 
                 {requests.length > 0 && (
-                    <div className="flex justify-end border-t border-gray-100 px-5 py-4">
+                    <div className="flex justify-end border-t border-gray-100 px-4 sm:px-5 py-3 sm:py-4">
                         <button
                             type="button"
                             onClick={() => navigate('/maintenance')}
-                            className="text-xs font-semibold text-blue-600 hover:text-blue-800"
+                            className="text-xs sm:text-sm font-semibold text-blue-600 hover:text-blue-800"
                         >
                             View All
                         </button>

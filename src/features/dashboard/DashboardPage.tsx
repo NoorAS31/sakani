@@ -111,70 +111,70 @@ const DashboardPage = () => {
         </div>
     );
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-8">
-            <div className="mb-8">
-                <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-                <p className="text-gray-600 dark:text-gray-400 mt-2">Real-time portfolio and financial overview</p>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4 sm:p-6 lg:p-8 page-fade-in">
+            <div className="mb-6 sm:mb-8 card-fade-in-1">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 sm:mt-2">Real-time portfolio and financial overview</p>
             </div>
 
             {hasAccountingAccess ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mb-6 sm:mb-8 card-fade-in-2">
                     {/* Expected Revenue */}
-                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm dark:shadow-lg border border-blue-100 dark:border-blue-900 p-6 hover:shadow-md dark:hover:shadow-xl transition-shadow">
-                        <div className="flex items-start justify-between mb-4">
-                            <div className="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
-                                <DollarSign size={24} className="text-blue-600 dark:text-blue-400" />
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm dark:shadow-lg border border-blue-100 dark:border-blue-900 p-4 sm:p-6 hover:shadow-md dark:hover:shadow-xl transition-shadow">
+                        <div className="flex items-start justify-between mb-3 sm:mb-4">
+                            <div className="p-2 sm:p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+                                <DollarSign size={20} className="text-blue-600 dark:text-blue-400" />
                             </div>
-                            <span className="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded">This Month</span>
+                            <span className="text-[9px] sm:text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 sm:py-1 rounded whitespace-nowrap">This Month</span>
                         </div>
-                        <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Expected Revenue</p>
-                        <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">${(accountingStats?.totalExpectedMonth ?? 0).toLocaleString()}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">Revenue to be collected</p>
+                        <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Expected Revenue</p>
+                        <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mt-1 sm:mt-2">${(accountingStats?.totalExpectedMonth ?? 0).toLocaleString()}</p>
+                        <p className="text-[9px] sm:text-xs text-gray-500 dark:text-gray-500 mt-1 sm:mt-2">Revenue to be collected</p>
                     </div>
 
-                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm dark:shadow-lg border border-green-100 dark:border-green-900 p-6 hover:shadow-md dark:hover:shadow-xl transition-shadow">
-                        <div className="flex items-start justify-between mb-4">
-                            <div className="p-3 bg-green-50 dark:bg-green-900/30 rounded-lg">
-                                <CheckCircle2 size={24} className="text-green-600 dark:text-green-400" />
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm dark:shadow-lg border border-green-100 dark:border-green-900 p-4 sm:p-6 hover:shadow-md dark:hover:shadow-xl transition-shadow">
+                        <div className="flex items-start justify-between mb-3 sm:mb-4">
+                            <div className="p-2 sm:p-3 bg-green-50 dark:bg-green-900/30 rounded-lg">
+                                <CheckCircle2 size={20} className="text-green-600 dark:text-green-400" />
                             </div>
-                            <span className="text-xs font-bold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded">Collected</span>
+                            <span className="text-[9px] sm:text-xs font-bold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 px-2 py-0.5 sm:py-1 rounded whitespace-nowrap">Collected</span>
                         </div>
-                        <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Collected Revenue</p>
-                        <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">${(accountingStats?.totalCollectedMonth ?? 0).toLocaleString()}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">{accountingStats ? ((accountingStats.totalCollectedMonth / (accountingStats.totalExpectedMonth || 1)) * 100).toFixed(1) : '0'}% collected</p>
+                        <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Collected Revenue</p>
+                        <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mt-1 sm:mt-2">${(accountingStats?.totalCollectedMonth ?? 0).toLocaleString()}</p>
+                        <p className="text-[9px] sm:text-xs text-gray-500 dark:text-gray-500 mt-1 sm:mt-2">{accountingStats ? ((accountingStats.totalCollectedMonth / (accountingStats.totalExpectedMonth || 1)) * 100).toFixed(1) : '0'}% collected</p>
                     </div>
 
-                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm dark:shadow-lg border border-red-100 dark:border-red-900 p-6 hover:shadow-md dark:hover:shadow-xl transition-shadow">
-                        <div className="flex items-start justify-between mb-4">
-                            <div className="p-3 bg-red-50 dark:bg-red-900/30 rounded-lg">
-                                <TrendingDown size={24} className="text-red-600 dark:text-red-400" />
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm dark:shadow-lg border border-red-100 dark:border-red-900 p-4 sm:p-6 hover:shadow-md dark:hover:shadow-xl transition-shadow">
+                        <div className="flex items-start justify-between mb-3 sm:mb-4">
+                            <div className="p-2 sm:p-3 bg-red-50 dark:bg-red-900/30 rounded-lg">
+                                <TrendingDown size={20} className="text-red-600 dark:text-red-400" />
                             </div>
-                            <span className="text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 px-2 py-1 rounded">Outflow</span>
+                            <span className="text-[9px] sm:text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 px-2 py-0.5 sm:py-1 rounded whitespace-nowrap">Outflow</span>
                         </div>
-                        <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Total Expenses</p>
-                        <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">${(accountingStats?.expensesMonth ?? 0).toLocaleString()}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">Operating expenses</p>
+                        <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Total Expenses</p>
+                        <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mt-1 sm:mt-2">${(accountingStats?.expensesMonth ?? 0).toLocaleString()}</p>
+                        <p className="text-[9px] sm:text-xs text-gray-500 dark:text-gray-500 mt-1 sm:mt-2">Operating expenses</p>
                     </div>
 
                     {/* Net Income */}
-                    <div className={`rounded-xl shadow-sm dark:shadow-lg border p-6 hover:shadow-md dark:hover:shadow-xl transition-shadow ${
+                    <div className={`rounded-xl shadow-sm dark:shadow-lg border p-4 sm:p-6 hover:shadow-md dark:hover:shadow-xl transition-shadow ${
                         (accountingStats?.netIncomeMonth ?? 0) >= 0 
                             ? 'bg-white dark:bg-slate-800 border-emerald-100 dark:border-emerald-900' 
                             : 'bg-white dark:bg-slate-800 border-amber-100 dark:border-amber-900'
                     }`}>
-                        <div className="flex items-start justify-between mb-4">
-                            <div className={`p-3 rounded-lg ${
+                        <div className="flex items-start justify-between mb-3 sm:mb-4">
+                            <div className={`p-2 sm:p-3 rounded-lg ${
                                 (accountingStats?.netIncomeMonth ?? 0) >= 0 
                                     ? 'bg-emerald-50 dark:bg-emerald-900/30' 
                                     : 'bg-amber-50 dark:bg-amber-900/30'
                             }`}>
-                                <TrendingUp size={24} className={
+                                <TrendingUp size={20} className={
                                     (accountingStats?.netIncomeMonth ?? 0) >= 0 
                                         ? 'text-emerald-600 dark:text-emerald-400' 
                                         : 'text-amber-600 dark:text-amber-400'
                                 } />
                             </div>
-                            <span className={`text-xs font-bold px-2 py-1 rounded ${
+                            <span className={`text-[9px] sm:text-xs font-bold px-2 py-0.5 sm:py-1 rounded whitespace-nowrap ${
                                 (accountingStats?.netIncomeMonth ?? 0) >= 0 
                                     ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30' 
                                     : 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30'
@@ -182,45 +182,45 @@ const DashboardPage = () => {
                                 {(accountingStats?.netIncomeMonth ?? 0) >= 0 ? 'Positive' : 'Negative'}
                             </span>
                         </div>
-                        <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Net Income</p>
-                        <p className={`text-3xl font-bold mt-2 ${
+                        <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Net Income</p>
+                        <p className={`text-2xl sm:text-3xl font-bold mt-1 sm:mt-2 ${
                             (accountingStats?.netIncomeMonth ?? 0) >= 0 
                                 ? 'text-emerald-600 dark:text-emerald-400' 
                                 : 'text-amber-600 dark:text-amber-400'
                         }`}>
                             ${(accountingStats?.netIncomeMonth ?? 0).toLocaleString()}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">Revenue minus expenses</p>
+                        <p className="text-[9px] sm:text-xs text-gray-500 dark:text-gray-500 mt-1 sm:mt-2">Revenue minus expenses</p>
                     </div>
 
                     {/* Occupancy Rate */}
-                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm dark:shadow-lg border border-purple-100 dark:border-purple-900 p-6 hover:shadow-md dark:hover:shadow-xl transition-shadow">
-                        <div className="flex items-start justify-between mb-4">
-                            <div className="p-3 bg-purple-50 dark:bg-purple-900/30 rounded-lg">
-                                <Building2 size={24} className="text-purple-600 dark:text-purple-400" />
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm dark:shadow-lg border border-purple-100 dark:border-purple-900 p-4 sm:p-6 hover:shadow-md dark:hover:shadow-xl transition-shadow">
+                        <div className="flex items-start justify-between mb-3 sm:mb-4">
+                            <div className="p-2 sm:p-3 bg-purple-50 dark:bg-purple-900/30 rounded-lg">
+                                <Building2 size={20} className="text-purple-600 dark:text-purple-400" />
                             </div>
-                            <span className="text-xs font-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 px-2 py-1 rounded">Utilization</span>
+                            <span className="text-[9px] sm:text-xs font-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 px-2 py-0.5 sm:py-1 rounded whitespace-nowrap">Utilization</span>
                         </div>
-                        <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Occupancy Rate</p>
-                        <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{(accountingStats?.occupancyRate ?? 0).toFixed(1)}%</p>
-                        <div className="mt-3 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Occupancy Rate</p>
+                        <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mt-1 sm:mt-2">{(accountingStats?.occupancyRate ?? 0).toFixed(1)}%</p>
+                        <div className="mt-2 sm:mt-3 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 sm:h-2">
                             <div 
-                                className="bg-purple-600 dark:bg-purple-500 h-2 rounded-full" 
+                                className="bg-purple-600 dark:bg-purple-500 h-1.5 sm:h-2 rounded-full" 
                                 style={{ width: `${Math.min((accountingStats?.occupancyRate ?? 0), 100)}%` }}
                             />
                         </div>
                     </div>
                 </div>
             ) : (
-                <div className="mb-8">
-                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm dark:shadow-lg border border-gray-200 dark:border-gray-700 p-8">
-                        <div className="flex items-center justify-center gap-4">
-                            <div className="p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                                <Lock size={32} className="text-gray-500 dark:text-gray-400" />
+                <div className="mb-6 sm:mb-8 card-fade-in-2">
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm dark:shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 lg:p-8">
+                        <div className="flex items-center justify-center gap-3 sm:gap-4">
+                            <div className="p-2 sm:p-3 lg:p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                                <Lock size={24} className="text-gray-500 dark:text-gray-400" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Financial Details Unavailable</h3>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">You don't have permission to view accounting and financial details.</p>
+                                <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">Financial Details Unavailable</h3>
+                                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">You don't have permission to view accounting and financial details.</p>
                             </div>
                         </div>
                     </div>
@@ -228,19 +228,20 @@ const DashboardPage = () => {
             )}
 
             {userRole !== 'SuperAdmin' && (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700 p-6">
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                            <Home size={20} className="text-orange-500" />
-                            Unit Status
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 card-fade-in-3">
+                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700 p-4 sm:p-6">
+                    <div className="flex items-center justify-between mb-4 sm:mb-6">
+                        <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            <Home size={18} className="text-orange-500" />
+                            <span className="hidden sm:inline">Unit Status</span>
+                            <span className="sm:hidden">Units</span>
                         </h2>
                     </div>
 
-                    <div className="flex flex-col lg:flex-row gap-6">
+                    <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
                         {/* Circle - responsive layout */}
-                        <div className="flex flex-col xl:flex-col lg:flex-row items-center gap-6 w-full lg:w-auto">
-                            <div className="relative w-40 h-40 lg:w-32 lg:h-32 xl:w-64 xl:h-64 flex-shrink-0">
+                        <div className="flex flex-col items-center gap-3 sm:gap-4 lg:gap-6 w-full lg:w-auto">
+                            <div className="relative w-32 h-32 sm:w-40 sm:h-40 lg:w-32 lg:h-32 xl:w-64 xl:h-64 flex-shrink-0">
                                 <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
                                     <circle cx="18" cy="18" r="15.915" fill="none" stroke="#e2e8f0" strokeWidth="3" className="dark:stroke-gray-700" />
                                     <circle 
@@ -263,12 +264,12 @@ const DashboardPage = () => {
                                     />
                                 </svg>
                                 <div className="absolute inset-0 flex items-center justify-center">
-                                    <span className="text-3xl lg:text-2xl xl:text-5xl font-bold text-gray-900 dark:text-white">{unitStats.total}</span>
+                                    <span className="text-2xl sm:text-3xl lg:text-2xl xl:text-5xl font-bold text-gray-900 dark:text-white">{unitStats.total}</span>
                                 </div>
                             </div>
 
                             {/* Legend - below circle on XL, beside on LG */}
-                            <div className="text-sm space-y-2 w-full lg:w-auto xl:space-y-0 xl:flex xl:gap-8">
+                            <div className="text-xs sm:text-sm space-y-1 sm:space-y-2 w-full lg:w-auto xl:space-y-0 xl:flex xl:gap-8">
                                 <div className="flex items-center gap-2 lg:flex-col lg:items-start xl:flex-col xl:items-start">
                                     <div className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></div>
                                     <span className="text-gray-600 dark:text-gray-400">Available</span>
@@ -290,64 +291,64 @@ const DashboardPage = () => {
                 </div>
 
                 {/* Contract Status */}
-                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700 p-6">
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                            <FileText size={20} className="text-purple-500" />
-                            Contracts
+                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700 p-4 sm:p-6">
+                    <div className="flex items-center justify-between mb-4 sm:mb-6">
+                        <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            <FileText size={18} className="text-purple-500" />
+                            <span className="hidden sm:inline">Contracts</span>
                         </h2>
                         <button 
                             onClick={() => navigate('/contracts')}
-                            className="text-xs text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-bold"
+                            className="text-[11px] sm:text-xs text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-bold whitespace-nowrap"
                         >
                             View All →
                         </button>
                     </div>
 
-                    <div className="space-y-3">
-                        <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                            <span className="text-sm text-gray-700 dark:text-gray-300">Active</span>
+                    <div className="space-y-2 sm:space-y-3">
+                        <div className="flex items-center justify-between p-2 sm:p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                            <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">Active</span>
                             <span className="font-bold text-gray-900 dark:text-white">{contractStats.active}</span>
                         </div>
-                        <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                            <span className="text-sm text-gray-700 dark:text-gray-300">Pending</span>
+                        <div className="flex items-center justify-between p-2 sm:p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                            <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">Pending</span>
                             <span className="font-bold text-gray-900 dark:text-white">{contractStats.pending}</span>
                         </div>
-                        <div className="flex items-center justify-between p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
-                            <span className="text-sm text-gray-700 dark:text-gray-300">Expired</span>
+                        <div className="flex items-center justify-between p-2 sm:p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+                            <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">Expired</span>
                             <span className="font-bold text-gray-900 dark:text-white">{contractStats.expired}</span>
                         </div>
-                        <div className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                            <span className="text-sm text-gray-700 dark:text-gray-300">Terminated</span>
+                        <div className="flex items-center justify-between p-2 sm:p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                            <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">Terminated</span>
                             <span className="font-bold text-gray-900 dark:text-white">{contractStats.terminated}</span>
                         </div>
                     </div>
                 </div>
 
                 {/* Quick Actions & Info */}
-                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700 p-6">
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Quick Actions</h2>
-                    <div className="space-y-3">
+                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm dark:shadow-lg border border-gray-100 dark:border-gray-700 p-4 sm:p-6">
+                    <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">Quick Actions</h2>
+                    <div className="space-y-2 sm:space-y-3">
                         <button
                             onClick={() => navigate('/property')}
-                            className="w-full p-3 text-left rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                            className="w-full p-2 sm:p-3 text-left rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
                         >
-                            <p className="font-bold text-gray-900 dark:text-white">Properties</p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">{properties.length} total</p>
+                            <p className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white">Properties</p>
+                            <p className="text-xs text-gray-600 dark:text-gray-400">{properties.length} total</p>
                         </button>
                         <button
                             onClick={() => navigate('/units')}
-                            className="w-full p-3 text-left rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors"
+                            className="w-full p-2 sm:p-3 text-left rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors"
                         >
-                            <p className="font-bold text-gray-900 dark:text-white">Units</p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">{unitStats.total} total</p>
+                            <p className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white">Units</p>
+                            <p className="text-xs text-gray-600 dark:text-gray-400">{unitStats.total} total</p>
                         </button>
                         <button
                             onClick={() => navigate('/expenses')}
-                            className="w-full p-3 text-left rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                            className="w-full p-2 sm:p-3 text-left rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                         >
-                            <p className="font-bold text-gray-900 dark:text-white">Expenses</p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">Manage monthly costs</p>
+                            <p className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white">Expenses</p>
+                            <p className="text-xs text-gray-600 dark:text-gray-400">Manage monthly costs</p>
                         </button>
                         <button
                             onClick={() => navigate('/accounting')}
