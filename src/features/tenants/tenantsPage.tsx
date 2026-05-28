@@ -81,50 +81,50 @@ const TenantsPage = () => {
     }
 
     return (
-        <div className="flex flex-col lg:flex-row gap-6 relative min-h-screen">
+        <div className="flex flex-row gap-6 relative min-h-screen">
             {/* Main Content Area */}
-            <div className={`transition-all duration-300 ${selectedTenant ? 'lg:w-8/12' : 'w-full'} space-y-6 w-full`}>
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+            <div className={`transition-all duration-300 ${selectedTenant ? 'w-8/12' : 'w-full'} space-y-6`}>
+                <div className="flex justify-between items-end">
                     <div>
-                        <h1 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">Tenants Directory</h1>
-                        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Manage property managers and contact information</p>
+                        <h1 className="text-2xl font-bold text-gray-800">Tenants Directory</h1>
+                        <p className="text-sm text-gray-500">Manage property managers and contact information</p>
                     </div>
-                    <div className="flex gap-2 sm:gap-3 flex-wrap">
+                    <div className="flex gap-3">
                         <button
                             onClick={() => setIsAddUserModalOpen(true)}
                             disabled={!selectedTenant || !!selectedTenant?.userId}
-                            className="dark:bg-white dark:text-black px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl flex items-center gap-2 hover:bg-slate-700 transition-all shadow-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm whitespace-nowrap"
+                            className="dark:bg-white dark:text-black  px-5 py-2.5 rounded-xl flex items-center gap-2 hover:bg-slate-700 transition-all shadow-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                             title={selectedTenant?.userId ? "User account already exists for this tenant" : ""}>
-                            <UserPlus size={16} className="sm:size-18" /> <span className="hidden sm:inline">Add Tenant account</span><span className="sm:hidden">Add User</span>
+                            <UserPlus size={18} /> Add Tenant account
                         </button>
                         <button
                             onClick={() => setIsModalOpen(true)}
-                            className="bg-gray-900 text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl flex items-center gap-2 hover:bg-black transition-all shadow-sm font-semibold text-xs sm:text-sm">
-                            <Plus size={16} className="sm:size-18" /> <span className="hidden sm:inline">Add Tenant</span><span className="sm:hidden">Add</span>
+                            className="bg-gray-900 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 hover:bg-black transition-all shadow-sm font-semibold">
+                            <Plus size={18} /> Add Tenant
                         </button>
                     </div>
                 </div>
 
-                <div className={`grid grid-cols-1 ${selectedTenant ? 'md:grid-cols-1 lg:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-3'} gap-4 sm:gap-6`}>
+                <div className={`grid grid-cols-1 ${selectedTenant ? 'md:grid-cols-1 lg:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-3'} gap-6`}>
                     {tenants.map(tenant => (
                         <div key={tenant.id}
                              onClick={() => setSelectedTenant(tenant)}
-                             className={`bg-white dark:bg-gray-800 rounded-3xl transition-all border p-4 sm:p-6 cursor-pointer relative group ${
+                             className={`bg-white rounded-3xl transition-all border p-6 cursor-pointer relative group ${
                                  selectedTenant?.id === tenant.id
                                      ? 'border-gray-900 ring-2 ring-gray-900/5 shadow-md'
-                                     : 'border-gray-100 dark:border-gray-700 hover:shadow-md'
+                                     : 'border-gray-100 hover:shadow-md'
                              }`}>
 
                             <div className="flex justify-between items-start mb-4">
-                                <div className="flex items-center gap-2 sm:gap-3">
-                                    <div className={`w-10 sm:w-12 h-10 sm:h-12 rounded-2xl flex items-center justify-center transition-colors flex-shrink-0 ${
-                                        selectedTenant?.id === tenant.id ? 'bg-gray-900 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 group-hover:bg-gray-900 group-hover:text-white'
+                                <div className="flex items-center gap-3">
+                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${
+                                        selectedTenant?.id === tenant.id ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-500 group-hover:bg-gray-900 group-hover:text-white'
                                     }`}>
-                                        <span className="text-base sm:text-lg font-bold">{tenant.name.charAt(0).toUpperCase()}</span>
+                                        <span className="text-lg font-bold">{tenant.name.charAt(0).toUpperCase()}</span>
                                     </div>
-                                    <div className="min-w-0">
-                                        <h3 className="font-bold text-gray-900 dark:text-white text-sm sm:text-base truncate">{tenant.name}</h3>
-                                        <div className={`text-[10px] font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400`}>
+                                    <div>
+                                        <h3 className="font-bold text-gray-900">{tenant.name}</h3>
+                                        <div className={`text-[10px] font-bold uppercase tracking-wider `}>
                                             {tenant.status}
                                         </div>
                                     </div>
@@ -132,17 +132,17 @@ const TenantsPage = () => {
                             </div>
 
                             <div className="space-y-2 mt-4">
-                                <div className="flex items-center gap-2 sm:gap-3 p-2 rounded-xl">
-                                    <Mail size={14} className="text-gray-400 flex-shrink-0" />
-                                    <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">{tenant.email}</span>
+                                <div className="flex items-center gap-3 p-2 rounded-xl">
+                                    <Mail size={16} className="text-gray-400" />
+                                    <span className="text-sm text-gray-600">{tenant.email}</span>
                                 </div>
-                                <div className="flex items-center gap-2 sm:gap-3 p-2 rounded-xl">
-                                    <Phone size={14} className="text-gray-400 flex-shrink-0" />
-                                    <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">{tenant.phoneNumber}</span>
+                                <div className="flex items-center gap-3 p-2 rounded-xl">
+                                    <Phone size={16} className="text-gray-400" />
+                                    <span className="text-sm text-gray-600">{tenant.phoneNumber}</span>
                                 </div>
-                                <div className="flex items-center gap-2 sm:gap-3 p-2 rounded-xl">
-                                    <MapPin size={14} className="text-gray-400 flex-shrink-0" />
-                                    <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">{tenant.addressCity}</span>
+                                <div className="flex items-center gap-3 p-2 rounded-xl">
+                                    <MapPin size={16} className="text-gray-400" />
+                                    <span className="text-sm text-gray-600">{tenant.addressCity}</span>
                                 </div>
                             </div>
                         </div>
@@ -150,10 +150,10 @@ const TenantsPage = () => {
                 </div>
             </div>
 
-            {/* Side Details Panel - Hidden on mobile, shown on lg screens */}
+            {/* Side Details Panel */}
             {selectedTenant && (
-                <div className="hidden lg:block lg:w-4/12 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-3xl shadow-xl overflow-hidden h-[fit-content] sticky top-8 animate-in slide-in-from-right duration-300">
-                    <div className="bg-gray-900 dark:bg-gray-900 p-6 text-white relative">
+                <div className="w-4/12 bg-white border border-gray-200 rounded-3xl shadow-xl overflow-hidden h-[fit-content] sticky top-8 animate-in slide-in-from-right duration-300">
+                    <div className="bg-gray-900 p-6 text-white relative">
                         <button
                             onClick={() => setSelectedTenant(null)}
                             className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
