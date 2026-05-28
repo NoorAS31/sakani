@@ -12,16 +12,25 @@ import {
     FileChartColumn,
     ReceiptText,
     Wrench,
-    FileText
+    FileText,
+    X
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { storage } from "../../utils/storage.ts";
 import { useTheme } from '../../context/ThemeContext';
 import {Logo} from '../brand/Logo';
+import { useIsMobile } from '../../hooks/useIsMobile';
 
-const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
+interface SidebarProps {
+    onLogout: () => void;
+    isOpen?: boolean;
+    onClose?: () => void;
+}
+
+const Sidebar = ({ onLogout, isOpen = true, onClose }: SidebarProps) => {
     const { theme, toggleTheme } = useTheme();
     const isRenter = storage.isRenter();
+    const isMobile = useIsMobile();
 
     const menuItems = isRenter
         ? [
@@ -50,10 +59,69 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
 
     const isDark = theme === 'dark';
 
+    // On mobile: render as modal/drawer if open
+    if (isMobile) {
+        return (
+            <>
+                {/* Mobile backdrop */}
+                {isOpen && (
+                    <div
+                        className="fixed inset-0 z-30 bg-black bg-opacity-50 lg:hidden"
+                        onClick={onClose}
+                    />
+                )}
+                
+                {/* Mobile drawer */}
+                <div
+                    className={`fixed left-0 top-0 h-screen w-64 flex-shrink-0 flex flex-col shadow-2xl transition-transform duration-300 z-40 lg:hidden ${
+                        isOpen ? 'translate-x-0' : '-translate-x-full'
+                    } ${isDark ? 'bg-gray-800 text-slate-300' : 'bg-white text-slate-700'}`}
+                >
+                    <SidebarContent isDark={isDark} isRenter={isRenter} onLogout={onLogout} toggleTheme={toggleTheme} theme={theme} menuItems={menuItems} onClose={onClose} />
+                </div>
+            </>
+        );
+    }
+
+    // Desktop: always visible sidebar
     return (
-        <div className={`w-2/12 h-screen flex-shrink-0 sticky top-0 flex flex-col shadow-xl transition-colors ${
+        <div className={`hidden lg:flex w-64 h-screen flex-shrink-0 sticky top-0 flex-col shadow-xl transition-colors ${
             isDark ? 'bg-gray-800 text-slate-300' : 'bg-white text-slate-700'
         }`}>
+            <SidebarContent isDark={isDark} isRenter={isRenter} onLogout={onLogout} toggleTheme={toggleTheme} theme={theme} menuItems={menuItems} />
+        </div>
+    );
+};
+
+interface SidebarContentProps {
+    isDark: boolean;
+    isRenter: boolean;
+    onLogout: () => void;
+    toggleTheme: () => void;
+    theme: string;
+    menuItems: Array<{ name: string; icon: JSX.Element; path: string }>;
+    onClose?: () => void;
+}
+
+const SidebarContent = ({ isDark, isRenter, onLogout, toggleTheme, theme, menuItems, onClose }: SidebarContentProps) => {
+    return (
+        <>
+            {/* Close button on mobile */}
+            {onClose && (
+                <div className="lg:hidden flex justify-end p-3">
+                    <button
+                        onClick={onClose}
+                        className={`p-2 rounded-md transition-colors ${
+                            isDark
+                                ? 'hover:bg-slate-700 text-slate-300'
+                                : 'hover:bg-gray-100 text-slate-700'
+                        }`}
+                    >
+                        <X size={24} />
+                    </button>
+                </div>
+            )}
+
             {/* Logo Section */}
             <div className="p-4 mb-2">
                 <div className="flex items-center gap-2">
@@ -81,6 +149,7 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
                                 ? 'hover:bg-slate-800 hover:text-white text-slate-400 border-slate-700'
                                 : 'hover:bg-gray-50 text-black border-gray-300 bg-white'}
                         `}
+                        onClick={onClose}
                     >
                         {item.icon}
                         {item.name}
@@ -115,6 +184,7 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
                 </button>
                 <NavLink
                     to="/settings"
+                    onClick={onClose}
                     className={({ isActive }) => `
                         w-full flex items-center gap-3 px-4 py-2 text-sm rounded-md transition-all border
                         ${isActive
@@ -131,6 +201,7 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
                 </NavLink>
                 <NavLink
                     to="/account"
+                    onClick={onClose}
                     className={({ isActive }) => `
                         w-full flex items-center gap-3 px-4 py-2 text-sm rounded-md transition-all border
                         ${isActive
@@ -157,7 +228,7 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
                     <span>Log out</span>
                 </button>
             </div>
-        </div>
+        </>
     );
 };
 
