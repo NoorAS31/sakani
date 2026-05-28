@@ -101,40 +101,40 @@ const UpdateTenantModal = ({ isOpen, onClose, onTenantUpdated, tenant }: UpdateT
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-3 sm:p-4">
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200">
                 {/* Modal Header */}
-                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                    <h2 className="text-xl font-bold text-gray-800">Update Tenant</h2>
+                <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                    <h2 className="text-lg sm:text-xl font-bold text-gray-800">Update Tenant</h2>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
                         <X size={24} />
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
                     {error && (
-                        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
+                        <p className="text-xs sm:text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
                             {error}
                         </p>
                     )}
 
                     <div>
-                        <h3 className="underline text-xs font-bold text-red-600 uppercase tracking-wider mb-4">Basic Information</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <h3 className="underline text-[10px] sm:text-xs font-bold text-red-600 uppercase tracking-wider mb-3 sm:mb-4">Basic Information</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                             <div className="space-y-1">
-                                <label className="text-sm font-medium text-gray-700">Tenant Name</label>
+                                <label className="text-xs sm:text-sm font-medium text-gray-700">Tenant Name</label>
                                 <input name="name" type="text" onChange={handleChange} value={formData.name}
-                                       className={`w-full border rounded-lg px-3 py-2 outline-none transition-all ${
+                                       className={`w-full border rounded-lg px-3 py-2 text-xs sm:text-sm outline-none transition-all ${
                                            formData.name && !isNameValid ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-gray-500'
                                        }`}
                                        placeholder="Min 4 characters" />
                                 {formData.name && !isNameValid && (
-                                    <p className="text-[10px] text-red-500 font-medium italic">Name must be at least 4 characters.</p>
+                                    <p className="text-[9px] sm:text-[10px] text-red-500 font-medium italic">Name must be at least 4 characters.</p>
                                 )}
                             </div>
                             <div className="space-y-1">
-                                <label className="text-sm font-medium text-gray-700">Status</label>
-                                <select name="status" value={formData.status} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-600 outline-none bg-white">
+                                <label className="text-xs sm:text-sm font-medium text-gray-700">Status</label>
+                                <select name="status" value={formData.status} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-gray-600 outline-none bg-white">
                                     <option value="">-- Select Status --</option>
                                     <option value={1}>Active</option>
                                     <option value={2}>Suspended</option>
@@ -142,35 +142,35 @@ const UpdateTenantModal = ({ isOpen, onClose, onTenantUpdated, tenant }: UpdateT
                                 </select>
                             </div>
                             <div className="space-y-1">
-                                <label className="text-sm font-medium text-gray-700">Email Address</label>
+                                <label className="text-xs sm:text-sm font-medium text-gray-700">Email Address</label>
                                 <input
                                     name="email"
                                     type="email"
                                     value={formData.email}
                                     onChange={handleChange}
-                                    className={`w-full border rounded-lg px-3 py-2 outline-none transition-all ${
+                                    className={`w-full border rounded-lg px-3 py-2 text-xs sm:text-sm outline-none transition-all ${
                                         formData.email && !isEmailValid ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-gray-500'
                                     }`}
                                     placeholder="contact@company.com"
                                 />
                                 {formData.email && !isEmailValid && (
-                                    <p className="text-[10px] text-red-500 font-medium italic">Please enter a valid email address.</p>
+                                    <p className="text-[9px] sm:text-[10px] text-red-500 font-medium italic">Please enter a valid email address.</p>
                                 )}
                             </div>
                             <div className="space-y-1">
-                                <label className="text-sm font-medium text-gray-700">Phone Number</label>
+                                <label className="text-xs sm:text-sm font-medium text-gray-700">Phone Number</label>
                                 <input
                                     name="phoneNumber"
                                     type="tel"
                                     value={formData.phoneNumber}
                                     onChange={handleChange}
-                                    className={`w-full border rounded-lg px-3 py-2 outline-none transition-all ${
+                                    className={`w-full border rounded-lg px-3 py-2 text-xs sm:text-sm outline-none transition-all ${
                                         formData.phoneNumber && !isPhoneValid ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-gray-500'
                                     }`}
                                     placeholder="Enter phone number"
                                 />
                                 {formData.phoneNumber && !isPhoneValid && (
-                                    <p className="text-[10px] text-red-500 font-medium italic">Phone number must be at least 7 digits.</p>
+                                    <p className="text-[9px] sm:text-[10px] text-red-500 font-medium italic">Phone number must be at least 7 digits.</p>
                                 )}
                             </div>
                         </div>
@@ -178,43 +178,43 @@ const UpdateTenantModal = ({ isOpen, onClose, onTenantUpdated, tenant }: UpdateT
 
                     {/* Section 2: Address Information */}
                     <div>
-                        <h3 className="underline text-xs font-bold text-red-600 uppercase tracking-wider mb-4">Address</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <h3 className="underline text-[10px] sm:text-xs font-bold text-red-600 uppercase tracking-wider mb-3 sm:mb-4">Address</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                             <div className="md:col-span-2 space-y-1">
-                                <label className="text-sm font-medium text-gray-700">Street Address</label>
+                                <label className="text-xs sm:text-sm font-medium text-gray-700">Street Address</label>
                                 <input
                                     name="addressStreet"
                                     type="text"
                                     value={formData.addressStreet}
                                     onChange={handleChange}
-                                    className={`w-full border rounded-lg px-3 py-2 outline-none transition-all ${
+                                    className={`w-full border rounded-lg px-3 py-2 text-xs sm:text-sm outline-none transition-all ${
                                         formData.addressStreet && !isAddressValid ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-gray-500'
                                     }`}
                                     placeholder="e.g., 123 Business Ave"
                                 />
                                 {formData.addressStreet && !isAddressValid && (
-                                    <p className="text-[10px] text-red-500 font-medium italic">Street address must be at least 5 characters.</p>
+                                    <p className="text-[9px] sm:text-[10px] text-red-500 font-medium italic">Street address must be at least 5 characters.</p>
                                 )}
                             </div>
                             <div className="space-y-1">
-                                <label className="text-sm font-medium text-gray-700">City</label>
+                                <label className="text-xs sm:text-sm font-medium text-gray-700">City</label>
                                 <input
                                     name="addressCity"
                                     type="text"
                                     value={formData.addressCity}
                                     onChange={handleChange}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-600 outline-none transition-all"
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-gray-600 outline-none transition-all"
                                     placeholder="e.g., Cairo"
                                 />
                             </div>
                             <div className="space-y-1">
-                                <label className="text-sm font-medium text-gray-700">Region/State</label>
+                                <label className="text-xs sm:text-sm font-medium text-gray-700">Region/State</label>
                                 <input
                                     name="addressRegion"
                                     type="text"
                                     value={formData.addressRegion}
                                     onChange={handleChange}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-600 outline-none transition-all"
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-gray-600 outline-none transition-all"
                                     placeholder="e.g., Cairo Governorate"
                                 />
                             </div>
@@ -222,20 +222,20 @@ const UpdateTenantModal = ({ isOpen, onClose, onTenantUpdated, tenant }: UpdateT
                     </div>
 
                     {/* Form Actions */}
-                    <div className="flex gap-3 justify-end pt-4 border-t border-gray-100">
+                    <div className="flex gap-2 sm:gap-3 justify-end pt-3 sm:pt-4 border-t border-gray-100">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-all"
+                            className="px-4 sm:px-6 py-2 sm:py-2.5 border border-gray-300 text-xs sm:text-sm text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-all"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={!isFormValid || isSubmitting}
-                            className="bg-gray-900 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 hover:bg-black transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="bg-gray-900 text-white px-4 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm rounded-lg flex items-center gap-2 hover:bg-black transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            <Save size={18} />
+                            <Save size={16} />
                             {isSubmitting ? 'Updating...' : 'Update Tenant'}
                         </button>
                     </div>

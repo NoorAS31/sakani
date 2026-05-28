@@ -170,112 +170,112 @@ const AccountingPage = () => {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center h-[60vh]">
-                <Loader2 className="animate-spin text-gray-400" size={48} />
+            <div className="flex justify-center items-center h-[60vh] p-4">
+                <Loader2 className="animate-spin text-gray-400 dark:text-gray-600" size={48} />
             </div>
         );
     }
 
     return (
-        <div className="space-y-6 max-w-7xl mx-auto">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 max-w-7xl mx-auto page-fade-in">
             {/* Header with Time Range Selector */}
-            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 sm:gap-4 card-fade-in-1">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-800">Financial Overview</h1>
-                    <p className="text-sm text-gray-500">Track payments, revenue, and occupancy metrics</p>
+                    <h1 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">Financial Overview</h1>
+                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Track payments, revenue, and occupancy metrics</p>
                 </div>
                 <Link
                     to="/accounting/payments"
-                    className="flex items-center gap-2 bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-black transition-colors text-sm font-medium shadow-sm"
+                    className="flex items-center gap-2 bg-gray-800 dark:bg-gray-700 hover:bg-black dark:hover:bg-gray-600 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg transition-colors text-xs sm:text-sm font-medium shadow-sm"
                 >
-                    <CreditCard size={16} />
+                    <CreditCard size={14} />
                     View Contract Payments
                 </Link>
             </div>
 
             {/* Stats Cards - Stock-like view */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 card-fade-in-2">
                 {/* Expected in Period */}
-                <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-                    <div className="flex items-center justify-between mb-3">
-                        <div className="p-2 bg-blue-50 rounded-xl">
-                            <DollarSign size={20} className="text-blue-600" />
+                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-4 sm:p-5 shadow-sm">
+                    <div className="flex items-center justify-between mb-2 sm:mb-3">
+                        <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-xl">
+                            <DollarSign size={16} className="text-blue-600 dark:text-blue-400" />
                         </div>
-                        <span className="flex items-center gap-1 text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-lg">
-                            <ArrowUpRight size={14} /> {filteredExpected.length} payments
+                        <span className="flex items-center gap-1 text-[9px] sm:text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-lg">
+                            <ArrowUpRight size={12} /> {filteredExpected.length} payments
                         </span>
                     </div>
-                    <p className="text-2xl font-black text-gray-900">${totalExpected.toLocaleString()}</p>
-                    <p className="text-xs text-gray-500 mt-1">Expected ({timeRange})</p>
+                    <p className="text-lg sm:text-2xl font-black text-gray-900 dark:text-white">${totalExpected.toLocaleString()}</p>
+                    <p className="text-[9px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1">Expected ({timeRange})</p>
                 </div>
 
                 {/* Collected This Month */}
-                <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-                    <div className="flex items-center justify-between mb-3">
-                        <div className="p-2 bg-green-50 rounded-xl">
-                            <TrendingUp size={20} className="text-green-600" />
+                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-4 sm:p-5 shadow-sm">
+                    <div className="flex items-center justify-between mb-2 sm:mb-3">
+                        <div className="p-2 bg-green-50 dark:bg-green-900/30 rounded-xl">
+                            <TrendingUp size={16} className="text-green-600 dark:text-green-400" />
                         </div>
-                        <span className="flex items-center gap-1 text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-lg">
-                            <ArrowUpRight size={14} /> +{collectionRate.toFixed(1)}%
+                        <span className="flex items-center gap-1 text-[9px] sm:text-xs font-bold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded-lg">
+                            <ArrowUpRight size={12} /> +{collectionRate.toFixed(1)}%
                         </span>
                     </div>
-                    <p className="text-2xl font-black text-gray-900">${stats?.totalCollectedMonth.toLocaleString() || 0}</p>
-                    <p className="text-xs text-gray-500 mt-1">Collected this month</p>
+                    <p className="text-lg sm:text-2xl font-black text-gray-900 dark:text-white">${stats?.totalCollectedMonth.toLocaleString() || 0}</p>
+                    <p className="text-[9px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1">Collected this month</p>
                 </div>
 
                 {/* Overdue Amount */}
-                <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-                    <div className="flex items-center justify-between mb-3">
-                        <div className="p-2 bg-red-50 rounded-xl">
-                            <AlertTriangle size={20} className="text-red-600" />
+                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-4 sm:p-5 shadow-sm">
+                    <div className="flex items-center justify-between mb-2 sm:mb-3">
+                        <div className="p-2 bg-red-50 dark:bg-red-900/30 rounded-xl">
+                            <AlertTriangle size={16} className="text-red-600 dark:text-red-400" />
                         </div>
-                        <span className="flex items-center gap-1 text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded-lg">
-                            <ArrowDownRight size={14} /> {filteredOverdue.length} overdue
+                        <span className="flex items-center gap-1 text-[9px] sm:text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 px-2 py-1 rounded-lg">
+                            <ArrowDownRight size={12} /> {filteredOverdue.length} overdue
                         </span>
                     </div>
-                    <p className="text-2xl font-black text-gray-900">${totalOverdue.toLocaleString()}</p>
-                    <p className="text-xs text-gray-500 mt-1">Overdue ({timeRange})</p>
+                    <p className="text-lg sm:text-2xl font-black text-gray-900 dark:text-white">${totalOverdue.toLocaleString()}</p>
+                    <p className="text-[9px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1">Overdue ({timeRange})</p>
                 </div>
 
                 {/* Occupancy Rate */}
-                <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-                    <div className="flex items-center justify-between mb-3">
-                        <div className="p-2 bg-purple-50 rounded-xl">
-                            <PieChart size={20} className="text-purple-600" />
+                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-4 sm:p-5 shadow-sm">
+                    <div className="flex items-center justify-between mb-2 sm:mb-3">
+                        <div className="p-2 bg-purple-50 dark:bg-purple-900/30 rounded-xl">
+                            <PieChart size={16} className="text-purple-600 dark:text-purple-400" />
                         </div>
-                        <span className="flex items-center gap-1 text-xs font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-lg">
+                        <span className="flex items-center gap-1 text-[9px] sm:text-xs font-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 px-2 py-1 rounded-lg">
                             Occupancy
                         </span>
                     </div>
-                    <p className="text-2xl font-black text-gray-900">{(stats?.occupancyRate || 0).toFixed(1)}%</p>
-                    <p className="text-xs text-gray-500 mt-1">Current occupancy rate</p>
+                    <p className="text-lg sm:text-2xl font-black text-gray-900 dark:text-white">{(stats?.occupancyRate || 0).toFixed(1)}%</p>
+                    <p className="text-[9px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1">Current occupancy rate</p>
                 </div>
             </div>
 
             {/* Stock-style Chart */}
-            <div className="bg-gray-900 rounded-2xl p-6 shadow-lg">
+            <div className="bg-gray-900 dark:bg-gray-950 rounded-2xl p-4 sm:p-6 shadow-lg card-fade-in-3">
                 {/* Chart Header */}
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 sm:gap-3">
                     <div>
-                        <div className="flex items-baseline gap-3">
-                            <span className="text-3xl font-black text-white">
+                        <div className="flex items-baseline gap-2 sm:gap-3">
+                            <span className="text-2xl sm:text-3xl font-black text-white">
                                 ${chartData.points.length > 0 ? chartData.points[chartData.points.length - 1].cumulative.toLocaleString() : '0'}
                             </span>
-                                <span className={`text-sm font-bold ${totalExpected > totalOverdue ? 'text-gray-300' : 'text-gray-400'}`}>
+                                <span className={`text-xs sm:text-sm font-bold ${totalExpected > totalOverdue ? 'text-gray-300' : 'text-gray-400'}`}>
                                 {totalExpected > totalOverdue ? '+' : '-'}${Math.abs(totalExpected - totalOverdue).toLocaleString()}
                                 <span className="text-gray-500 ml-1">({timeRange})</span>
                             </span>
                         </div>
-                        <p className="text-gray-500 text-sm mt-1">Cumulative Expected Revenue</p>
+                        <p className="text-gray-500 text-xs sm:text-sm mt-1">Cumulative Expected Revenue</p>
                     </div>
                     
                     {/* Time Range Selector */}
-                    <div className="flex items-center gap-1 bg-gray-800 p-1 rounded-lg">
+                    <div className="flex items-center gap-1 bg-gray-800 dark:bg-gray-800 p-1 rounded-lg mt-3 sm:mt-0">
                         {timeRangeOptions.map((option) => (
                             <button
                                 key={option.value}
                                 onClick={() => setTimeRange(option.value)}
-                                className={`px-3 py-1.5 text-xs font-bold rounded transition-all ${
+                                className={`px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-bold rounded transition-all ${
                                     timeRange === option.value
                                         ? 'bg-gray-700 text-white'
                                         : 'text-gray-400 hover:text-white'
@@ -288,9 +288,9 @@ const AccountingPage = () => {
                 </div>
 
                 {/* SVG Chart */}
-                <div className="relative h-64 mt-4">
+                <div className="relative h-48 sm:h-64 mt-3 sm:mt-4">
                     {chartData.points.length === 0 ? (
-                        <div className="absolute inset-0 flex items-center justify-center text-gray-500">
+                        <div className="absolute inset-0 flex items-center justify-center text-xs sm:text-base text-gray-500">
                             No payment data for this period
                         </div>
                     ) : (
@@ -460,37 +460,39 @@ const AccountingPage = () => {
             </div>
 
             {/* Payments Table with Tabs */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden card-fade-in-4">
                 {/* Tab Header */}
-                <div className="flex border-b border-gray-100">
+                <div className="flex border-b border-gray-100 dark:border-gray-700">
                     <button
                         onClick={() => setActiveTab('expected')}
-                        className={`flex-1 px-6 py-4 text-sm font-bold transition-colors flex items-center justify-center gap-2 ${
+                        className={`flex-1 px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-bold transition-colors flex items-center justify-center gap-2 ${
                             activeTab === 'expected'
-                                ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50'
-                                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
+                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
                         }`}
                     >
-                        <Clock size={18} />
-                        Expected Payments
+                        <Clock size={14} />
+                        <span className="hidden sm:inline">Expected Payments</span>
+                        <span className="sm:hidden">Expected</span>
                         <span className={`px-2 py-0.5 rounded-full text-xs ${
-                            activeTab === 'expected' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'
+                            activeTab === 'expected' ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
                         }`}>
                             {filteredExpected.length}
                         </span>
                     </button>
                     <button
                         onClick={() => setActiveTab('overdue')}
-                        className={`flex-1 px-6 py-4 text-sm font-bold transition-colors flex items-center justify-center gap-2 ${
+                        className={`flex-1 px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-bold transition-colors flex items-center justify-center gap-2 ${
                             activeTab === 'overdue'
-                                ? 'text-red-600 border-b-2 border-red-600 bg-red-50/50'
-                                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                                ? 'text-red-600 dark:text-red-400 border-b-2 border-red-600 dark:border-red-400 bg-red-50 dark:bg-red-900/20'
+                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
                         }`}
                     >
-                        <AlertTriangle size={18} />
-                        Overdue Payments
+                        <AlertTriangle size={14} />
+                        <span className="hidden sm:inline">Overdue Payments</span>
+                        <span className="sm:hidden">Overdue</span>
                         <span className={`px-2 py-0.5 rounded-full text-xs ${
-                            activeTab === 'overdue' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'
+                            activeTab === 'overdue' ? 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
                         }`}>
                             {filteredOverdue.length}
                         </span>
@@ -500,151 +502,161 @@ const AccountingPage = () => {
                 {/* Table Content */}
                 {activeTab === 'expected' ? (
                     filteredExpected.length === 0 ? (
-                        <div className="p-12 text-center">
-                            <Clock size={48} className="mx-auto text-gray-300 mb-4" />
-                            <h3 className="text-lg font-bold text-gray-600">No expected payments</h3>
-                            <p className="text-sm text-gray-400 mt-1">No payments due in this period ({timeRange})</p>
+                        <div className="p-6 sm:p-12 text-center">
+                            <Clock size={40} className="mx-auto text-gray-300 dark:text-gray-600 mb-3 sm:mb-4" />
+                            <h3 className="text-base sm:text-lg font-bold text-gray-600 dark:text-gray-300">No expected payments</h3>
+                            <p className="text-xs sm:text-sm text-gray-400 dark:text-gray-500 mt-1">No payments due in this period ({timeRange})</p>
                         </div>
                     ) : (
-                        <table className="w-full text-left">
-                            <thead className="bg-gray-50 text-gray-500 text-[10px] font-black uppercase tracking-widest">
+                        <div className="overflow-x-auto">
+                        <table className="w-full text-left text-xs sm:text-sm">
+                            <thead className="bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest">
                                 <tr>
-                                    <th className="px-6 py-4">Renter</th>
-                                    <th className="px-6 py-4">Property / Unit</th>
-                                    <th className="px-6 py-4">Due Date</th>
-                                    <th className="px-6 py-4">Days Until Due</th>
-                                    <th className="px-6 py-4 text-right">Amount</th>
+                                    <th className="px-3 sm:px-6 py-3 sm:py-4">Renter</th>
+                                    <th className="px-3 sm:px-6 py-3 sm:py-4 hidden md:table-cell">Property / Unit</th>
+                                    <th className="px-3 sm:px-6 py-3 sm:py-4 hidden lg:table-cell">Due Date</th>
+                                    <th className="px-3 sm:px-6 py-3 sm:py-4">Days Until</th>
+                                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-right">Amount</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-50">
+                            <tbody className="divide-y divide-gray-50 dark:divide-gray-700">
                                 {filteredExpected.map((payment) => (
-                                    <tr key={payment.paymentId} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-                                                    <User size={18} className="text-blue-600" />
+                                    <tr key={payment.paymentId} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                        <td className="px-3 sm:px-6 py-3 sm:py-4">
+                                            <div className="flex items-center gap-2 sm:gap-3">
+                                                <div className="w-8 sm:w-10 h-8 sm:h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                                                    <User size={14} className="text-blue-600 dark:text-blue-400" />
                                                 </div>
-                                                <div>
-                                                    <p className="font-bold text-gray-900">{payment.renterName}</p>
-                                                    <p className="text-xs text-gray-500 flex items-center gap-1">
+                                                <div className="hidden sm:block">
+                                                    <p className="font-bold text-gray-900 dark:text-white">{payment.renterName}</p>
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
                                                         <Phone size={10} /> {payment.renterPhoneNumber}
                                                     </p>
                                                 </div>
+                                                <div className="sm:hidden">
+                                                    <p className="font-bold text-gray-900 dark:text-white text-xs">{payment.renterName}</p>
+                                                </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-3 sm:px-6 py-3 sm:py-4 hidden md:table-cell">
                                             <div className="flex items-center gap-2">
-                                                <Building2 size={14} className="text-gray-400" />
-                                                <span className="text-sm text-gray-600">{payment.propertyName}</span>
-                                                <span className="text-gray-300">•</span>
-                                                <Home size={14} className="text-gray-400" />
-                                                <span className="text-sm font-medium">#{payment.unitNo}</span>
+                                                <Building2 size={12} className="text-gray-400 dark:text-gray-500 hidden lg:block" />
+                                                <span className="text-gray-600 dark:text-gray-300">{payment.propertyName}</span>
+                                                <span className="text-gray-300 dark:text-gray-600">•</span>
+                                                <Home size={12} className="text-gray-400 dark:text-gray-500 hidden lg:block" />
+                                                <span className="font-medium text-gray-900 dark:text-white">#{payment.unitNo}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-2 text-sm text-gray-600">
-                                                <Calendar size={14} className="text-gray-400" />
+                                        <td className="px-3 sm:px-6 py-3 sm:py-4 hidden lg:table-cell">
+                                            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                                                <Calendar size={12} className="text-gray-400 dark:text-gray-500" />
                                                 {new Date(payment.dueDate).toLocaleDateString()}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <span className={`px-3 py-1 rounded-lg text-xs font-bold ${
+                                        <td className="px-3 sm:px-6 py-3 sm:py-4">
+                                            <span className={`px-2 sm:px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap ${
                                                 payment.daysUntilDue <= 3 
-                                                    ? 'bg-amber-100 text-amber-700' 
-                                                    : 'bg-green-100 text-green-700'
+                                                    ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400' 
+                                                    : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
                                             }`}>
                                                 {payment.daysUntilDue} days
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <span className="text-lg font-bold text-gray-900">${payment.amount.toLocaleString()}</span>
+                                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-right">
+                                            <span className="text-xs sm:text-lg font-bold text-gray-900 dark:text-white">${payment.amount.toLocaleString()}</span>
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
-                            <tfoot className="bg-gray-50 border-t border-gray-100">
+                            <tfoot className="bg-gray-50 dark:bg-gray-700 border-t border-gray-100 dark:border-gray-600">
                                 <tr>
-                                    <td colSpan={4} className="px-6 py-4 text-sm font-bold text-gray-600">
+                                    <td colSpan={4} className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-bold text-gray-600 dark:text-gray-300">
                                         Total Expected
                                     </td>
-                                    <td className="px-6 py-4 text-right text-lg font-black text-blue-600">
+                                    <td className="px-3 sm:px-6 py-3 sm:py-4 text-right text-xs sm:text-lg font-black text-blue-600 dark:text-blue-400">
                                         ${totalExpected.toLocaleString()}
                                     </td>
                                 </tr>
                             </tfoot>
                         </table>
+                        </div>
                     )
                 ) : (
                     filteredOverdue.length === 0 ? (
-                        <div className="p-12 text-center">
-                            <TrendingUp size={48} className="mx-auto text-green-300 mb-4" />
-                            <h3 className="text-lg font-bold text-gray-600">No overdue payments</h3>
-                            <p className="text-sm text-gray-400 mt-1">No overdue payments in this period ({timeRange})</p>
+                        <div className="p-6 sm:p-12 text-center">
+                            <TrendingUp size={40} className="mx-auto text-green-300 dark:text-green-600 mb-3 sm:mb-4" />
+                            <h3 className="text-base sm:text-lg font-bold text-gray-600 dark:text-gray-300">No overdue payments</h3>
+                            <p className="text-xs sm:text-sm text-gray-400 dark:text-gray-500 mt-1">No overdue payments in this period ({timeRange})</p>
                         </div>
                     ) : (
-                        <table className="w-full text-left">
-                            <thead className="bg-gray-50 text-gray-500 text-[10px] font-black uppercase tracking-widest">
+                        <div className="overflow-x-auto">
+                        <table className="w-full text-left text-xs sm:text-sm">
+                            <thead className="bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest">
                                 <tr>
-                                    <th className="px-6 py-4">Renter</th>
-                                    <th className="px-6 py-4">Property / Unit</th>
-                                    <th className="px-6 py-4">Due Date</th>
-                                    <th className="px-6 py-4">Days Overdue</th>
-                                    <th className="px-6 py-4 text-right">Amount</th>
+                                    <th className="px-3 sm:px-6 py-3 sm:py-4">Renter</th>
+                                    <th className="px-3 sm:px-6 py-3 sm:py-4 hidden md:table-cell">Property / Unit</th>
+                                    <th className="px-3 sm:px-6 py-3 sm:py-4 hidden lg:table-cell">Due Date</th>
+                                    <th className="px-3 sm:px-6 py-3 sm:py-4">Days Late</th>
+                                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-right">Amount</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-50">
+                            <tbody className="divide-y divide-gray-50 dark:divide-gray-700">
                                 {filteredOverdue.map((payment) => (
-                                    <tr key={payment.paymentId} className="hover:bg-red-50/50 transition-colors">
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
-                                                    <User size={18} className="text-red-600" />
+                                    <tr key={payment.paymentId} className="hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
+                                        <td className="px-3 sm:px-6 py-3 sm:py-4">
+                                            <div className="flex items-center gap-2 sm:gap-3">
+                                                <div className="w-8 sm:w-10 h-8 sm:h-10 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                                                    <User size={14} className="text-red-600 dark:text-red-400" />
                                                 </div>
-                                                <div>
-                                                    <p className="font-bold text-gray-900">{payment.renterName}</p>
-                                                    <p className="text-xs text-gray-500 flex items-center gap-1">
+                                                <div className="hidden sm:block">
+                                                    <p className="font-bold text-gray-900 dark:text-white">{payment.renterName}</p>
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
                                                         <Phone size={10} /> {payment.renterPhoneNumber}
                                                     </p>
                                                 </div>
+                                                <div className="sm:hidden">
+                                                    <p className="font-bold text-gray-900 dark:text-white text-xs">{payment.renterName}</p>
+                                                </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-3 sm:px-6 py-3 sm:py-4 hidden md:table-cell">
                                             <div className="flex items-center gap-2">
-                                                <Building2 size={14} className="text-gray-400" />
-                                                <span className="text-sm text-gray-600">{payment.propertyName}</span>
-                                                <span className="text-gray-300">•</span>
-                                                <Home size={14} className="text-gray-400" />
-                                                <span className="text-sm font-medium">#{payment.unitNo}</span>
+                                                <Building2 size={12} className="text-gray-400 dark:text-gray-500 hidden lg:block" />
+                                                <span className="text-gray-600 dark:text-gray-300">{payment.propertyName}</span>
+                                                <span className="text-gray-300 dark:text-gray-600">•</span>
+                                                <Home size={12} className="text-gray-400 dark:text-gray-500 hidden lg:block" />
+                                                <span className="font-medium text-gray-900 dark:text-white">#{payment.unitNo}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-2 text-sm text-gray-600">
-                                                <Calendar size={14} className="text-gray-400" />
+                                        <td className="px-3 sm:px-6 py-3 sm:py-4 hidden lg:table-cell">
+                                            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                                                <Calendar size={12} className="text-gray-400 dark:text-gray-500" />
                                                 {new Date(payment.dueDate).toLocaleDateString()}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <span className="px-3 py-1 rounded-lg text-xs font-bold bg-red-100 text-red-700">
+                                        <td className="px-3 sm:px-6 py-3 sm:py-4">
+                                            <span className="px-2 sm:px-3 py-1 rounded-lg text-xs font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 whitespace-nowrap">
                                                 {Math.abs(payment.daysUntilDue)} days late
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <span className="text-lg font-bold text-red-600">${payment.amount.toLocaleString()}</span>
+                                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-right">
+                                            <span className="text-xs sm:text-lg font-bold text-red-600 dark:text-red-400">${payment.amount.toLocaleString()}</span>
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
-                            <tfoot className="bg-red-50 border-t border-red-100">
+                            <tfoot className="bg-red-50 dark:bg-red-900/20 border-t border-red-100 dark:border-red-900/40">
                                 <tr>
-                                    <td colSpan={4} className="px-6 py-4 text-sm font-bold text-red-700">
+                                    <td colSpan={4} className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-bold text-red-700 dark:text-red-300">
                                         Total Overdue
                                     </td>
-                                    <td className="px-6 py-4 text-right text-lg font-black text-red-600">
+                                    <td className="px-3 sm:px-6 py-3 sm:py-4 text-right text-xs sm:text-lg font-black text-red-600 dark:text-red-400">
                                         ${totalOverdue.toLocaleString()}
                                     </td>
                                 </tr>
                             </tfoot>
                         </table>
+                        </div>
                     )
                 )}
             </div>

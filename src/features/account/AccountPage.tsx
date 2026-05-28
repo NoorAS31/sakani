@@ -45,16 +45,16 @@ const AccountPage = () => {
     }, []);
 
     return (
-        <div className="p-6 max-w-4xl mx-auto">
-            <header className="mb-8">
-                <h1 className="text-2xl font-bold text-gray-800">Account</h1>
-                <p className="text-sm text-gray-500 mt-1">View your profile information</p>
+        <div className="p-4 sm:p-6 max-w-4xl mx-auto page-fade-in">
+            <header className="mb-6 sm:mb-8 card-fade-in-1">
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Account</h1>
+                <p className="text-xs sm:text-sm text-gray-500 mt-1">View your profile information</p>
             </header>
 
-            <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
-                <div className="flex items-start gap-6">
-                    <div className="rounded-full bg-gradient-to-br from-gray-200 to-gray-300 p-6">
-                        <UserCircle2 size={64} className="text-gray-700" />
+            <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-8 card-fade-in-2">
+                <div className="flex items-start gap-3 sm:gap-6">
+                    <div className="flex-shrink-0 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 p-4 sm:p-6">
+                        <UserCircle2 size={40} className="text-gray-700" />
                     </div>
                     
                     <div className="flex-1 space-y-4">
@@ -66,21 +66,21 @@ const AccountPage = () => {
                             </div>
                         ) : (
                             <>
-                                <div className="flex items-center gap-3">
-                                    <h2 className="text-2xl font-bold text-gray-900">{fullName}</h2>
+                                <div className="flex items-center gap-2 sm:gap-3">
+                                    <h2 className="text-lg sm:text-2xl font-bold text-gray-900">{fullName}</h2>
                                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
                                         {role}
                                     </span>
                                 </div>
                                 
-                                <div className="space-y-2 pt-2">
+                                <div className="space-y-1 sm:space-y-2 pt-2">
                                     {email && (
-                                        <p className="text-sm text-gray-600">
+                                        <p className="text-xs sm:text-sm text-gray-600">
                                             <span className="font-semibold text-gray-800">Email:</span> {email}
                                         </p>
                                     )}
                                     {phone && (
-                                        <p className="text-sm text-gray-600">
+                                        <p className="text-xs sm:text-sm text-gray-600">
                                             <span className="font-semibold text-gray-800">Phone:</span> {phone}
                                         </p>
                                     )}
