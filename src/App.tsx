@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Menu } from 'lucide-react';
 import LoginPage from './features/auth/LoginPage';
 import DashboardLayout from './layouts/DashboardLayout';
 import DashboardPage from './features/dashboard/DashboardPage';
@@ -22,12 +23,20 @@ import MaintenanceTicketsPage from './features/tickets/MaintenanceTicketsPage.ts
 import CreateMaintenanceTicketPage from './features/tickets/CreateMaintenanceTicketPage.tsx';
 import MaintenanceTicketDetailPage from './features/tickets/MaintenanceTicketDetailPage.tsx';
 import FadeRoutes from './components/common/FadeRoutes';
+import { ConsoleErrorBanner } from './components/common/ConsoleErrorBanner';
 import Sidebar from './components/layout/Sidebar';
 import { NotificationCenter } from './components/notifications/NotificationCenter.tsx';
 import { DARK_THEME_BRIDGE_CLASSES } from './utils/theme';
+import { useIsMobile } from './hooks/useISMobile';
 
 function App() {
+    const isMobile = useIsMobile();
     const [isAuthenticated, setIsAuthenticated] = useState(() => !!storage.getToken());
+    const [isSidebarOpen, setIsSidebarOpen] = useState(() => !isMobile);
+
+    useEffect(() => {
+        setIsSidebarOpen(!isMobile);
+    }, [isMobile]);
 
     const handleLogout = () => {
         localStorage.clear();
@@ -52,8 +61,19 @@ function App() {
                 <>
                     <NotificationCenter />
                     <div className={`flex h-screen bg-gray-50 overflow-hidden ${DARK_THEME_BRIDGE_CLASSES}`}>
-                        <Sidebar key={layoutKey} onLogout={handleLogout} />
+                        <Sidebar key={layoutKey} onLogout={handleLogout} isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+                        {isMobile && !isSidebarOpen && (
+                            <button
+                                type="button"
+                                onClick={() => setIsSidebarOpen(true)}
+                                className="fixed left-4 top-4 z-30 flex items-center justify-center rounded-md bg-white/90 p-2 text-gray-700 shadow-md ring-1 ring-black/5 backdrop-blur transition hover:bg-white lg:hidden dark:bg-slate-800/90 dark:text-slate-200 dark:ring-white/10"
+                                aria-label="Open sidebar"
+                            >
+                                <Menu size={24} />
+                            </button>
+                        )}
                         <div className="flex-1 h-full overflow-y-auto">
+                            <ConsoleErrorBanner />
                             <FadeRoutes>
                                 {(location) => (
                                     <Routes location={location}>
