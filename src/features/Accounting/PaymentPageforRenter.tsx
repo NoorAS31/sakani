@@ -92,7 +92,6 @@ const PaymentPageForRenter = () => {
         );
     }
 
-    // split into unpaid (overdue + pending) and paid
     const unpaidPayments = sortedPayments.filter(p => p.paymentStatus === 1 || p.paymentStatus === 3);
     const paidPayments = sortedPayments.filter(p => p.paymentStatus === 2);
 
@@ -103,7 +102,7 @@ const PaymentPageForRenter = () => {
         const StatusIcon = paymentStatus.icon;
         const canPay = payment.paymentStatus === 1 || payment.paymentStatus === 3;
 
-        const return (
+         return (
             <div key={actualPaymentId || index} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                 <div className="flex flex-col gap-3 sm:gap-4 p-4 sm:p-5 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3 sm:gap-4">

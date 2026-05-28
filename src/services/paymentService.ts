@@ -6,7 +6,6 @@ export const paymentService = {
         dto: PaymentSimulationDto,
         options?: { signal?: AbortSignal }
     ): Promise<PaymentSimulationResponse> => {
-        // نرسل الحقول مفرودة في جذر الكائن بدون التغليف بكلمة dto
         const response = await apiClient.post<PaymentSimulationResponse>(
             '/Payments/simulate',
             {
