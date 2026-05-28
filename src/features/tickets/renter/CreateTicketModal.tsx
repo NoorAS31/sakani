@@ -144,12 +144,12 @@ const CreateTicketModal = ({ isOpen, onClose, onSuccess }: CreateTicketModalProp
     const hasUnits = activeContracts !== null;
 
     return (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 backdrop-blur-sm p-3 sm:p-4">
             <div className="w-full max-w-xl bg-white rounded-2xl border border-gray-200 shadow-xl">
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100">
                     <div>
-                        <h2 className="text-lg font-bold text-gray-900">New Maintenance Request</h2>
-                        <p className="text-xs text-gray-500">Describe the issue so we can help quickly.</p>
+                        <h2 className="text-base sm:text-lg font-bold text-gray-900">New Maintenance Request</h2>
+                        <p className="text-[10px] sm:text-xs text-gray-500">Describe the issue so we can help quickly.</p>
                     </div>
                     <button
                         type="button"
@@ -162,9 +162,9 @@ const CreateTicketModal = ({ isOpen, onClose, onSuccess }: CreateTicketModalProp
                 </div>
 
                 {!hasUnits && !loadingContracts && (
-                    <div className="rounded-2xl border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-600 m-6">
+                    <div className="rounded-2xl border border-red-200 bg-red-50 px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-red-600 m-4 sm:m-6">
                         <p className="font-semibold">No active rental unit</p>
-                        <p className="text-xs mt-1">You don't have any active rental contracts. Please contact support to create a maintenance request.</p>
+                        <p className="text-[10px] sm:text-xs mt-1">You don't have any active rental contracts. Please contact support to create a maintenance request.</p>
                     </div>
                 )}
 
@@ -173,31 +173,31 @@ const CreateTicketModal = ({ isOpen, onClose, onSuccess }: CreateTicketModalProp
                         <Loader2 size={24} className="animate-spin text-gray-400" />
                     </div>
                 ) : (
-                    <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+                    <form onSubmit={handleSubmit} className="px-4 sm:px-6 py-4 sm:py-5 space-y-3 sm:space-y-4">
                         {errorMessage && (
-                            <div className="rounded-xl bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-600">
+                            <div className="rounded-xl bg-red-50 border border-red-100 px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-red-600">
                                 {errorMessage}
                             </div>
                         )}
 
-                        <div className="space-y-2">
-                            <label className="text-xs font-semibold text-gray-600" htmlFor="ticket-unit">
+                        <div className="space-y-1 sm:space-y-2">
+                            <label className="text-[10px] sm:text-xs font-semibold text-gray-600" htmlFor="ticket-unit">
                                 Unit
                             </label>
                             {hasUnits && activeContracts && (
-                                <div className="rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900 bg-gray-50">
+                                <div className="rounded-xl border border-gray-200 px-3 py-2 text-xs sm:text-sm text-gray-900 bg-gray-50">
                                     {activeContracts.unitNo}
                                 </div>
                             )}
                             {!hasUnits && (
-                                <div className="rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-500 bg-gray-50">
+                                <div className="rounded-xl border border-gray-200 px-3 py-2 text-xs sm:text-sm text-gray-500 bg-gray-50">
                                     No units available
                                 </div>
                             )}
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-xs font-semibold text-gray-600" htmlFor="ticket-subject">
+                        <div className="space-y-1 sm:space-y-2">
+                            <label className="text-[10px] sm:text-xs font-semibold text-gray-600" htmlFor="ticket-subject">
                                 Subject
                             </label>
                             <input
@@ -207,15 +207,15 @@ const CreateTicketModal = ({ isOpen, onClose, onSuccess }: CreateTicketModalProp
                                 required
                                 value={subject}
                                 onChange={(event) => setSubject(event.target.value)}
-                                className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                className="w-full rounded-xl border border-gray-200 px-3 py-2 text-xs sm:text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-200"
                                 placeholder="e.g., AC not cooling"
                                 disabled={isSubmitting || !hasUnits}
                             />
-                            <p className="text-[11px] text-gray-400">Max 100 characters.</p>
+                            <p className="text-[9px] sm:text-[11px] text-gray-400">Max 100 characters.</p>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-xs font-semibold text-gray-600" htmlFor="ticket-description">
+                        <div className="space-y-1 sm:space-y-2">
+                            <label className="text-[10px] sm:text-xs font-semibold text-gray-600" htmlFor="ticket-description">
                                 Description
                             </label>
                             <textarea
@@ -224,20 +224,20 @@ const CreateTicketModal = ({ isOpen, onClose, onSuccess }: CreateTicketModalProp
                                 rows={4}
                                 value={description}
                                 onChange={(event) => setDescription(event.target.value)}
-                                className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                className="w-full rounded-xl border border-gray-200 px-3 py-2 text-xs sm:text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-200"
                                 placeholder="Share the details of the issue..."
                                 disabled={isSubmitting || !hasUnits}
                             />
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-xs font-semibold text-gray-600" htmlFor="ticket-images">
+                        <div className="space-y-1 sm:space-y-2">
+                            <label className="text-[10px] sm:text-xs font-semibold text-gray-600" htmlFor="ticket-images">
                                 Attach Images (optional)
                             </label>
-                            <div className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-gray-200 px-3 py-3 text-sm text-gray-500">
-                                <span>Select JPG/PNG images (max 1MB each)</span>
+                            <div className="flex items-center justify-between gap-2 sm:gap-3 rounded-xl border border-dashed border-gray-200 px-3 py-2 sm:py-3 text-xs sm:text-sm text-gray-500">
+                                <span className="text-[10px] sm:text-sm">Select JPG/PNG images (max 1MB each)</span>
                                 <label
-                                    className="inline-flex items-center justify-center rounded-lg bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-200 cursor-pointer"
+                                    className="inline-flex items-center justify-center rounded-lg bg-gray-100 px-2 sm:px-3 py-1 text-[9px] sm:text-xs font-semibold text-gray-700 hover:bg-gray-200 cursor-pointer"
                                     htmlFor="ticket-images"
                                 >
                                     Browse
@@ -255,13 +255,13 @@ const CreateTicketModal = ({ isOpen, onClose, onSuccess }: CreateTicketModalProp
                         </div>
 
                         {files.length > 0 && (
-                            <div className="space-y-2">
-                                <p className="text-xs font-semibold text-gray-600">Selected Images</p>
-                                <div className="space-y-2">
+                            <div className="space-y-1 sm:space-y-2">
+                                <p className="text-[10px] sm:text-xs font-semibold text-gray-600">Selected Images</p>
+                                <div className="space-y-1 sm:space-y-2">
                                     {files.map((file, index) => (
                                         <div
                                             key={`${file.name}-${index}`}
-                                            className="flex items-center justify-between rounded-lg border border-gray-200 px-3 py-2 text-xs text-gray-600"
+                                            className="flex items-center justify-between rounded-lg border border-gray-200 px-3 py-2 text-[10px] sm:text-xs text-gray-600"
                                         >
                                             <span className="truncate">{file.name}</span>
                                             <button
@@ -278,18 +278,18 @@ const CreateTicketModal = ({ isOpen, onClose, onSuccess }: CreateTicketModalProp
                             </div>
                         )}
 
-                        <div className="flex items-center justify-end gap-2 pt-2">
+                        <div className="flex items-center justify-end gap-2 sm:gap-3 pt-2 sm:pt-3">
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="px-4 py-2 text-sm font-semibold text-gray-600 hover:text-gray-800"
+                                className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-gray-600 hover:text-gray-800"
                                 disabled={isSubmitting}
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
-                                className="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-700 transition-colors disabled:opacity-60"
+                                className="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-600 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-gray-700 transition-colors disabled:opacity-60"
                                 disabled={isSubmitting || !hasUnits}
                             >
                                 {isSubmitting ? (
