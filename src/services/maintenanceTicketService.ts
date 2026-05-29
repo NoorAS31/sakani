@@ -61,14 +61,15 @@ export const MaintenanceTicketService = {
 
     uploadImage: async (ticketId: string, imageFile: File, config?: AxiosRequestConfig): Promise<{ url: string }> => {
         const formData = new FormData();
-        // Match the key name your backend expects ('image' vs 'file')
-        formData.append('image', imageFile);
+        // Match the key name your backend expects
+        formData.append('file', imageFile);
 
         const response = await apiClient.post<{ url: string }>(
             `/maintenance-tickets/${ticketId}/images`,
             formData,
             {
                 ...config,
+                timeout: 30000, // 30 second timeout
                 headers: {
                     ...config?.headers,
                     'Content-Type': 'multipart/form-data',

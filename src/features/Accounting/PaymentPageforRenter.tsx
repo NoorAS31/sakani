@@ -164,7 +164,6 @@ const PaymentPageForRenter = () => {
                 </div>
             ) : (
                 <div className="space-y-4 sm:space-y-6 card-fade-in-2">
-                    {/* Overdue + Pending */}
                     {unpaidPayments.length > 0 && (
                         <div className="space-y-2 sm:space-y-3">
                             <p className="text-[10px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wide">
@@ -173,8 +172,7 @@ const PaymentPageForRenter = () => {
                             {unpaidPayments.map((payment, index) => renderPayment(payment, index))}
                         </div>
                     )}
-
-                    {/* Paid */}
+                    
                     {paidPayments.length > 0 && (
                         <div className="space-y-2 sm:space-y-3">
                             <p className="text-[10px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wide">
