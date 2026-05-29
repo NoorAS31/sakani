@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Plus, AlertCircle, Clock, CheckCircle2, AlertTriangle, ImageIcon, ArrowRight, Filter, Search } from 'lucide-react';
 import { usePageTitle } from '../../hooks/usePageTitle';
@@ -33,7 +34,12 @@ const MaintenanceTicketsPage = () => {
             setUnits(unitData);
             setTickets(ticketData);
         } catch (err) {
-            console.error('Failed to load tickets:', err);
+            if (axios.isAxiosError(err) && err.response?.status === 404) {
+                setUnits([]);
+                setTickets([]);
+            } else {
+                console.error('Failed to load tickets:', err);
+            }
         } finally {
             setLoading(false);
         }

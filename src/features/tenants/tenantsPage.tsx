@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 import { Plus, X, Mail, Phone, MapPin, Info, UserPlus, Edit2, Trash2 } from 'lucide-react';
 import type { Tenant } from '../../types/tenant';
 import { tenantService } from '../../services/tenantService';
@@ -23,7 +24,11 @@ const TenantsPage = () => {
                 const data = await tenantService.getAllTenants();
                 setTenants(data);
             } catch (error) {
-                console.error("Failed to load tenants", error);
+                if (axios.isAxiosError(error) && error.response?.status === 404) {
+                    setTenants([]);
+                } else {
+                    console.error("Failed to load tenants", error);
+                }
             } finally {
                 setLoading(false);
             }

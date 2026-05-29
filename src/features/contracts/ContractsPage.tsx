@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
+import axios from 'axios';
 import { FileText, Plus, Search, Calendar, DollarSign, User, Home, X, Loader2, Clock, Download, XCircle, Filter, ChevronDown, ArrowRight } from 'lucide-react';
 import { contractService } from '../../services/contractService';
 import { unitService } from '../../services/unitService';
@@ -290,7 +291,12 @@ const ContractsPage = () => {
             
             setContracts(enriched);
         } catch (error) {
-            console.error("Failed to load contracts", error);
+            if (axios.isAxiosError(error) && error.response?.status === 404) {
+                setContracts([]);
+                setRenters([]);
+            } else {
+                console.error("Failed to load contracts", error);
+            }
         } finally {
             setLoading(false);
         }

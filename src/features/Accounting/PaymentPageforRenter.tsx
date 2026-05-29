@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import axios from 'axios';
 import { CheckCircle, Clock, AlertTriangle, Loader2, CreditCard } from 'lucide-react';
 import { accountingService } from '../../services/accountingService';
 import PaymentSimulationModal from '../../components/common/PaymentSimulationModal';
@@ -15,7 +16,14 @@ const PaymentPageForRenter = () => {
     useEffect(() => {
         accountingService.getMyPaymentHistory('All')
             .then(setPayments)
-            .catch(console.error)
+            .catch(err => {
+                // 404 means no payments found - this is a valid state, not an error
+                if (axios.isAxiosError(err) && err.response?.status === 404) {
+                    setPayments([]);
+                } else {
+                    console.error(err);
+                }
+            })
             .finally(() => setLoading(false));
     }, []);
 

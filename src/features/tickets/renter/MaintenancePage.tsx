@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Wrench, Search, Filter, Clock, CheckCircle2, AlertCircle, AlertTriangle, ArrowRight } from 'lucide-react';
+import axios from 'axios';
 import { usePageTitle } from '../../../hooks/usePageTitle';
 import { MaintenanceTicketService } from '../../../services/maintenanceTicketService';
 import type { MaintenanceTicket, MaintenanceTicketStatusType } from '../../../types/maintenanceTicket';
@@ -26,8 +27,13 @@ const MaintenancePage = () => {
             const data = await MaintenanceTicketService.getMy();
             setTickets(data);
         } catch (err) {
-            console.error('Failed to load tickets:', err);
-            setTickets([]);
+            // 404 means no tickets found - this is a valid state, not an error
+            if (axios.isAxiosError(err) && err.response?.status === 404) {
+                setTickets([]);
+            } else {
+                console.error('Failed to load tickets:', err);
+                setTickets([]);
+            }
         } finally {
             setLoading(false);
         }

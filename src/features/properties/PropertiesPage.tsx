@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 import { Plus, MapPin, Edit3, Trash2, Eye } from 'lucide-react';
 import { propertyService } from '../../services/propertyService';
 import CreatePropertyModal from './CreatePropertyModal';
@@ -40,7 +41,11 @@ const PropertiesPage = () => {
             const data = await propertyService.getAll();
             setProperties(data);
         } catch (err) {
-            console.error("Failed to load properties:", err);
+            if (axios.isAxiosError(err) && err.response?.status === 404) {
+                setProperties([]);
+            } else {
+                console.error("Failed to load properties:", err);
+            }
         } finally {
             setLoading(false);
         }

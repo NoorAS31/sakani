@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import axios from 'axios';
 import {
     ChevronDown,
     ChevronRight,
@@ -39,7 +40,14 @@ const PaymentsPage = () => {
     useEffect(() => {
         contractService.getAll()
             .then(setContracts)
-            .catch(console.error)
+            .catch(err => {
+                if (axios.isAxiosError(err) && err.response?.status === 404) {
+                    setContracts([]);
+                } else {
+                    console.error('Failed to load contracts:', err);
+                    setContracts([]);
+                }
+            })
             .finally(() => setLoading(false));
     }, []);
 

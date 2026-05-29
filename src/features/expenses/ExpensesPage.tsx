@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import axios from 'axios';
 import { Loader2, Plus, ReceiptText, Trash2, X, Filter, Edit3 } from 'lucide-react';
 import { usePageTitle } from '../../hooks/usePageTitle.ts';
 import { expenseService } from '../../services/expenseService.ts';
@@ -31,7 +32,11 @@ const ExpensesPage = () => {
             const data = await expenseService.getAll();
             setExpenses(data);
         } catch (err) {
-            console.error('Failed to load expenses:', err);
+            if (axios.isAxiosError(err) && err.response?.status === 404) {
+                setExpenses([]);
+            } else {
+                console.error('Failed to load expenses:', err);
+            }
         } finally {
             setLoading(false);
         }
@@ -45,7 +50,13 @@ const ExpensesPage = () => {
                 setUnits(unitData);
             })
             .catch(err => {
-                console.error('Failed to load expenses page data:', err);
+                if (axios.isAxiosError(err) && err.response?.status === 404) {
+                    setProperties([]);
+                    setExpenses([]);
+                    setUnits([]);
+                } else {
+                    console.error('Failed to load expenses page data:', err);
+                }
             })
             .finally(() => setLoading(false));
     }, []);
