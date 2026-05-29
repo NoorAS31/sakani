@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
-import { FileText, Plus, Search, Calendar, DollarSign, User, Home, X, Loader2, Clock, Download, XCircle, Filter, ChevronDown, ArrowRight } from 'lucide-react';
+import { FileText, Plus, Search, Calendar, DollarSign, User, Home, X, Loader2, Clock, XCircle, Filter, ChevronDown, ArrowRight } from 'lucide-react';
 import { contractService } from '../../services/contractService';
 import { unitService } from '../../services/unitService';
 import { renterService } from '../../services/renterService';
@@ -93,157 +93,6 @@ const ContractsPage = () => {
         }));
     }, [location.search, renters]);
 
-    const handleDownloadPDF = (contract: ContractDisplay) => {
-        const renter = renters.find(r => r.id === contract.renterId);
-        const renterName = contract.renterName || (renter ? `${renter.firstName} ${renter.lastName}`.trim() : 'N/A');
-        const tenantName = renterName || 'N/A';
-        const unitLabel = contract.unitNo ? `Unit #${contract.unitNo}` : 'N/A';
-        const formatDate = (value?: string) => value ? new Date(value).toLocaleDateString() : 'N/A';
-        const formatMoney = (value?: number) => typeof value === 'number' ? `$${value.toLocaleString()}` : 'N/A';
-        const escapeHtml = (value: string) => value
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-        const statusLabel = getStatusConfig(contract.contractStatus).label;
-        const statusBadgeStyle = contract.contractStatus === 2
-            ? 'background:#dcfce7;color:#166534;'
-            : contract.contractStatus === 1
-                ? 'background:#fef3c7;color:#92400e;'
-                : contract.contractStatus === 3
-                    ? 'background:#fee2e2;color:#991b1b;'
-                    : 'background:#f3f4f6;color:#4b5563;';
-
-        const html = `<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <title>Contract ${escapeHtml(contract.id)}</title>
-    <style>
-        * { box-sizing: border-box; }
-        body { margin: 0; padding: 32px; background: #f8fafc; color: #0f172a; font-family: "Segoe UI", Arial, sans-serif; }
-        .header { background: #111827; color: #fff; padding: 24px 28px; border-radius: 16px; }
-        .header h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
-        .header p { margin: 8px 0 0; font-size: 12px; opacity: 0.8; }
-        .meta { display: flex; gap: 24px; margin-top: 14px; font-size: 12px; opacity: 0.9; }
-        .section { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 18px 20px; margin-top: 18px; }
-        .section h3 { margin: 0 0 12px; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #6b7280; }
-        .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 18px; }
-        .item .label { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: #9ca3af; font-weight: 700; margin-bottom: 4px; }
-        .item .value { font-size: 14px; font-weight: 600; color: #111827; }
-        .badge { display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border-radius: 999px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
-        .signature { margin-top: 18px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
-        .signature-line { border-bottom: 1px solid #d1d5db; padding-bottom: 6px; font-size: 12px; color: #6b7280; }
-        footer { margin-top: 24px; font-size: 11px; color: #6b7280; text-align: center; }
-        @media print {
-            body { background: #fff; padding: 24px; }
-            .section { break-inside: avoid; }
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>Lease Contract</h1>
-        <p>Contract reference ${escapeHtml(contract.id.split('-')[0])}</p>
-        <div class="meta">
-            <div>Generated ${escapeHtml(formatDate(new Date().toISOString()))}</div>
-            <div><span class="badge" style="${statusBadgeStyle}">${escapeHtml(statusLabel)}</span></div>
-        </div>
-    </div>
-
-    <div class="section">
-        <h3>Parties</h3>
-        <div class="grid">
-            <div class="item">
-                <div class="label">Unit</div>
-                <div class="value">${escapeHtml(unitLabel)}</div>
-            </div>
-            <div class="item">
-                <div class="label">Tenant Name</div>
-                <div class="value">${escapeHtml(tenantName)}</div>
-            </div>
-            <div class="item">
-                <div class="label">Renter Name</div>
-                <div class="value">${escapeHtml(renterName)}</div>
-            </div>
-            <div class="item">
-                <div class="label">Tenant ID</div>
-                <div class="value">${escapeHtml(contract.tenantId || 'N/A')}</div>
-            </div>
-            <div class="item">
-                <div class="label">Renter Phone</div>
-                <div class="value">${escapeHtml(renter?.phoneNumber || 'N/A')}</div>
-            </div>
-            <div class="item">
-                <div class="label">Renter Email</div>
-                <div class="value">${escapeHtml(renter?.email || 'N/A')}</div>
-            </div>
-            <div class="item">
-                <div class="label">National ID</div>
-                <div class="value">${escapeHtml(renter?.nationalId || 'N/A')}</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="section">
-        <h3>Contract Terms</h3>
-        <div class="grid">
-            <div class="item">
-                <div class="label">Start Date</div>
-                <div class="value">${escapeHtml(formatDate(contract.startDate))}</div>
-            </div>
-            <div class="item">
-                <div class="label">End Date</div>
-                <div class="value">${escapeHtml(formatDate(contract.endDate))}</div>
-            </div>
-            <div class="item">
-                <div class="label">Payment Frequency</div>
-                <div class="value">${escapeHtml(getPaymentFreqLabel(contract.paymentFreq))}</div>
-            </div>
-            <div class="item">
-                <div class="label">Rent Amount</div>
-                <div class="value">${escapeHtml(formatMoney(contract.rentAmount))}</div>
-            </div>
-            <div class="item">
-                <div class="label">Contract Status</div>
-                <div class="value">${escapeHtml(statusLabel)}</div>
-            </div>
-            <div class="item">
-                <div class="label">Contract ID</div>
-                <div class="value">${escapeHtml(contract.id)}</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="section">
-        <h3>Signatures</h3>
-        <div class="signature">
-            <div class="signature-line">Landlord Signature</div>
-            <div class="signature-line">Tenant Signature</div>
-        </div>
-    </div>
-
-    <footer>
-        Generated by Sakani Contracts on ${escapeHtml(new Date().toLocaleString())}
-    </footer>
-</body>
-</html>`;
-
-        const printWindow = window.open('', '_blank', 'noopener,noreferrer');
-        if (!printWindow) {
-            alert('Pop-up blocked. Please allow pop-ups to export the PDF.');
-            return;
-        }
-        printWindow.document.open();
-        printWindow.document.write(html);
-        printWindow.document.close();
-        printWindow.focus();
-        printWindow.onload = () => {
-            printWindow.print();
-            printWindow.onafterprint = () => printWindow.close();
-        };
-    };
     const getStatusConfig = (statusNum: number) => {
         switch (statusNum) {
             case 1: return { label: 'DRAFT', color: 'bg-ember-100 text-ember-700' };
@@ -352,12 +201,10 @@ const ContractsPage = () => {
                 return false;
             }
 
-            // Payment frequency filter
             if (filters.paymentFreq && c.paymentFreq !== Number(filters.paymentFreq)) {
                 return false;
             }
 
-            // Start date range
             if (filters.startDateFrom) {
                 const contractStart = new Date(c.startDate);
                 const filterFrom = new Date(filters.startDateFrom);
@@ -369,7 +216,6 @@ const ContractsPage = () => {
                 if (contractStart > filterTo) return false;
             }
 
-            // End date range
             if (filters.endDateFrom) {
                 const contractEnd = new Date(c.endDate);
                 const filterFrom = new Date(filters.endDateFrom);
@@ -402,7 +248,6 @@ const ContractsPage = () => {
 
     return (
         <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 relative min-h-screen page-fade-in">
-            {/* Main List Section */}
             <div className={`transition-all duration-300 ${selectedContract ? 'lg:w-8/12' : 'w-full'} space-y-4 sm:space-y-6 card-fade-in-1`}>
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
                     <div>
@@ -417,7 +262,6 @@ const ContractsPage = () => {
                     </button>
                 </div>
 
-                {/* Search Bar and Filter Toggle */}
                 <div className="flex gap-2 sm:gap-3">
                     <div className="relative group flex-1">
                         <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
@@ -447,7 +291,6 @@ const ContractsPage = () => {
                     </button>
                 </div>
 
-                {/* Filter Panel */}
                 {showFilters && (
                     <div className="bg-white rounded-2xl border border-gray-200 p-3 sm:p-5 shadow-sm space-y-3 sm:space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
                         <div className="flex justify-between items-center">
@@ -511,7 +354,6 @@ const ContractsPage = () => {
                             </div>
                         </div>
 
-                        {/* Date Range Filters */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 pt-1 sm:pt-2">
                             <div className="space-y-1">
                                     <label className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase">Start Date From</label>
@@ -552,7 +394,6 @@ const ContractsPage = () => {
                         </div>
                     </div>
                 )}
-
                 {loading ? (
                     <div className="flex justify-center py-20"><Loader2 className="animate-spin text-gray-400" size={40} /></div>
                 ) : filteredContracts.length === 0 ? (
@@ -639,8 +480,7 @@ const ContractsPage = () => {
                                 <DetailItem icon={<Clock size={16}/>} label="Payment Freq" value={getPaymentFreqLabel(selectedContract.paymentFreq)} />
                             </div>
                         </div>
-                        
-                        {/* Action Buttons */}
+
                         <div className="pt-2 sm:pt-4 space-y-2 sm:space-y-3">
                             <button
                                 onClick={handleViewContract}
@@ -648,12 +488,7 @@ const ContractsPage = () => {
                             >
                                 <ArrowRight size={16} /> View Payments
                             </button>
-                            <button 
-                                onClick={() => handleDownloadPDF(selectedContract)}
-                                className="w-full py-2 sm:py-3 bg-gray-900 text-white rounded-xl text-xs sm:text-sm font-bold hover:bg-black transition-colors flex items-center justify-center gap-2"
-                            >
-                                <Download size={16} /> Export PDF
-                            </button>
+
                             {(selectedContract.contractStatus === 1 || selectedContract.contractStatus === 2) && (
                                 <button 
                                     onClick={() => handleTerminateContract(selectedContract)}
@@ -668,7 +503,6 @@ const ContractsPage = () => {
                     </div>
                 </div>
             )}
-
             <CreateContractModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
