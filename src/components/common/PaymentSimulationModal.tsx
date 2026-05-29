@@ -88,6 +88,13 @@ const PaymentSimulationModal = ({ isOpen, paymentId, onClose, onSuccess }: Payme
 
             if (axios.isAxiosError(error)) {
                 const data = error.response?.data;
+                const status = error.response?.status;
+
+                // For 404 errors with empty response body, don't show error message
+                if (status === 404 && (!data || Object.keys(data).length === 0)) {
+                    setErrorMessage('');
+                    return;
+                }
 
                 let finalMessage = 'Payment failed. Please check your details and try again.';
 

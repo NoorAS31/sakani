@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, Lock, User as UserIcon } from 'lucide-react';
+import axios from 'axios';
 import { authService } from '../../services/authService';
 import type { Tenant } from '../../types/tenant';
 
@@ -93,6 +94,12 @@ const AddTenantUserModal = ({ isOpen, onClose, onSuccess, tenant }: AddTenantUse
             handleClose();
         } catch (error) {
             console.error("Failed to register tenant user", error);
+            
+            if (axios.isAxiosError(error) && error.response?.status === 404 && (!error.response?.data || Object.keys(error.response.data).length === 0)) {
+                setErrors({});
+                return;
+            }
+            
             const errorData = (error as { response?: { data?: unknown } }).response?.data as {
                 errors?: Record<string, string[] | string>;
                 title?: string;

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Loader2, X } from 'lucide-react';
+import axios from 'axios';
 import { MaintenanceTicketService } from '../../../services/maintenanceTicketService.ts';
 import { contractService } from '../../../services/contractService.ts';
 import type { MyContractDetailsDto } from '../../../types/contract.ts';
@@ -100,8 +101,12 @@ const CreateTicketModal = ({ isOpen, onClose, onSuccess }: CreateTicketModalProp
             onClose();
             resetForm();
         } catch (error) {
-            const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
-            setErrorMessage(message || 'Unable to create the ticket right now. Please try again.');
+            if (axios.isAxiosError(error) && error.response?.status === 404 && (!error.response?.data || Object.keys(error.response.data).length === 0)) {
+                setErrorMessage(null);
+            } else {
+                const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
+                setErrorMessage(message || 'Unable to create the ticket right now. Please try again.');
+            }
         } finally {
             setIsSubmitting(false);
             setUploadStatus('');
