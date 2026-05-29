@@ -23,11 +23,19 @@ const CreateMaintenanceTicketPage = () => {
 
     useEffect(() => {
         unitService.getAll()
-            .then(setUnits)
+            .then(data => {
+                // Empty array is not an error, just no units available
+                setUnits(data || []);
+                setError(null);
+            })
             .catch(err => {
                 const status = axios.isAxiosError(err) ? err.response?.status ?? null : null;
                 setErrorStatus(status);
-                if (status !== 404) {
+                // Don't show error for 404s
+                if (status === 404) {
+                    setUnits([]);
+                    setError(null);
+                } else {
                     console.error('Failed to load units:', err);
                     setError('Failed to load units');
                 }
