@@ -19,6 +19,7 @@ const PaymentSimulationModal = ({ isOpen, paymentId, onClose, onSuccess }: Payme
     const [status, setStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
     const [transactionId, setTransactionId] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+    const [errorStatus, setErrorStatus] = useState<number | null>(null);
 
     const handleCloseAndReset = () => {
         setCardNumber('');
@@ -28,6 +29,7 @@ const PaymentSimulationModal = ({ isOpen, paymentId, onClose, onSuccess }: Payme
         setStatus('idle');
         setTransactionId('');
         setErrorMessage('');
+        setErrorStatus(null);
         onClose();
     };
 
@@ -88,10 +90,12 @@ const PaymentSimulationModal = ({ isOpen, paymentId, onClose, onSuccess }: Payme
 
             if (axios.isAxiosError(error)) {
                 const data = error.response?.data;
-                const status = error.response?.status;
+                const httpStatus = error.response?.status;
+                
+                setErrorStatus(httpStatus ?? null);
 
-                // For 404 errors with empty response body, don't show error message
-                if (status === 404 && (!data || Object.keys(data).length === 0)) {
+                // Don't show any error message for 404 errors
+                if (httpStatus === 404) {
                     setErrorMessage('');
                     return;
                 }
@@ -180,7 +184,7 @@ const PaymentSimulationModal = ({ isOpen, paymentId, onClose, onSuccess }: Payme
                     {(status === 'idle' || status === 'error') && (
                         <form onSubmit={handleSubmit} className="space-y-4">
 
-                            {status === 'error' && errorMessage && (
+                            {status === 'error' && errorStatus !== 404 && errorMessage && (
                                 <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm flex items-start gap-2">
                                     <AlertCircle size={15} className="mt-0.5 shrink-0" />
                                     <span>{errorMessage}</span>

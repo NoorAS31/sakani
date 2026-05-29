@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { X, User, Phone, CreditCard, Mail, AlignLeft, Save } from 'lucide-react';
 import { renterService } from '../../services/renterService';
 
@@ -88,6 +89,7 @@ const CreateRenterModal = ({ isOpen, onClose, onRenterCreated }: CreateRenterMod
     });
     const [fieldErrors, setFieldErrors] = useState<FormErrors>({});
     const [generalError, setGeneralError] = useState('');
+    const [errorStatus, setErrorStatus] = useState<number | null>(null);
 
     if (!isOpen) return null;
 
@@ -103,6 +105,7 @@ const CreateRenterModal = ({ isOpen, onClose, onRenterCreated }: CreateRenterMod
         setFormData({ firstName: '', lastName: '', email: '', phoneNumber: '', nationalId: '', description: '' });
         setFieldErrors({});
         setGeneralError('');
+        setErrorStatus(null);
     };
 
     const handleClose = () => {
@@ -136,6 +139,18 @@ const CreateRenterModal = ({ isOpen, onClose, onRenterCreated }: CreateRenterMod
             handleClose();
         } catch (error) {
             console.error("Failed to create renter", error);
+            
+            const axiosError = axios.isAxiosError(error);
+            const status = axiosError ? error.response?.status ?? null : null;
+            setErrorStatus(status);
+            
+            // Don't show error for 404s
+            if (status === 404) {
+                setFieldErrors({});
+                setGeneralError('');
+                return;
+            }
+            
             const data = (error as { response?: { data?: unknown } }).response?.data as {
                 errors?: Record<string, string[] | string>;
                 title?: string;
@@ -186,7 +201,7 @@ const CreateRenterModal = ({ isOpen, onClose, onRenterCreated }: CreateRenterMod
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                    {generalError && (
+                    {generalError && errorStatus !== 404 && (
                         <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
                             {generalError}
                         </p>

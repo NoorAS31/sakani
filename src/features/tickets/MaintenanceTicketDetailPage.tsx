@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Calendar, FileText, Loader2, MapPin, Pencil, Wrench, X, Check } from 'lucide-react';
+import axios from 'axios';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import { MaintenanceTicketService } from '../../services/maintenanceTicketService';
 import type { MaintenanceTicket } from '../../types/maintenanceTicket';
@@ -19,6 +20,7 @@ const MaintenanceTicketDetailPage = ({ canEdit = true, isRenter = false, onClose
     const [ticket, setTicket] = useState<MaintenanceTicket | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [errorStatus, setErrorStatus] = useState<number | null>(null);
     const [isClosing, setIsClosing] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editSubject, setEditSubject] = useState('');
@@ -73,8 +75,12 @@ const MaintenanceTicketDetailPage = ({ canEdit = true, isRenter = false, onClose
                 setTicket(data);
             })
             .catch((err) => {
-                console.error('Failed to load ticket:', err);
-                setError('Failed to load ticket');
+                const status = axios.isAxiosError(err) ? err.response?.status ?? null : null;
+                setErrorStatus(status);
+                if (status !== 404) {
+                    console.error('Failed to load ticket:', err);
+                    setError('Failed to load ticket');
+                }
             })
             .finally(() => setLoading(false));
     }, [id, isRenter]);
@@ -206,7 +212,7 @@ const MaintenanceTicketDetailPage = ({ canEdit = true, isRenter = false, onClose
                                 <FileText size={22} />
                             </div>
                             <h2 className="text-lg font-bold text-red-800">Ticket not available</h2>
-                            <p className="text-sm text-red-600 mt-1">{error}</p>
+                            {errorStatus !== 404 && <p className="text-sm text-red-600 mt-1">{error}</p>}
                         </div>
                     )}
 

@@ -53,6 +53,7 @@ const AddRenterUserModal = ({ isOpen, onClose, onSuccess, renter }: AddRenterUse
         name: ''
     });
     const [errors, setErrors] = useState<FormErrors>({});
+    const [errorStatus, setErrorStatus] = useState<number | null>(null);
 
     if (!isOpen || !renter) return null;
 
@@ -95,7 +96,12 @@ const AddRenterUserModal = ({ isOpen, onClose, onSuccess, renter }: AddRenterUse
         } catch (error) {
             console.error("Failed to register renter user", error);
             
-            if (axios.isAxiosError(error) && error.response?.status === 404 && (!error.response?.data || Object.keys(error.response.data).length === 0)) {
+            const axiosError = axios.isAxiosError(error);
+            const status = axiosError ? error.response?.status ?? null : null;
+            setErrorStatus(status);
+            
+            // Don't show error for 404s
+            if (status === 404) {
                 setErrors({});
                 return;
             }
@@ -120,7 +126,7 @@ const AddRenterUserModal = ({ isOpen, onClose, onSuccess, renter }: AddRenterUse
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
                     <h2 className="text-xl font-bold text-gray-900 mb-4">Add User for {renter.firstName} {renter.lastName}</h2>
 
-                    {errors.general && (
+                    {errors.general && errorStatus !== 404 && (
                         <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
                             {errors.general}
                         </p>

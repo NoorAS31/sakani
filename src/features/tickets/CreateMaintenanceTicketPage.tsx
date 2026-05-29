@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
+import axios from 'axios';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import { MaintenanceTicketService } from '../../services/maintenanceTicketService';
 import { unitService } from '../../services/unitService';
@@ -13,6 +14,7 @@ const CreateMaintenanceTicketPage = () => {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [errorStatus, setErrorStatus] = useState<number | null>(null);
     const [formData, setFormData] = useState({
         unitId: '',
         subject: '',
@@ -23,8 +25,12 @@ const CreateMaintenanceTicketPage = () => {
         unitService.getAll()
             .then(setUnits)
             .catch(err => {
-                console.error('Failed to load units:', err);
-                setError('Failed to load units');
+                const status = axios.isAxiosError(err) ? err.response?.status ?? null : null;
+                setErrorStatus(status);
+                if (status !== 404) {
+                    console.error('Failed to load units:', err);
+                    setError('Failed to load units');
+                }
             })
             .finally(() => setLoading(false));
     }, []);
@@ -47,8 +53,12 @@ const CreateMaintenanceTicketPage = () => {
             });
             navigate('/maintenance-tickets');
         } catch (err) {
-            console.error('Failed to create ticket:', err);
-            setError('Failed to create maintenance ticket');
+            const status = axios.isAxiosError(err) ? err.response?.status ?? null : null;
+            setErrorStatus(status);
+            if (status !== 404) {
+                console.error('Failed to create ticket:', err);
+                setError('Failed to create maintenance ticket');
+            }
         } finally {
             setSubmitting(false);
         }
@@ -84,7 +94,7 @@ const CreateMaintenanceTicketPage = () => {
 
                     {/* Form */}
                     <form onSubmit={handleSubmit} className="p-4 sm:p-8 space-y-4 sm:space-y-6">
-                        {error && (
+                        {errorStatus !== 404 && error && (
                             <div className="p-3 sm:p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl flex items-start gap-2 sm:gap-3">
                                 <AlertCircle size={18} className="text-red-600 dark:text-red-500 flex-shrink-0 mt-0.5" />
                                 <p className="text-xs sm:text-sm font-semibold text-red-800 dark:text-red-300">{error}</p>

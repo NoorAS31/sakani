@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { X, Save } from 'lucide-react';
 import { tenantService } from '../../services/tenantService';
 import type { Tenant } from '../../types/tenant';
@@ -22,6 +23,7 @@ const UpdateTenantModal = ({ isOpen, onClose, onTenantUpdated, tenant }: UpdateT
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
+    const [errorStatus, setErrorStatus] = useState<number | null>(null);
     const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
     useEffect(() => {
@@ -89,8 +91,16 @@ const UpdateTenantModal = ({ isOpen, onClose, onTenantUpdated, tenant }: UpdateT
             onTenantUpdated();
             onClose();
         } catch (err: unknown) {
+            const status = axios.isAxiosError(err) ? err.response?.status ?? null : null;
+            setErrorStatus(status);
+            if (status === 404) {
+                setError('');
+                setIsSubmitting(false);
+                return;
+            }
             if(err instanceof Error ){
                 console.error("Failed to update tenant", err.message);
+                setError( "failed to update tenant. Please try again.");
             }
             else {
             setError( "failed to update tenant. Please try again.");
@@ -112,7 +122,7 @@ const UpdateTenantModal = ({ isOpen, onClose, onTenantUpdated, tenant }: UpdateT
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
-                    {error && (
+                    {errorStatus !== 404 && error && (
                         <p className="text-xs sm:text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
                             {error}
                         </p>

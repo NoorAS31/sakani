@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { X, Save, AlertCircle } from 'lucide-react';
 import { propertyService } from '../../services/propertyService';
 import type { Property } from '../../types/property';
@@ -21,6 +22,7 @@ const UpdatePropertyModal = ({ property, isOpen, onClose, onPropertyUpdated }: U
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [errorStatus, setErrorStatus] = useState<number | null>(null);
 
     // Pre-fill form when the modal opens or the property changes
     useEffect(() => {
@@ -54,11 +56,20 @@ const UpdatePropertyModal = ({ property, isOpen, onClose, onPropertyUpdated }: U
             onPropertyUpdated();
             onClose();
         } catch (err: unknown) {
+            const status = axios.isAxiosError(err) ? err.response?.status ?? null : null;
+            setErrorStatus(status);
+            if (status === 404) {
+                setError(null);
+                setIsSubmitting(false);
+                return;
+            }
             if(err instanceof Error) {
                 console.error("update failed",err.message);
+                setError("Failed to update property. Please try again.");
             }
             else{
                 console.error("update failed");
+                setError("Failed to update property. Please try again.");
             }
         } finally {
             setIsSubmitting(false);
@@ -77,7 +88,7 @@ const UpdatePropertyModal = ({ property, isOpen, onClose, onPropertyUpdated }: U
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                    {error && (
+                    {errorStatus !== 404 && error && (
                         <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-xl flex items-center gap-2 text-sm">
                             <AlertCircle size={16} /> {error}
                         </div>

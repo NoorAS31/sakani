@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import {authService} from "../../services/authService.ts";
 import {tenantService} from "../../services/tenantService.ts";
 import {storage} from "../../utils/storage.ts";
@@ -43,6 +44,7 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
         password: ''
     });
     const [error, setError] = useState <string | null>(null);
+    const [errorStatus, setErrorStatus] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [rememberMe, setRememberMe] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
@@ -56,6 +58,7 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
         e.preventDefault();
         setIsLoading(true);
         setError(null);
+        setErrorStatus(null);
 
         console.log("Authenticating...", credentials.email);
 
@@ -81,14 +84,18 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
             onLogin();
 
         } catch (err) {
-            storage.clearLoginData();
-            const message = err instanceof Error ? err.message : '';
-            if (message.startsWith('TENANT_STATUS:')) {
-                setError(message.replace('TENANT_STATUS:', ''));
-            } else {
-                setError("Invalid credentials. Please check your email and password.");
+            const status = axios.isAxiosError(err) ? err.response?.status ?? null : null;
+            setErrorStatus(status);
+            if (status !== 404) {
+                storage.clearLoginData();
+                const message = err instanceof Error ? err.message : '';
+                if (message.startsWith('TENANT_STATUS:')) {
+                    setError(message.replace('TENANT_STATUS:', ''));
+                } else {
+                    setError("Invalid credentials. Please check your email and password.");
+                }
+                console.error("Login Error:", err);
             }
-            console.error("Login Error:", err);
         } finally {
             setIsLoading(false);
 
@@ -138,7 +145,7 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
                     </div>
 
                     {/* Error Message */}
-                    {error && (
+                    {errorStatus !== 404 && error && (
                         <div className="mb-6 animate-shake">
                             <div className="bg-red-50/80 dark:bg-red-900/20 backdrop-blur-sm border border-red-200 dark:border-red-700 p-4 rounded-lg border-l-4 border-l-red-500">
                                 <p className="text-sm text-red-700 dark:text-red-300">{error}</p>

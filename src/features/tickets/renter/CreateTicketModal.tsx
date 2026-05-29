@@ -19,6 +19,7 @@ const CreateTicketModal = ({ isOpen, onClose, onSuccess }: CreateTicketModalProp
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [uploadStatus, setUploadStatus] = useState('');
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [errorStatus, setErrorStatus] = useState<number | null>(null);
     const [activeContracts, setActiveContracts] = useState<MyContractDetailsDto | null>(null);
     const [loadingContracts, setLoadingContracts] = useState(false);
 
@@ -30,6 +31,7 @@ const CreateTicketModal = ({ isOpen, onClose, onSuccess }: CreateTicketModalProp
         setIsSubmitting(false);
         setUploadStatus('');
         setErrorMessage(null);
+        setErrorStatus(null);
     };
 
     useEffect(() => {
@@ -101,11 +103,18 @@ const CreateTicketModal = ({ isOpen, onClose, onSuccess }: CreateTicketModalProp
             onClose();
             resetForm();
         } catch (error) {
-            if (axios.isAxiosError(error) && error.response?.status === 404 && (!error.response?.data || Object.keys(error.response.data).length === 0)) {
-                setErrorMessage(null);
+            if (axios.isAxiosError(error)) {
+                setErrorStatus(error.response?.status ?? null);
+                
+                // Don't show error for 404s
+                if (error.response?.status === 404) {
+                    setErrorMessage(null);
+                } else {
+                    const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
+                    setErrorMessage(message || 'Unable to create the ticket right now. Please try again.');
+                }
             } else {
-                const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
-                setErrorMessage(message || 'Unable to create the ticket right now. Please try again.');
+                setErrorMessage('Unable to create the ticket right now. Please try again.');
             }
         } finally {
             setIsSubmitting(false);
@@ -179,7 +188,7 @@ const CreateTicketModal = ({ isOpen, onClose, onSuccess }: CreateTicketModalProp
                     </div>
                 ) : (
                     <form onSubmit={handleSubmit} className="px-4 sm:px-6 py-4 sm:py-5 space-y-3 sm:space-y-4">
-                        {errorMessage && (
+                        {errorMessage && errorStatus !== 404 && (
                             <div className="rounded-xl bg-red-50 border border-red-100 px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-red-600">
                                 {errorMessage}
                             </div>
