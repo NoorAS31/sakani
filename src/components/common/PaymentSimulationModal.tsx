@@ -180,7 +180,7 @@ const PaymentSimulationModal = ({ isOpen, paymentId, onClose, onSuccess }: Payme
                     {(status === 'idle' || status === 'error') && (
                         <form onSubmit={handleSubmit} className="space-y-4">
 
-                            {status === 'error' && (
+                            {status === 'error' && errorMessage && (
                                 <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm flex items-start gap-2">
                                     <AlertCircle size={15} className="mt-0.5 shrink-0" />
                                     <span>{errorMessage}</span>
