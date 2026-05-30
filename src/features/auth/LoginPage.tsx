@@ -217,14 +217,7 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
                                     Remember me
                                 </span>
                             </label>
-                            <a
-                                href="https://github.com/xnucy/sakani/issues"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300 font-medium transition-colors duration-200"
-                            >
-                                Need help?
-                            </a>
+
                         </div>
 
                         {/* Sign In Button */}
