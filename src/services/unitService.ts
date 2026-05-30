@@ -19,11 +19,12 @@ export const unitService = {
     },
 
     getByPropertyId: async (propertyId: string): Promise<Unit[]> => {
+        // eslint-disable-next-line no-useless-catch
         try {
             const response = await apiClient.get<Unit[]>(`/units/property/${propertyId}`);
             return response.data;
         } catch (error) {
-            throw new Error(handleApiError(error));
+            throw error;
         }
     },
 
