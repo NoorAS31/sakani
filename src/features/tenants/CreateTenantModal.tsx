@@ -41,11 +41,6 @@ const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantMod
         const { name, value } = e.target;
         setError('');
 
-        // Don't allow changes to address fields
-        if (name === 'addressStreet' || name === 'addressCity' || name === 'addressRegion') {
-            return;
-        }
-
         // 1. Phone Number Restriction (Digits only)
         if (name === 'phoneNumber') {
             const onlyNums = value.replace(/[^0-9]/g, ''); // Remove everything except 0-9
@@ -190,7 +185,7 @@ const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantMod
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
                             <div className="md:col-span-3 space-y-1">
                                 <label className="text-xs sm:text-sm font-medium text-gray-700">Street Address</label>
-                                <input name="addressStreet" type="text" onChange={handleChange} value={formData.addressStreet} disabled className={`w-full border rounded-lg px-3 py-2 text-xs sm:text-sm outline-none transition-all bg-gray-100 cursor-not-allowed ${
+                                <input name="addressStreet" type="text" onChange={handleChange} value={formData.addressStreet} className={`w-full border rounded-lg px-3 py-2 text-xs sm:text-sm outline-none transition-all ${
                                     formData.addressStreet && !isAddressValid ? 'border-red-500 focus:ring-red-200 bg-red-50' : 'border-gray-300 focus:ring-gray-500'
                                 }`} placeholder="123 Property Lane" />
                                 {formData.addressStreet && !isAddressValid && (
@@ -199,11 +194,21 @@ const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantMod
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs sm:text-sm font-medium text-gray-700">City</label>
-                                <input name="addressCity" type="text" onChange={handleChange} value={formData.addressCity} disabled className="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs sm:text-sm bg-gray-100 cursor-not-allowed outline-none" placeholder="City" />
+                                <input name="addressStreet" type="text" onChange={handleChange} value={formData.addressCity} className={`w-full border rounded-lg px-3 py-2 text-xs sm:text-sm outline-none transition-all ${
+                                    formData.addressCity && !isCityValid ? 'border-red-500 focus:ring-red-200 bg-red-50' : 'border-gray-300 focus:ring-gray-500'
+                                }`} placeholder="123 Property Lane" />
+                                {formData.addressCity && !isCityValid && (
+                                    <p className="text-[9px] sm:text-[10px] text-red-500 font-medium italic">city address must be filled.</p>
+                                )}
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs sm:text-sm font-medium text-gray-700">Region</label>
-                                <input name="addressRegion" type="text" onChange={handleChange} value={formData.addressRegion} disabled className="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs sm:text-sm bg-gray-100 cursor-not-allowed outline-none" placeholder="Region" />
+                                <input name="addressStreet" type="text" onChange={handleChange} value={formData.addressStreet} className={`w-full border rounded-lg px-3 py-2 text-xs sm:text-sm outline-none transition-all ${
+                                    formData.addressStreet && !isRegionValid ? 'border-red-500 focus:ring-red-200 bg-red-50' : 'border-gray-300 focus:ring-gray-500'
+                                }`} placeholder="123 Property Lane" />
+                                {formData.addressStreet && !isRegionValid && (
+                                    <p className="text-[9px] sm:text-[10px] text-red-500 font-medium italic">region address must be filled.</p>
+                                )}
                             </div>
                         </div>
                     </div>
