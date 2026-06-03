@@ -194,21 +194,11 @@ const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantMod
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs sm:text-sm font-medium text-gray-700">City</label>
-                                <input name="addressStreet" type="text" onChange={handleChange} value={formData.addressCity} className={`w-full border rounded-lg px-3 py-2 text-xs sm:text-sm outline-none transition-all ${
-                                    formData.addressCity && !isCityValid ? 'border-red-500 focus:ring-red-200 bg-red-50' : 'border-gray-300 focus:ring-gray-500'
-                                }`} placeholder="123 Property Lane" />
-                                {formData.addressCity && !isCityValid && (
-                                    <p className="text-[9px] sm:text-[10px] text-red-500 font-medium italic">city address must be filled.</p>
-                                )}
+                                <input name="addressCity" type="text" onChange={handleChange} value={formData.addressCity} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-gray-600-500 outline-none" />
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs sm:text-sm font-medium text-gray-700">Region</label>
-                                <input name="addressStreet" type="text" onChange={handleChange} value={formData.addressStreet} className={`w-full border rounded-lg px-3 py-2 text-xs sm:text-sm outline-none transition-all ${
-                                    formData.addressStreet && !isRegionValid ? 'border-red-500 focus:ring-red-200 bg-red-50' : 'border-gray-300 focus:ring-gray-500'
-                                }`} placeholder="123 Property Lane" />
-                                {formData.addressStreet && !isRegionValid && (
-                                    <p className="text-[9px] sm:text-[10px] text-red-500 font-medium italic">region address must be filled.</p>
-                                )}
+                                <input name="addressRegion" type="text" onChange={handleChange} value={formData.addressRegion} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-gray-500 outline-none" placeholder="e.g. State/Province" />
                             </div>
                         </div>
                     </div>
