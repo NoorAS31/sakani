@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
-import { FileText, Plus, Search, Calendar, DollarSign, User, Home, X, Loader2, Clock, XCircle, Filter, ChevronDown, ArrowRight } from 'lucide-react';
+import { FileText, Plus, Search, Calendar, DollarSign, User, Home, X, Loader2, XCircle, Filter, ChevronDown, ArrowRight } from 'lucide-react';
 import { contractService } from '../../services/contractService';
 import { unitService } from '../../services/unitService';
 import { renterService } from '../../services/renterService';
@@ -26,15 +26,6 @@ interface Filters {
     endDateTo: string;
 }
 
-const getPaymentFreqLabel = (freq: number): string => {
-    switch (freq) {
-        case 1: return 'Monthly';
-        case 3: return 'Quarterly';
-        case 6: return 'Semi-Annually';
-        case 12: return 'Yearly';
-        default: return 'Monthly';
-    }
-};
 
 const ContractsPage = () => {
     usePageTitle('Contracts');
@@ -477,7 +468,6 @@ const ContractsPage = () => {
                             </div>
                             <div className="grid grid-cols-2 gap-2 sm:gap-4">
                                 <DetailItem icon={<DollarSign size={16}/>} label="Rent Amount" value={`$${selectedContract.rentAmount}`} />
-                                <DetailItem icon={<Clock size={16}/>} label="Payment Freq" value={getPaymentFreqLabel(selectedContract.paymentFreq)} />
                             </div>
                         </div>
 
