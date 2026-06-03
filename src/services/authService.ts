@@ -9,7 +9,6 @@ export interface LoginResponse {
     tenantId: string;
 }
 export interface RegisterRenterUserRequest {
-    email: string;
     password: string;
     name: string;
 }
