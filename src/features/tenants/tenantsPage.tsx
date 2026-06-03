@@ -193,6 +193,8 @@ const TenantsPage = () => {
                                <MapPin size={14} /> Address
                             </h3>
                             <DetailItem label="City" value={selectedTenant.addressCity} />
+                            <DetailItem label={"Street"} value={selectedTenant.addressStreet} />
+                            <DetailItem label={"Region"} value={selectedTenant.addressRegion} />
                         </div>
 
                         <hr className="border-gray-100" />
