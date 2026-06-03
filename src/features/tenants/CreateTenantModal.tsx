@@ -44,7 +44,7 @@ const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantMod
         // 1. Phone Number Restriction (Digits only)
         if (name === 'phoneNumber') {
             const onlyNums = value.replace(/[^0-9]/g, ''); // Remove everything except 0-9
-            if (onlyNums.length <= 15) { // Common max length for phone numbers
+            if (onlyNums.length <= 16) { // Common max length for phone numbers
                 setFormData(prev => ({ ...prev, [name]: onlyNums }));
             }
             return;
