@@ -17,7 +17,7 @@ const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantMod
         addressStreet: '',
         addressCity: '',
         addressRegion: '',
-        status: 'Active',
+        status: 1,
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
@@ -52,7 +52,7 @@ const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantMod
 
         // 2. Status is sent as number
         if (name === 'status') {
-            setFormData(prev => ({ ...prev, [name]: (value) }));
+            setFormData(prev => ({ ...prev, [name]: Number(value) }));
             return;
         }
 
@@ -84,7 +84,7 @@ const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantMod
                 addressStreet: '',
                 addressCity: '',
                 addressRegion: '',
-                status: 'Active',
+                status: 1,
             });
             onClose();
         } catch (err: unknown) {
@@ -146,9 +146,9 @@ const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantMod
                             <div className="space-y-1">
                                 <label className="text-xs sm:text-sm font-medium text-gray-700">Status</label>
                                 <select name="status" value={formData.status} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-gray-600 outline-none bg-white">
-                                    <option value={'Active'}>Active</option>
-                                    <option value={'Suspended'}>Suspended</option>
-                                    <option value={'Inactive'}>Inactive</option>
+                                    <option value={1}>Active</option>
+                                    <option value={2}>Suspended</option>
+                                    <option value={3}>Inactive</option>
                                 </select>
                             </div>
                             <div className="space-y-1">
