@@ -8,7 +8,6 @@ import {
     Loader2,
     MessageSquare,
     X,
-    Mail,
     Info,
     Pen,
     ArrowRight,
@@ -186,7 +185,6 @@ const RentersPage = () => {
                             <DetailItem icon={<Pen size={14}/>} label={"First Name"} value={selectedRenter.firstName}/>
                             <DetailItem icon={<Pen size={14}/>} label={"Last Name"} value={selectedRenter.lastName}/>
                             <DetailItem icon={<CreditCard size={14}/>} label="National ID" value={selectedRenter.nationalId} />
-                            <DetailItem icon={<Mail size={14}/>} label="Email Address" value={selectedRenter.email} />
                             <DetailItem icon={<Phone size={14}/>} label="Phone Number" value={selectedRenter.phoneNumber} />
                         </div>
 
