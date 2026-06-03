@@ -4,10 +4,22 @@ import './index.css'
 import App from "./App.tsx";
 import { ThemeProvider } from './context/ThemeContext.tsx';
 
-createRoot(document.getElementById('root')!).render(
-    <StrictMode>
+const isDevelopment = import.meta.env.DEV;
+
+const root = createRoot(document.getElementById('root')!);
+
+if (isDevelopment) {
+    root.render(
         <ThemeProvider>
             <App/>
-        </ThemeProvider>
-    </StrictMode>,
-)
+        </ThemeProvider>,
+    );
+} else {
+    root.render(
+        <StrictMode>
+            <ThemeProvider>
+                <App/>
+            </ThemeProvider>
+        </StrictMode>,
+    );
+}

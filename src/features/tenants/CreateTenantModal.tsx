@@ -17,7 +17,7 @@ const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantMod
         addressStreet: '',
         addressCity: '',
         addressRegion: '',
-        status: 1 // Active = 1
+        status: 'Active',
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
@@ -27,10 +27,12 @@ const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantMod
     // Validation Checks
     const isNameValid = formData.name.length >= 4;
     const isEmailValid = isValidEmail(formData.email);
-    const isPhoneValid = formData.phoneNumber.length >= 7;
-    const isAddressValid = formData.addressStreet.length >= 5;
+    const isPhoneValid = (formData.phoneNumber.length >= 7 || formData.phoneNumber.length <=16);
+    const isAddressValid = formData.addressStreet.length >= 4;
+    const isCityValid = formData.addressCity.length >0;
+    const isRegionValid = formData.addressRegion.length >0;
 
-    const isFormValid = isNameValid && isEmailValid && isPhoneValid && isAddressValid;
+    const isFormValid = isNameValid && isEmailValid && isPhoneValid && isAddressValid && isCityValid && isRegionValid;
 
 
     if (!isOpen) return null;
@@ -50,7 +52,7 @@ const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantMod
 
         // 2. Status is sent as number
         if (name === 'status') {
-            setFormData(prev => ({ ...prev, [name]: Number(value) }));
+            setFormData(prev => ({ ...prev, [name]: (value) }));
             return;
         }
 
@@ -82,14 +84,14 @@ const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantMod
                 addressStreet: '',
                 addressCity: '',
                 addressRegion: '',
-                status: 1
+                status: 'Active',
             });
             onClose();
         } catch (err: unknown) {
             const status = axios.isAxiosError(err) ? err.response?.status ?? null : null;
             setErrorStatus(status);
             if (status === 404) {
-                setError('');
+                setError('404');
                 setIsSubmitting(false);
                 return;
             }
@@ -134,7 +136,7 @@ const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantMod
                                 <label className="text-xs sm:text-sm font-medium text-gray-700">Tenant Name</label>
                                 <input name="name" type="text" onChange={handleChange} value={formData.name}
                                        className={`w-full border rounded-lg px-3 py-2 text-xs sm:text-sm outline-none transition-all ${
-                                           formData.name && !isNameValid ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-gray-500'
+                                           formData.name && !isNameValid ? 'border-red-500 focus:ring-red-200 bg-red-50' : 'border-gray-300 focus:ring-gray-500'
                                        }`}
                                        placeholder="Min 4 characters" />
                                 {formData.name && !isNameValid && (
@@ -144,9 +146,9 @@ const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantMod
                             <div className="space-y-1">
                                 <label className="text-xs sm:text-sm font-medium text-gray-700">Status</label>
                                 <select name="status" value={formData.status} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-gray-600 outline-none bg-white">
-                                    <option value={1}>Active</option>
-                                    <option value={2}>Suspended</option>
-                                    <option value={3}>Inactive</option>
+                                    <option value={'Active'}>Active</option>
+                                    <option value={'Suspended'}>Suspended</option>
+                                    <option value={'Inactive'}>Inactive</option>
                                 </select>
                             </div>
                             <div className="space-y-1">
@@ -157,7 +159,7 @@ const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantMod
                                     value={formData.email}
                                     onChange={handleChange}
                                     className={`w-full border rounded-lg px-3 py-2 text-xs sm:text-sm outline-none transition-all ${
-                                        formData.email && !isEmailValid ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-gray-500'
+                                        formData.email && !isEmailValid ? 'border-red-500 focus:ring-red-200 bg-red-50' : 'border-gray-300 focus:ring-gray-500'
                                     }`}
                                     placeholder="contact@company.com"
                                 />
@@ -167,7 +169,12 @@ const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantMod
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs sm:text-sm font-medium text-gray-700">Phone Number</label>
-                                <input name="phoneNumber" type="text" onChange={handleChange} value={formData.phoneNumber} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-gray-600 outline-none" placeholder="+962    7XXXXXXXX" />
+                                <input name="phoneNumber" type="text" onChange={handleChange} value={formData.phoneNumber} className={`w-full border rounded-lg px-3 py-2 text-xs sm:text-sm outline-none transition-all ${
+                                    formData.phoneNumber && !isPhoneValid ? 'border-red-500 focus:ring-red-200 bg-red-50' : 'border-gray-300 focus:ring-gray-500'
+                                }`} placeholder="+962    7XXXXXXXX" />
+                                {formData.phoneNumber && !isPhoneValid && (
+                                    <p className="text-[9px] sm:text-[10px] text-red-500 font-medium italic">Phone number must be at least 7 digits.</p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -178,15 +185,30 @@ const CreateTenantModal = ({ isOpen, onClose, onTenantCreated }: CreateTenantMod
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
                             <div className="md:col-span-3 space-y-1">
                                 <label className="text-xs sm:text-sm font-medium text-gray-700">Street Address</label>
-                                <input name="addressStreet" type="text" onChange={handleChange} value={formData.addressStreet} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-gray-500 outline-none" placeholder="123 Property Lane" />
+                                <input name="addressStreet" type="text" onChange={handleChange} value={formData.addressStreet} className={`w-full border rounded-lg px-3 py-2 text-xs sm:text-sm outline-none transition-all ${
+                                    formData.addressStreet && !isAddressValid ? 'border-red-500 focus:ring-red-200 bg-red-50' : 'border-gray-300 focus:ring-gray-500'
+                                }`} placeholder="123 Property Lane" />
+                                {formData.addressStreet && !isAddressValid && (
+                                    <p className="text-[9px] sm:text-[10px] text-red-500 font-medium italic">Street address must be at least 4 characters.</p>
+                                )}
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs sm:text-sm font-medium text-gray-700">City</label>
-                                <input name="addressCity" type="text" onChange={handleChange} value={formData.addressCity} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-gray-600-500 outline-none" />
+                                <input name="addressStreet" type="text" onChange={handleChange} value={formData.addressCity} className={`w-full border rounded-lg px-3 py-2 text-xs sm:text-sm outline-none transition-all ${
+                                    formData.addressCity && !isCityValid ? 'border-red-500 focus:ring-red-200 bg-red-50' : 'border-gray-300 focus:ring-gray-500'
+                                }`} placeholder="123 Property Lane" />
+                                {formData.addressCity && !isCityValid && (
+                                    <p className="text-[9px] sm:text-[10px] text-red-500 font-medium italic">city address must be filled.</p>
+                                )}
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs sm:text-sm font-medium text-gray-700">Region</label>
-                                <input name="addressRegion" type="text" onChange={handleChange} value={formData.addressRegion} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-gray-500 outline-none" placeholder="e.g. State/Province" />
+                                <input name="addressStreet" type="text" onChange={handleChange} value={formData.addressStreet} className={`w-full border rounded-lg px-3 py-2 text-xs sm:text-sm outline-none transition-all ${
+                                    formData.addressStreet && !isRegionValid ? 'border-red-500 focus:ring-red-200 bg-red-50' : 'border-gray-300 focus:ring-gray-500'
+                                }`} placeholder="123 Property Lane" />
+                                {formData.addressStreet && !isRegionValid && (
+                                    <p className="text-[9px] sm:text-[10px] text-red-500 font-medium italic">region address must be filled.</p>
+                                )}
                             </div>
                         </div>
                     </div>

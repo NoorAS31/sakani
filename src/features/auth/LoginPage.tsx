@@ -123,13 +123,11 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
                 <span className="hidden sm:inline">{theme === 'dark' ? 'Light' : 'Dark'}</span>
             </button>
 
-            {/* Login Card */}
             <div className="relative w-full max-w-md z-10">
                 <div className="absolute inset-0 bg-gradient-to-br from-gray-400 to-gray-500 dark:from-slate-700 dark:to-slate-600 rounded-2xl blur-2xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
                 
                 <div className="relative bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl p-8 rounded-2xl shadow-2xl border border-white/20 dark:border-slate-700/30 animate-fade-in">
-                    
-                    {/* Logo/Title */}
+
                     <div className="mb-8">
                         <div className="flex justify-center mb-4">
                             <div className="w-full h-16 rounded-xl flex items-center justify-center ">
@@ -144,7 +142,6 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
                         </p>
                     </div>
 
-                    {/* Error Message */}
                     {errorStatus !== 404 && error && (
                         <div className="mb-6 animate-shake">
                             <div className="bg-red-50/80 dark:bg-red-900/20 backdrop-blur-sm border border-red-200 dark:border-red-700 p-4 rounded-lg border-l-4 border-l-red-500">
@@ -154,7 +151,6 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
                     )}
 
                     <form className="space-y-5" onSubmit={handleSubmit}>
-                        {/* Email Field */}
                         <div className="relative group animate-slide-down animation-delay-200">
                             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                                 Email Address
@@ -173,7 +169,6 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
                             </div>
                         </div>
 
-                        {/* Password Field */}
                         <div className="relative group animate-slide-down animation-delay-300">
                             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                                 Password
@@ -203,7 +198,6 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
                             </div>
                         </div>
 
-                        {/* Remember Me & Forgot Password */}
                         <div className="flex items-center justify-between text-sm animate-slide-down animation-delay-400">
                             <label className="flex items-center cursor-pointer group">
                                 <input
@@ -220,7 +214,6 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
 
                         </div>
 
-                        {/* Sign In Button */}
                         <button
                             type="submit"
                             disabled={isLoading}
@@ -244,7 +237,6 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
                         </button>
                     </form>
 
-                    {/* Footer */}
                     <div className="mt-6 text-center text-xs text-slate-500 dark:text-slate-400 animate-slide-down animation-delay-600">
                         <p>Secure login with encrypted connection</p>
                     </div>

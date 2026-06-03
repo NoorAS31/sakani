@@ -135,7 +135,7 @@ const SidebarContent = ({ isDark, onLogout, toggleTheme, theme, menuItems, onClo
             </div>
 
             {/* Main Navigation */}
-            <nav className="flex-1 px-3 space-y-1">
+            <nav className="flex-1 overflow-y-auto px-3 space-y-1">
                 {menuItems.map((item) => (
                     <NavLink
                         key={item.name}

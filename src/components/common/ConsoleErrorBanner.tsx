@@ -17,6 +17,10 @@ const formatConsoleValue = (value: unknown): string => {
 
 const formatConsoleArgs = (args: unknown[]): string => args.map(formatConsoleValue).join(' ');
 
+const shouldIgnoreError = (message: string): boolean => {
+    return /404/.test(message);
+};
+
 export const ConsoleErrorBanner = () => {
     const [errors, setErrors] = useState<ConsoleErrorEntry[]>([]);
     const nextIdRef = useRef(0);
@@ -26,7 +30,7 @@ export const ConsoleErrorBanner = () => {
         console.error = (...args: unknown[]) => {
             originalConsoleError(...args);
             const message = formatConsoleArgs(args).trim();
-            if (!message) return;
+            if (!message || shouldIgnoreError(message)) return;
             const id = `${Date.now()}-${nextIdRef.current++}`;
             setErrors((prev) => [...prev, { id, message }]);
         };
