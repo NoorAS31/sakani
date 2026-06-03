@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { X, User, Phone, CreditCard, Mail, AlignLeft, Save } from 'lucide-react';
+import { X, User, Phone, CreditCard, AlignLeft, Save } from 'lucide-react';
 import { renterService } from '../../services/renterService';
 
 interface CreateRenterModalProps {
@@ -9,13 +9,12 @@ interface CreateRenterModalProps {
     onRenterCreated: () => void;
 }
 
-type RenterFormField = 'firstName' | 'lastName' | 'email' | 'phoneNumber' | 'nationalId' | 'description';
+type RenterFormField = 'firstName' | 'lastName' | 'phoneNumber' | 'nationalId' | 'description';
 type FormErrors = Partial<Record<RenterFormField, string>>;
 
 const fieldNameMap: Record<string, RenterFormField> = {
     firstname: 'firstName',
     lastname: 'lastName',
-    email: 'email',
     phonenumber: 'phoneNumber',
     nationalid: 'nationalId',
     description: 'description',
@@ -36,13 +35,11 @@ const getFormFieldFromBackendKey = (key: string): RenterFormField | undefined =>
 const validateFormData = (formData: {
     firstName: string;
     lastName: string;
-    email: string;
     phoneNumber: string;
     nationalId: string;
     description: string;
 }): FormErrors => {
     const errors: FormErrors = {};
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!formData.nationalId.trim()) {
         errors.nationalId = "National ID is required.";
@@ -54,12 +51,6 @@ const validateFormData = (formData: {
         errors.phoneNumber = "Phone number is required.";
     } else if (!/^\d{10}$/.test(formData.phoneNumber.trim())) {
         errors.phoneNumber = "Invalid phone number format.";
-    }
-
-    if (!formData.email.trim()) {
-        errors.email = "A valid email is required for the renter's account.";
-    } else if (!emailRegex.test(formData.email.trim())) {
-        errors.email = "A valid email is required for the renter's account.";
     }
 
     if (!formData.firstName.trim()) {
@@ -82,7 +73,6 @@ const CreateRenterModal = ({ isOpen, onClose, onRenterCreated }: CreateRenterMod
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
-        email: '',
         phoneNumber: '',
         nationalId: '',
         description: ''
@@ -102,7 +92,7 @@ const CreateRenterModal = ({ isOpen, onClose, onRenterCreated }: CreateRenterMod
     };
 
     const resetForm = () => {
-        setFormData({ firstName: '', lastName: '', email: '', phoneNumber: '', nationalId: '', description: '' });
+        setFormData({ firstName: '', lastName: '', phoneNumber: '', nationalId: '', description: '' });
         setFieldErrors({});
         setGeneralError('');
         setErrorStatus(null);
@@ -130,7 +120,6 @@ const CreateRenterModal = ({ isOpen, onClose, onRenterCreated }: CreateRenterMod
                 ...formData,
                 firstName: formData.firstName.trim(),
                 lastName: formData.lastName.trim(),
-                email: formData.email.trim(),
                 phoneNumber: formData.phoneNumber.trim(),
                 nationalId: formData.nationalId.trim(),
                 description: formData.description.trim(),
@@ -275,25 +264,6 @@ const CreateRenterModal = ({ isOpen, onClose, onRenterCreated }: CreateRenterMod
                             </div>
                             {fieldErrors.phoneNumber && <p className="text-[11px] text-red-600 ml-1">{fieldErrors.phoneNumber}</p>}
                         </div>
-                    </div>
-
-                    {/* Email */}
-                    <div className="space-y-1">
-                        <label className="text-xs font-bold text-gray-500 uppercase ml-1">Email Address</label>
-                        <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                            <input
-                                type="email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                className={`w-full pl-10 pr-4 py-2.5 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-gray-900 outline-none transition-all ${
-                                    fieldErrors.email ? 'border-red-500' : 'border-gray-200'
-                                }`}
-                                placeholder="ahmad@example.com"
-                            />
-                        </div>
-                        {fieldErrors.email && <p className="text-[11px] text-red-600 ml-1">{fieldErrors.email}</p>}
                     </div>
 
                     {/* Description/Notes */}

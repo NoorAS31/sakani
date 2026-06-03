@@ -8,14 +8,12 @@ export interface Renter {
     description?: string;
     firstName: string;
     lastName: string;
-    email?: string;
     contracts?: Contract[];
 }
 
 export interface CreateRenterDto {
     firstName: string;
     lastName: string;
-    email: string;
     phoneNumber: string;
     nationalId: string;
     description: string;
