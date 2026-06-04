@@ -152,7 +152,7 @@ const DashboardPage = () => {
                             <span className="text-[9px] sm:text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 px-2 py-0.5 sm:py-1 rounded whitespace-nowrap">Outflow</span>
                         </div>
                         <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Total Expenses</p>
-                        <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mt-1 sm:mt-2">${(accountingStats?.expensesMonth ?? 0).toLocaleString()}</p>
+                        <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mt-1 sm:mt-2">SS{(accountingStats?.expensesMonth ?? 0).toLocaleString()}</p>
                         <p className="text-[9px] sm:text-xs text-gray-500 dark:text-gray-500 mt-1 sm:mt-2">Operating expenses</p>
                     </div>
 
