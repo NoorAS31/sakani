@@ -44,7 +44,7 @@ const UpdateExpenseModal = ({ isOpen, onClose, expense, onExpenseUpdated }: Upda
         return null;
     }
 
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!formData.amount || Number(formData.amount) <= 0) {
             return;

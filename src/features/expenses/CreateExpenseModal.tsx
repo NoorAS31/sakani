@@ -56,7 +56,7 @@ const CreateExpenseModal = ({ isOpen, onClose, properties, onExpenseCreated }: C
         return null;
     }
 
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!formData.propertyId || !formData.amount || Number(formData.amount) <= 0) {
             return;

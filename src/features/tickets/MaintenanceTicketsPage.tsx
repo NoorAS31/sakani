@@ -9,7 +9,6 @@ import { storage } from '../../utils/storage';
 import type { MaintenanceTicket, MaintenanceTicketStatusType } from '../../types/maintenanceTicket';
 import { MaintenanceTicketStatus } from '../../types/maintenanceTicket';
 import type { Unit } from '../../types/unit';
-import SkeletonLoader from '../../components/common/SkeletonLoader';
 import ImageGalleryModal from '../../components/common/ImageGalleryModal';
 
 const MaintenanceTicketsPage = () => {
@@ -163,11 +162,7 @@ const MaintenanceTicketsPage = () => {
                 </div>
 
                 {/* Tickets List */}
-                {loading ? (
-                    <div className="space-y-3 sm:space-y-4 card-fade-in-3">
-                        <SkeletonLoader count={5} height="h-20 sm:h-24" />
-                    </div>
-                ) : filteredTickets.length === 0 ? (
+                {filteredTickets.length === 0 ? (
                     <div className="text-center py-12 sm:py-16 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 card-fade-in-3">
                         <AlertCircle className="mx-auto mb-3 sm:mb-4 text-gray-400" size={40} />
                         <p className="text-sm sm:text-lg font-medium text-gray-600 dark:text-gray-400">No maintenance tickets found</p>

@@ -2,7 +2,9 @@ import axios from 'axios';
 import { storage } from '../utils/storage';
 
 const apiClient = axios.create({
-    baseURL: 'https://sakani-api.duckdns.org/api',
+    // Use Vite dev server proxy during local development.
+    // The proxy forwards `/api` to the backend at https://localhost:7176
+    baseURL: '/api',
     headers: {
         'Content-Type': 'application/json',
     },

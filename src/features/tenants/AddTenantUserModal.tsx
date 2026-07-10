@@ -73,7 +73,7 @@ const AddTenantUserModal = ({ isOpen, onClose, onSuccess, tenant }: AddTenantUse
         onClose();
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
         const validationErrors = validateFormData(formData);
         
