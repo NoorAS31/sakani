@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useState } from 'react';
 import { Building2, Plus, X } from 'lucide-react';
 import axios from 'axios';
 import { expenseService } from '../../services/expenseService.ts';

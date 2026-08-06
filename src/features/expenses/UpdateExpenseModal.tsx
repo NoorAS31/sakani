@@ -1,4 +1,4 @@
-import { useState, useEffect, type FormEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { Edit3, X } from 'lucide-react';
 import { expenseService } from '../../services/expenseService';
 import { ExpenseType, type ExpenseCategory } from '../../types/expense';

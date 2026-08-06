@@ -16,7 +16,7 @@ const MaintenanceTicketsPage = () => {
     const navigate = useNavigate();
     const [tickets, setTickets] = useState<MaintenanceTicket[]>([]);
     const [units, setUnits] = useState<Unit[]>([]);
-    const [loading, setLoading] = useState(true);
+   // const [loading, setLoading] = useState(true);
     const [selectedTicket, setSelectedTicket] = useState<MaintenanceTicket | null>(null);
     const [showImageModal, setShowImageModal] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -25,7 +25,7 @@ const MaintenanceTicketsPage = () => {
 
     const loadTickets = useCallback(async () => {
         try {
-            setLoading(true);
+           // setLoading(true);
             const [unitData, ticketData] = await Promise.all([
                 unitService.getAll(),
                 MaintenanceTicketService.getAll()
@@ -40,7 +40,7 @@ const MaintenanceTicketsPage = () => {
                 console.error('Failed to load tickets:', err);
             }
         } finally {
-            setLoading(false);
+            // setLoading(false);
         }
     }, []);
 
