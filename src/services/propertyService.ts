@@ -1,46 +1,52 @@
-import apiClient from '../api/apiClient';
+﻿import apiClient, { parseAxiosError, ApiError } from '../api/apiClient';
 import type { Property } from '../types/property';
-
-const handleApiError = (error: unknown): string => {
-    if (error instanceof Error) {
-        return error.message;
-    }
-    return 'An unexpected error occurred';
-};
 
 export const propertyService = {
 
     getAll: async (): Promise<Property[]> => {
         try {
             const response = await apiClient.get<Property[]>('/Properties');
-            return response.data;
+            return response.data ?? [];
         } catch (error) {
-            throw new Error(handleApiError(error));
+            const parsed = parseAxiosError(error);
+            // Do not mask 404s for collections - let caller handle unexpected statuses
+            throw new ApiError(parsed.message, parsed.status, parsed.validation);
         }
     },
+
 
     create: async (dto: unknown): Promise<string> => {
         try {
-            const response = await apiClient.post<string>('/Properties', dto);
-            return response.data;
+            const response = await apiClient.post('/Properties', dto);
+            const data: unknown = response.data;
+            if (typeof data === 'string') return data;
+            if (data && typeof data === 'object' && ('id' in data)) return String(data.id);
+            // Fallback - return whatever was returned as string
+            return String(data ?? '');
         } catch (error) {
-            throw new Error(handleApiError(error));
+            const parsed = parseAxiosError(error);
+            throw new ApiError(parsed.message, parsed.status, parsed.validation);
         }
     },
 
+
     update: async (id: string, dto: unknown): Promise<void> => {
         try {
+            // Expecting 204 No Content on success
             await apiClient.put(`/Properties/${id}`, dto);
         } catch (error) {
-            throw new Error(handleApiError(error));
+            const parsed = parseAxiosError(error);
+            throw new ApiError(parsed.message, parsed.status, parsed.validation);
         }
     },
 
     delete: async (id: string): Promise<void> => {
         try {
+            // Expecting 204 No Content on success
             await apiClient.delete(`/Properties/${id}`);
         } catch (error) {
-            throw new Error(handleApiError(error));
+            const parsed = parseAxiosError(error);
+            throw new ApiError(parsed.message, parsed.status, parsed.validation);
         }
     }
 };

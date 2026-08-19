@@ -33,7 +33,7 @@ export const storage = {
     isTenant: () => normalizeRole(getStorage().getItem(KEYS.ROLE)) === 'tenant',
     isRenter: () => normalizeRole(getStorage().getItem(KEYS.ROLE)) === 'renter',
 
-    setLoginData: (data: any, remember: boolean) => {
+    setLoginData: (data: { token: string; role: string; tenantId?: string; tenantName?: string; userId?: string }, remember: boolean) => {
         Object.values(KEYS).forEach((key) => {
             localStorage.removeItem(key);
             sessionStorage.removeItem(key);
@@ -41,8 +41,8 @@ export const storage = {
         const engine = remember ? localStorage : sessionStorage;
         engine.setItem(KEYS.TOKEN, data.token);
         engine.setItem(KEYS.ROLE, data.role);
-        engine.setItem(KEYS.TENANT_ID, data.tenantId);
-        engine.setItem(KEYS.USER_ID, data.userId);
+        if (data.tenantId) engine.setItem(KEYS.TENANT_ID, data.tenantId);
+        if (data.userId) engine.setItem(KEYS.USER_ID, data.userId);
         if (data.tenantName) engine.setItem(KEYS.TENANT_NAME, data.tenantName);
     },
 

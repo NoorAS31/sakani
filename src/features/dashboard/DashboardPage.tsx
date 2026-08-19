@@ -40,13 +40,14 @@ const DashboardPage = () => {
                 })
                 .catch((err) => {
                     // Handle 403 permission errors gracefully
-                    if (err.response?.status === 403) {
-                        setHasAccountingAccess(false);
-                        return null;
-                    }
-                    console.error("Failed to fetch accounting stats", err);
-                    return null;
-                });
+                                    const status = (err as any)?.status ?? (err as any)?.response?.status;
+                                    if (status === 403) {
+                                        setHasAccountingAccess(false);
+                                        return null;
+                                    }
+                                    console.error("Failed to fetch accounting stats", err);
+                                    return null;
+                                });
 
             try {
                 const [props, allContracts, stats] = await Promise.all([

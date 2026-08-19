@@ -57,11 +57,19 @@ const PaymentPageForRenter = () => {
         setSelectedPaymentId('');
     };
 
+    const getFieldFromPayment = <T extends string | number | undefined>(paymentObj: PaymentHistoryResponseDto | Record<string, unknown>, keys: string[]): T | undefined => {
+        const obj = paymentObj as unknown as Record<string, unknown>;
+        for (const k of keys) {
+            const v = obj[k];
+            if (v !== undefined && v !== null) return v as T;
+        }
+        return undefined;
+    };
+
     const handlePaymentSuccess = async () => {
         if (!selectedPaymentId) return;
         setPayments(prev => prev.map(payment => {
-            const p = payment as any;
-            const currentId = p.paymentId || p.PaymentId || p.id;
+            const currentId = getFieldFromPayment<string>(payment, ['paymentId', 'PaymentId', 'id']) ?? '';
             return currentId === selectedPaymentId
                 ? { ...payment, paymentStatus: 2, paymentDate: new Date().toISOString() }
                 : payment;
@@ -104,11 +112,11 @@ const PaymentPageForRenter = () => {
     const paidPayments = sortedPayments.filter(p => p.paymentStatus === 2);
 
     const renderPayment = (payment: PaymentHistoryResponseDto, index: number) => {
-        const p = payment as any;
-        const actualPaymentId = p.paymentId || p.PaymentId || p.id;
+            const actualPaymentId = (getFieldFromPayment<string>(payment, ['paymentId', 'PaymentId', 'id']) ?? String(index));
         const paymentStatus = getPaymentStatusConfig(payment.paymentStatus);
         const StatusIcon = paymentStatus.icon;
         const canPay = payment.paymentStatus === 1 || payment.paymentStatus === 3;
+        const unitNo = (getFieldFromPayment<string>(payment, ['unitNo', 'UnitNo']) ?? '');
 
          return (
             <div key={actualPaymentId || index} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
@@ -119,7 +127,7 @@ const PaymentPageForRenter = () => {
                         </div>
                         <div>
                             <div className="font-bold text-gray-800 text-xs sm:text-sm">
-                                Payment Due {p.unitNo || p.UnitNo ? `- Unit ${p.unitNo || p.UnitNo}` : ''}
+                                Payment Due {unitNo ? `- Unit ${unitNo}` : ''}
                             </div>
                             <div className="text-[10px] sm:text-xs text-gray-500 font-medium">
                                 {formatDate(payment.dueDate)}

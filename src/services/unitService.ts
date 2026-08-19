@@ -1,39 +1,38 @@
-import apiClient from '../api/apiClient';
+﻿import apiClient, { parseAxiosError, ApiError } from '../api/apiClient';
 import type { Unit } from '../types/unit';
-
-const handleApiError = (error: unknown): string => {
-    if (error instanceof Error) {
-        return error.message;
-    }
-    return 'An unexpected error occurred';
-};
 
 export const unitService = {
     getAll: async (): Promise<Unit[]> => {
         try {
             const response = await apiClient.get<Unit[]>('/units');
-            return response.data;
+            return response.data ?? [];
         } catch (error) {
-            throw new Error(handleApiError(error));
+            const parsed = parseAxiosError(error);
+            throw new ApiError(parsed.message, parsed.status, parsed.validation);
         }
     },
 
     getByPropertyId: async (propertyId: string): Promise<Unit[]> => {
-        // eslint-disable-next-line no-useless-catch
         try {
             const response = await apiClient.get<Unit[]>(`/units/property/${propertyId}`);
-            return response.data;
+            return response.data ?? [];
         } catch (error) {
-            throw error;
+            const parsed = parseAxiosError(error);
+            throw new ApiError(parsed.message, parsed.status, parsed.validation);
         }
     },
 
+
     create: async (dto: unknown): Promise<string> => {
         try {
-            const response = await apiClient.post<string>('/units', dto);
-            return response.data;
+            const response = await apiClient.post('/units', dto);
+            const data: unknown = response.data;
+            if (typeof data === 'string') return data;
+            if (data && typeof data === 'object' && ('id' in data)) return String(data.id);
+            return String(data ?? '');
         } catch (error) {
-            throw new Error(handleApiError(error));
+            const parsed = parseAxiosError(error);
+            throw new ApiError(parsed.message, parsed.status, parsed.validation);
         }
     },
 
@@ -41,7 +40,8 @@ export const unitService = {
         try {
             await apiClient.put(`/Units/${id}`, dto);
         } catch (error) {
-            throw new Error(handleApiError(error));
+            const parsed = parseAxiosError(error);
+            throw new ApiError(parsed.message, parsed.status, parsed.validation);
         }
     },
 
@@ -49,7 +49,8 @@ export const unitService = {
         try {
             await apiClient.delete(`/units/${id}`);
         } catch (error) {
-            throw new Error(handleApiError(error));
+            const parsed = parseAxiosError(error);
+            throw new ApiError(parsed.message, parsed.status, parsed.validation);
         }
     }
 };

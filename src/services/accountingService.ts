@@ -1,4 +1,4 @@
-import apiClient from '../api/apiClient';
+﻿import apiClient, { parseAxiosError, ApiError } from '../api/apiClient';
 import type { AxiosRequestConfig } from 'axios';
 import type {
     ExpectedPayment,
@@ -7,13 +7,6 @@ import type {
     PaymentHistoryResponseDto,
     PaymentFilterType
 } from '../types/accounting';
-
-const handleApiError = (error: unknown): string => {
-    if (error instanceof Error) {
-        return error.message;
-    }
-    return 'An unexpected error occurred';
-};
 
 export const accountingService = {
     getExpected: async (startDate?: string, endDate?: string): Promise<ExpectedPayment[]> => {
@@ -24,11 +17,13 @@ export const accountingService = {
                     ...(endDate ? { endDate } : {}),
                 }
             });
-            return response.data;
+            return response.data ?? [];
         } catch (error) {
-            throw new Error(handleApiError(error));
+            const parsed = parseAxiosError(error);
+            throw new ApiError(parsed.message, parsed.status, parsed.validation);
         }
     },
+
 
     getOverdue: async (startDate?: string, endDate?: string): Promise<OverduePayment[]> => {
         try {
@@ -38,9 +33,10 @@ export const accountingService = {
                     ...(endDate ? { endDate } : {}),
                 }
             });
-            return response.data;
+            return response.data ?? [];
         } catch (error) {
-            throw new Error(handleApiError(error));
+            const parsed = parseAxiosError(error);
+            throw new ApiError(parsed.message, parsed.status, parsed.validation);
         }
     },
 
@@ -52,9 +48,10 @@ export const accountingService = {
                     endDate,
                 }
             });
-            return response.data;
+            return response.data ?? 0;
         } catch (error) {
-            throw new Error(handleApiError(error));
+            const parsed = parseAxiosError(error);
+            throw new ApiError(parsed.message, parsed.status, parsed.validation);
         }
     },
 
@@ -64,7 +61,7 @@ export const accountingService = {
         startDate?: string,
         endDate?: string,
         rangeMonths?: number
-    ): Promise<AccountingStats> => {
+    ): Promise<AccountingStats | null> => {
         try {
             const now = new Date();
             const response = await apiClient.get<AccountingStats>('/Accounting/Stats', {
@@ -76,9 +73,10 @@ export const accountingService = {
                     ...(rangeMonths ? { rangeMonths } : {}),
                 }
             });
-            return response.data;
+            return response.data ?? null;
         } catch (error) {
-            throw new Error(handleApiError(error));
+            const parsed = parseAxiosError(error);
+            throw new ApiError(parsed.message, parsed.status, parsed.validation);
         }
     },
 
@@ -91,9 +89,10 @@ export const accountingService = {
                 ...config,
                 params: { filter, ...(config?.params ? config.params : {}) }
             });
-            return response.data;
+            return response.data ?? [];
         } catch (error) {
-            throw new Error(handleApiError(error));
+            const parsed = parseAxiosError(error);
+            throw new ApiError(parsed.message, parsed.status, parsed.validation);
         }
     }
 };

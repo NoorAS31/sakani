@@ -34,8 +34,13 @@ function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(() => !!storage.getToken());
     const [isSidebarOpen, setIsSidebarOpen] = useState(() => !isMobile);
 
+    // Sync sidebar open state with device type. This setState is intentional and safe here.
     useEffect(() => {
-        setIsSidebarOpen(!isMobile);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setIsSidebarOpen(prev => {
+            const desired = !isMobile;
+            return prev === desired ? prev : desired;
+        });
     }, [isMobile]);
 
     const handleLogout = () => {
