@@ -45,7 +45,7 @@ export const parseAxiosError = (error: unknown) => {
 
     const axiosErr = error as AxiosError<unknown>;
     const status = axiosErr.response?.status;
-    const data = axiosErr.response?.data as unknown;
+    const data = axiosErr.response?.data as any;
 
     let validation: string[] | undefined = undefined;
     if (data) {
